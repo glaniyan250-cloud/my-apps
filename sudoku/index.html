@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sudoku</title>
+<title>Sudoku — Solo & Race</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
   :root{
     --navy:#1A2D4F; --cream:#F5F0E8; --gold:#C9A227;
@@ -17,22 +19,27 @@
     background:var(--cream); color:var(--ink);
     display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:20px 12px 40px;
   }
-  h1{color:var(--navy); letter-spacing:2px; margin:6px 0 2px; font-size:28px;}
-  .tag{color:var(--muted); font-size:13px; margin-bottom:14px;}
+  h1{color:var(--navy); letter-spacing:2px; margin:6px 0 2px; font-size:28px; text-align:center;}
+  .tag{color:var(--muted); font-size:13px; margin-bottom:14px; text-align:center; max-width:420px;}
+  .screen{display:none; flex-direction:column; align-items:center; width:100%;}
+  .screen.on{display:flex;}
+  .bigbtn{background:var(--navy); color:var(--cream); border:0; border-radius:14px; padding:16px 28px;
+    font-size:18px; font-weight:700; cursor:pointer; margin:8px; min-width:min(80vw,300px);}
+  .bigbtn.gold{background:var(--gold); color:var(--navy);}
+  .btn{background:var(--navy); color:var(--cream); border:0; border-radius:10px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
+  .btn.ghost{background:transparent; color:var(--navy); border:2px solid var(--navy);}
+  .btn:disabled{opacity:.45; cursor:default;}
   .controls{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; align-items:center;}
   .seg{display:flex; border:2px solid var(--navy); border-radius:10px; overflow:hidden;}
   .seg button{border:0; background:transparent; color:var(--navy); padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
   .seg button.active{background:var(--navy); color:var(--cream);}
-  .btn{background:var(--navy); color:var(--cream); border:0; border-radius:10px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
-  .btn.ghost{background:transparent; color:var(--navy); border:2px solid var(--navy);}
-  .btn:disabled{opacity:.45; cursor:default;}
-  .stats{display:flex; gap:18px; margin-bottom:10px; font-size:14px; color:var(--navy); font-weight:600;}
+  .stats{display:flex; gap:18px; margin-bottom:10px; font-size:14px; color:var(--navy); font-weight:600; flex-wrap:wrap; justify-content:center;}
   .stats span b{font-variant-numeric:tabular-nums;}
   #board{display:grid; grid-template-columns:repeat(9,1fr); width:min(92vw,440px); aspect-ratio:1;
     border:3px solid var(--navy); border-radius:6px; overflow:hidden; background:#fff; touch-action:manipulation;}
+  #board.paused{opacity:.25; pointer-events:none;}
   .cell{display:flex; align-items:center; justify-content:center; font-size:clamp(18px,5vw,30px); font-weight:600;
     border-right:1px solid var(--line); border-bottom:1px solid var(--line); cursor:pointer; position:relative; user-select:none;}
-  #board.paused{opacity:.25; pointer-events:none;}
   .cell:nth-child(9n){border-right:0;}
   .cell:nth-child(n+73){border-bottom:0;}
   .cell.b3{border-right:2px solid var(--boxline);}
@@ -51,61 +58,152 @@
   .pad button:active{background:var(--rel);}
   .pad .util{font-size:13px; font-weight:600;}
   .pad .util.on{background:var(--navy); color:var(--cream); border-color:var(--navy);}
-  #msg{min-height:22px; margin-top:10px; font-weight:600; color:var(--navy);}
-  .kbd-hint{color:var(--muted); font-size:12px; margin-top:6px;}
+  #msg{min-height:22px; margin-top:10px; font-weight:600; color:var(--navy); text-align:center; max-width:440px;}
+  .kbd-hint{color:var(--muted); font-size:12px; margin-top:6px; text-align:center;}
+  /* race */
+  #racebar{width:min(92vw,440px); background:#fff; border:2px solid var(--navy); border-radius:12px;
+    padding:10px 14px; margin-bottom:12px; display:none;}
+  #racebar.on{display:block;}
+  #racebar .row{display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:600; color:var(--navy);}
+  #roomcode{font-size:20px; letter-spacing:4px; font-weight:800; color:var(--navy);}
+  #lb{margin-top:8px; max-height:150px; overflow-y:auto;}
+  .lbrow{display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 0;}
+  .lbrow .nm{width:88px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600;}
+  .lbrow .bar{flex:1; height:8px; background:var(--rel); border-radius:4px; overflow:hidden;}
+  .lbrow .fill{height:100%; background:var(--gold); border-radius:4px; transition:width .3s;}
+  .lbrow.done .fill{background:var(--ok);}
+  .lbrow .pc{width:38px; text-align:right; font-variant-numeric:tabular-nums; color:var(--muted);}
+  .lbrow.me .nm{color:var(--navy); text-decoration:underline;}
+  .card{background:#fff; border-radius:14px; padding:20px; width:min(92vw,400px); margin:8px 0;
+    border:2px solid var(--line); text-align:center;}
+  .card input{width:100%; padding:12px; font-size:16px; border:2px solid var(--line); border-radius:10px;
+    margin:8px 0; text-align:center; letter-spacing:2px; text-transform:uppercase;}
+  .card input.name{text-transform:none; letter-spacing:0;}
+  .plink{font-size:12px; color:var(--muted); word-break:break-all; margin:8px 0;}
+  #lobbyList{text-align:left; margin:10px 0;}
+  #lobbyList .prow{padding:6px 0; font-weight:600; border-bottom:1px solid var(--rel); font-size:14px;}
+  .crown{color:var(--gold);}
+  .setup ol{text-align:left; font-size:13.5px; color:var(--ink); padding-left:20px;}
+  .setup code{background:var(--rel); padding:1px 5px; border-radius:4px; font-size:12px;}
 </style>
 </head>
 <body>
-<h1>SUDOKU</h1>
-<div class="tag">Every row, column and 3&times;3 box holds 1&ndash;9 exactly once.</div>
 
-<div class="controls">
-  <div class="seg" id="diffSeg">
-    <button data-d="easy" class="active">Easy</button>
-    <button data-d="medium">Medium</button>
-    <button data-d="hard">Hard</button>
+<!-- HOME -->
+<div class="screen on" id="s_home">
+  <h1>SUDOKU</h1>
+  <div class="tag">Every row, column and 3&times;3 box holds 1&ndash;9 exactly once.</div>
+  <button class="bigbtn" id="btnSolo">Play solo</button>
+  <button class="bigbtn gold" id="btnRace">Race friends</button>
+  <div class="tag">Race: share a link, same puzzle for everyone,<br>first to finish wins. Up to 10 players.</div>
+</div>
+
+<!-- RACE SETUP -->
+<div class="screen" id="s_race">
+  <h1>RACE</h1>
+  <div class="card" id="raceSetup">
+    <div class="tag">Your display name</div>
+    <input class="name" id="raceName" maxlength="16" placeholder="e.g. Dammy">
+    <div class="seg" id="raceDiff" style="margin:8px auto; width:fit-content;">
+      <button data-d="easy" class="active">Easy</button>
+      <button data-d="medium">Medium</button>
+      <button data-d="hard">Hard</button>
+    </div>
+    <button class="bigbtn gold" id="btnCreate" style="min-width:0; width:100%;">Create room</button>
+    <div class="tag" style="margin:12px 0 4px;">— or join with a code —</div>
+    <input id="joinCode" maxlength="6" placeholder="ABC123">
+    <button class="btn ghost" id="btnJoin" style="width:100%;">Join room</button>
+    <div class="tag"><br><a href="#" id="backHome1" style="color:var(--navy);">← back</a></div>
   </div>
-  <button class="btn ghost" id="pauseBtn">Pause</button>
-  <button class="btn" id="newBtn">New game</button>
+  <div class="card setup" id="fbSetup" style="display:none;">
+    <p style="font-weight:700; color:var(--navy);">Race mode needs one free setup</p>
+    <ol>
+      <li>Go to <b>console.firebase.google.com</b> and create a project (free).</li>
+      <li>Build → <b>Realtime Database</b> → Create database.</li>
+      <li>Project settings → add a <b>Web app</b> → copy the <code>firebaseConfig</code>.</li>
+      <li>Paste it into this file where marked <code>FIREBASE CONFIG</code> and re-upload.</li>
+    </ol>
+    <div class="tag"><a href="#" id="backHome2" style="color:var(--navy);">← back</a></div>
+  </div>
 </div>
 
-<div class="stats">
-  <span>Time <b id="time">0:00</b></span>
-  <span>Mistakes <b id="mist">0/3</b></span>
-  <span>Hints <b id="hints">3</b></span>
+<!-- LOBBY -->
+<div class="screen" id="s_lobby">
+  <h1>LOBBY</h1>
+  <div class="card">
+    <div class="tag">Room code — share this link</div>
+    <div id="roomcode">------</div>
+    <div class="plink" id="roomlink"></div>
+    <button class="btn" id="btnCopy">Copy invite link</button>
+    <div id="lobbyList"></div>
+    <div class="tag" id="lobbyMsg">Waiting for players…</div>
+    <button class="bigbtn gold" id="btnStart" style="min-width:0; width:100%; display:none;">Start race</button>
+    <div class="tag"><a href="#" id="leaveLobby" style="color:var(--navy);">Leave room</a></div>
+  </div>
 </div>
 
-<div id="board"></div>
-<div id="msg"></div>
-
-<div class="pad" id="pad"></div>
-<div class="kbd-hint">Tap a cell, then a number &middot; pencil notes in Notes mode &middot; keyboard: 1&ndash;9, Backspace, arrow keys</div>
+<!-- GAME -->
+<div class="screen" id="s_game">
+  <div id="racebar">
+    <div class="row"><span>ROOM <b id="rbCode"></b></span><span><b id="rbTime">0:00</b></span>
+      <button class="btn ghost" id="btnLeaveRace" style="padding:4px 10px; font-size:12px;">Leave</button></div>
+    <div id="lb"></div>
+  </div>
+  <div class="controls" id="soloControls">
+    <div class="seg" id="diffSeg">
+      <button data-d="easy" class="active">Easy</button>
+      <button data-d="medium">Medium</button>
+      <button data-d="hard">Hard</button>
+    </div>
+    <button class="btn ghost" id="pauseBtn">Pause</button>
+    <button class="btn" id="newBtn">New game</button>
+  </div>
+  <div class="stats">
+    <span>Time <b id="time">0:00</b></span>
+    <span id="mistWrap">Mistakes <b id="mist">0/3</b></span>
+    <span id="hintWrap">Hints <b id="hints">3</b></span>
+  </div>
+  <div id="board"></div>
+  <div id="msg"></div>
+  <div class="pad" id="pad"></div>
+  <div class="kbd-hint">Tap a cell, then a number &middot; Notes mode for pencil marks &middot; keys: 1&ndash;9, Backspace, arrows</div>
+</div>
 
 <script>
 "use strict";
+/* ================= FIREBASE CONFIG =================
+   Paste your web app's firebaseConfig here to enable Race mode.
+   Leave as-is and Race will show setup instructions. */
+const FIREBASE_CONFIG = { apiKey: "PASTE_YOUR_CONFIG_HERE" };
+/* =================================================== */
+
+const $=id=>document.getElementById(id);
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); $(id).classList.add('on'); }
+
+/* ---------- seeded RNG ---------- */
+function xfnv1a(str){ let h=2166136261>>>0; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function rngFromSeed(seed){ return mulberry32(xfnv1a(String(seed))); }
+
 /* ---------- Sudoku core ---------- */
-const DIFF = {easy:44, medium:34, hard:27}; // givens
-let solution, puzzle, sel=null, notesMode=false, paused=false;
-let mistakes=0, hintsLeft=3, timer=0, timerId=null, locked=false, hintUsed=false;
-
-function shuffled(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+const DIFF={easy:44, medium:34, hard:27};
+function shuffled(a,rand){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function empty(){ return Array.from({length:9},()=>Array(9).fill(0)); }
-
-function fill(g){
-  for(let r=0;r<9;r++) for(let c=0;c<9;c++){
-    if(g[r][c]===0){
-      for(const n of shuffled([1,2,3,4,5,6,7,8,9])){
-        if(ok(g,r,c,n)){ g[r][c]=n; if(fill(g)) return true; g[r][c]=0; }
-      }
-      return false;
-    }
-  }
-  return true;
-}
 function ok(g,r,c,n){
   for(let i=0;i<9;i++){ if(g[r][i]===n||g[i][c]===n) return false; }
   const br=r-r%3, bc=c-c%3;
   for(let i=0;i<3;i++) for(let j=0;j<3;j++) if(g[br+i][bc+j]===n) return false;
+  return true;
+}
+function fill(g,rand){
+  for(let r=0;r<9;r++) for(let c=0;c<9;c++){
+    if(g[r][c]===0){
+      for(const n of shuffled([1,2,3,4,5,6,7,8,9],rand)){
+        if(ok(g,r,c,n)){ g[r][c]=n; if(fill(g,rand)) return true; g[r][c]=0; }
+      }
+      return false;
+    }
+  }
   return true;
 }
 function countSol(g,limit){
@@ -122,26 +220,29 @@ function countSol(g,limit){
   })();
   return count;
 }
-function makePuzzle(level){
-  const full=empty(); fill(full);
+function makePuzzle(level,rand){
+  rand=rand||Math.random;
+  const full=empty(); fill(full,rand);
   const givens=DIFF[level];
   let p=full.map(r=>r.slice());
-  const cells=shuffled([...Array(81).keys()]);
-  let removed=0, target=81-givens;
+  const cells=shuffled([...Array(81).keys()],rand);
+  let removed=0; const target=81-givens;
   for(const k of cells){
     if(removed>=target) break;
     const r=(k/9)|0, c=k%9, backup=p[r][c];
     p[r][c]=0;
-    const t=p.map(rw=>rw.slice());
-    if(countSol(t,2)!==1) p[r][c]=backup; else removed++;
+    if(countSol(p.map(rw=>rw.slice()),2)!==1) p[r][c]=backup; else removed++;
   }
   return {puzzle:p, solution:full};
 }
 
-/* ---------- UI ---------- */
-const board=document.getElementById('board');
-const msg=document.getElementById('msg');
-const cells=[];
+/* ---------- game state ---------- */
+let solution, puzzle, given=[], notes=[], undoStack=[];
+let sel=null, notesMode=false, paused=false, locked=false;
+let mistakes=0, hintsLeft=3, timer=0, timerId=null;
+let mode='solo'; // 'solo' | 'race'
+const board=$('board'), msg=$('msg'), cells=[];
+
 for(let r=0;r<9;r++) for(let c=0;c<9;c++){
   const d=document.createElement('div');
   d.className='cell';
@@ -151,40 +252,31 @@ for(let r=0;r<9;r++) for(let c=0;c<9;c++){
   d.addEventListener('click',()=>select(r,c));
   board.appendChild(d); cells.push(d);
 }
-const pad=document.getElementById('pad');
-const numBtns=[];
+const pad=$('pad'), numBtns=[];
 for(let n=1;n<=9;n++){
   const b=document.createElement('button'); b.textContent=n;
   b.addEventListener('click',()=>enterNumber(n));
   pad.appendChild(b); numBtns.push(b);
 }
-[['erase','Erase','util'],['notes','Notes','util'],['hint','Hint','util'],['undo','Undo','util'],['restart','Restart','util']]
-.forEach(([id,label,cls])=>{
-  const b=document.createElement('button'); b.textContent=label; b.className=cls; b.id='u_'+id;
+[['erase','Erase'],['notes','Notes'],['hint','Hint'],['undo','Undo'],['restart','Restart']]
+.forEach(([id,label])=>{
+  const b=document.createElement('button'); b.textContent=label; b.className='util'; b.id='u_'+id;
   b.addEventListener('click',()=>util(id));
   pad.appendChild(b);
 });
+function freshNotes(){ return Array.from({length:9},()=>Array.from({length:9},()=>new Set())); }
 
-document.querySelectorAll('#diffSeg button').forEach(b=>
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('#diffSeg button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active'); newGame(b.dataset.d);
-  }));
-
-document.getElementById('newBtn').addEventListener('click',()=>newGame(currentDiff()));
-function currentDiff(){ return document.querySelector('#diffSeg button.active').dataset.d; }
-
-function newGame(diff){
-  const {puzzle:pk,solution:so}=makePuzzle(diff);
-  puzzle=pk; solution=so; sel=null; notesMode=false; locked=false;
+function newGame(diff,seed){
+  const {puzzle:pk,solution:so}=makePuzzle(diff, seed!=null?rngFromSeed(seed):null);
+  puzzle=pk; solution=so; sel=null; notesMode=false; locked=false; paused=false;
   given=pk.map(r=>r.map(v=>v!==0));
-  mistakes=0; hintsLeft=3; timer=0; hintUsed=false;
+  mistakes=0; hintsLeft=3; timer=0;
   undoStack=[]; notes=freshNotes();
-  document.getElementById('u_notes').classList.remove('on');
+  $('u_notes').classList.remove('on');
+  $('pauseBtn').textContent='Pause'; board.classList.remove('paused');
   msg.textContent='';
   render(); startTimer();
 }
-
 function render(){
   for(let r=0;r<9;r++) for(let c=0;c<9;c++){
     const d=cells[r*9+c], v=puzzle[r][c];
@@ -197,41 +289,18 @@ function render(){
       d.appendChild(nt);
     }
   }
-  updateCounts();
-  document.getElementById('mist').textContent=mistakes+'/3';
-  document.getElementById('hints').textContent=hintsLeft;
+  $('mist').textContent=mistakes+(mode==='solo'?'/3':'');
+  $('hints').textContent=hintsLeft;
 }
-let notes=[], undoStack=[], given=[];
-function freshNotes(){ return Array.from({length:9},()=>Array.from({length:9},()=>new Set())); }
-
+function fmt(t){ return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
 function startTimer(){
-  clearInterval(timerId); timer=0; paused=false;
-  document.getElementById('time').textContent='0:00';
-  document.getElementById('pauseBtn').textContent='Pause';
-  board.classList.remove('paused');
-  tick();
+  clearInterval(timerId); timer=0; $('time').textContent='0:00';
+  timerId=setInterval(()=>{ timer++; $('time').textContent=fmt(timer); },1000);
 }
-function tick(){
+function tickResume(){
   clearInterval(timerId);
-  timerId=setInterval(()=>{
-    timer++;
-    document.getElementById('time').textContent=
-      Math.floor(timer/60)+':'+String(timer%60).padStart(2,'0');
-  },1000);
+  timerId=setInterval(()=>{ timer++; $('time').textContent=fmt(timer); },1000);
 }
-document.getElementById('pauseBtn').addEventListener('click',()=>{
-  if(locked) return;
-  paused=!paused;
-  const b=document.getElementById('pauseBtn');
-  if(paused){
-    clearInterval(timerId); b.textContent='Resume';
-    board.classList.add('paused'); msg.textContent='Paused — timer stopped.';
-  } else {
-    tick(); b.textContent='Pause';
-    board.classList.remove('paused'); msg.textContent='';
-  }
-});
-
 function select(r,c){
   if(locked||paused) return;
   sel=(sel&&sel.r===r&&sel.c===c)?null:{r,c};
@@ -242,36 +311,42 @@ function highlight(){
     const d=cells[r*9+c];
     d.classList.remove('sel','rel','same');
     if(!sel) continue;
-    const v=selVal();
+    const v=sel?puzzle[sel.r][sel.c]:0;
     if(r===sel.r&&c===sel.c) d.classList.add('sel');
     else if(r===sel.r||c===sel.c||((r/3|0)===(sel.r/3|0)&&(c/3|0)===(sel.c/3|0))) d.classList.add('rel');
     if(v&&puzzle[r][c]===v) d.classList.add('same');
   }
 }
-function selVal(){ return sel?puzzle[sel.r][sel.c]:0; }
-
+function progress(){
+  let good=0;
+  for(let r=0;r<9;r++) for(let c=0;c<9;c++) if(puzzle[r][c]===solution[r][c]) good++;
+  return Math.round(good/81*100);
+}
 function enterNumber(n){
   if(!sel||locked||paused) return;
   const {r,c}=sel;
-  if(puzzle[r][c]) return;               // locked-in cells (given or correctly solved)
+  if(puzzle[r][c]) return;
   pushUndo();
   if(notesMode){
     if(notes[r][c].has(n)) notes[r][c].delete(n); else notes[r][c].add(n);
     render(); highlight(); return;
   }
   if(n===solution[r][c]){
-    puzzle[r][c]=n; notes[r][c].clear();
-    clearPeerNotes(r,c,n);
+    puzzle[r][c]=n; notes[r][c].clear(); clearPeerNotes(r,c,n);
     render(); highlight();
+    if(mode==='race') raceReport();
     if(isComplete()) win();
-    else { const nc=autoAdvance(r,c); if(nc){sel=nc; highlight();} }
+    else { const nc=autoAdvance(r,c); if(nc){ sel=nc; highlight(); } }
   } else {
     mistakes++;
     cells[r*9+c].classList.add('err');
-    setTimeout(()=>render()||highlight(),350);
+    setTimeout(()=>{ render(); highlight(); },350);
     render(); highlight();
-    document.getElementById('mist').textContent=mistakes+'/3';
-    if(mistakes>=3){ locked=true; clearInterval(timerId); msg.textContent='Game over — 3 mistakes. Start a new game to try again.'; }
+    if(mode==='race') raceReport();
+    else {
+      $('mist').textContent=mistakes+'/3';
+      if(mistakes>=3){ locked=true; clearInterval(timerId); msg.textContent='Game over — 3 mistakes. Start a new game to try again.'; }
+    }
   }
 }
 function clearPeerNotes(r,c,n){
@@ -287,45 +362,68 @@ function autoAdvance(r,c){
 function isComplete(){ for(let r=0;r<9;r++) for(let c=0;c<9;c++) if(puzzle[r][c]!==solution[r][c]) return false; return true; }
 function win(){
   locked=true; clearInterval(timerId);
-  const t=Math.floor(timer/60)+':'+String(timer%60).padStart(2,'0');
-  msg.textContent='Solved in '+t+' with '+mistakes+' mistake'+(mistakes===1?'':'s')+'!';
+  if(mode==='race'){ raceFinish(); }
+  else msg.textContent='Solved in '+fmt(timer)+' with '+mistakes+' mistake'+(mistakes===1?'':'s')+'!';
 }
-
 function util(id){
-  if(paused && id!=='restart'){ msg.textContent='Resume to play.'; return; }  if(id==='notes'){ notesMode=!notesMode; document.getElementById('u_notes').classList.toggle('on',notesMode); }
-  else if(id==='erase'){
-    if(!sel||locked) return;
-    const {r,c}=sel;
+  if(id==='notes'){ notesMode=!notesMode; $('u_notes').classList.toggle('on',notesMode); return; }
+  if(paused && id!=='restart'){ msg.textContent='Resume to play.'; return; }
+  if(!sel||locked) { if(id==='restart') newGame(currentDiff()); return; }
+  const {r,c}=sel;
+  if(id==='erase'){
     if(given[r][c]||puzzle[r][c]) return;
     pushUndo(); notes[r][c].clear(); render(); highlight();
   }
   else if(id==='hint'){
-    if(!sel||locked) return;
+    if(mode==='race'){ msg.textContent='No hints in a race — pure skill.'; return; }
     if(hintsLeft<=0){ msg.textContent='No hints left.'; return; }
-    const {r,c}=sel;
     if(puzzle[r][c]) return;
-    pushUndo(); hintsLeft--; hintUsed=true;
+    pushUndo(); hintsLeft--;
     puzzle[r][c]=solution[r][c]; notes[r][c].clear(); clearPeerNotes(r,c,solution[r][c]);
     render(); highlight();
     if(isComplete()) win();
   }
   else if(id==='undo'){
-    if(locked||!undoStack.length) return;
+    if(!undoStack.length) return;
     const s=undoStack.pop();
-    puzzle=s.p; notes=restoreNotes(s.n);
+    puzzle=s.p; notes=s.n.map(rw=>rw.map(x=>new Set(x)));
     mistakes=s.m; hintsLeft=s.h; sel=s.sel;
     render(); highlight();
+    if(mode==='race') raceReport();
   }
-  else if(id==='restart'){ newGame(currentDiff()); }
+  else if(id==='restart'){
+    if(mode==='race'){ raceRestart(); } else newGame(currentDiff());
+  }
 }
 function pushUndo(){ undoStack.push({p:puzzle.map(r=>r.slice()), n:notes.map(r=>r.map(s=>new Set(s))), m:mistakes, h:hintsLeft, sel:sel?{...sel}:null}); }
-function restoreNotes(n){ return n.map(r=>r.map(s=>new Set(s))); }
 
+document.querySelectorAll('#diffSeg button').forEach(b=>
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#diffSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); newGame(b.dataset.d);
+  }));
+document.querySelectorAll('#raceDiff button').forEach(b=>
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#raceDiff button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  }));
+function currentDiff(){ return document.querySelector('#diffSeg button.active').dataset.d; }
+function raceDiff(){ return document.querySelector('#raceDiff button.active').dataset.d; }
+
+$('newBtn').addEventListener('click',()=>newGame(currentDiff()));
+$('pauseBtn').addEventListener('click',()=>{
+  if(locked||mode!=='solo') return;
+  paused=!paused;
+  const b=$('pauseBtn');
+  if(paused){ clearInterval(timerId); b.textContent='Resume'; board.classList.add('paused'); msg.textContent='Paused — timer stopped.'; }
+  else { tickResume(); b.textContent='Pause'; board.classList.remove('paused'); msg.textContent=''; }
+});
 document.addEventListener('keydown',e=>{
+  if(!$('s_game').classList.contains('on')) return;
   if(e.key>='1'&&e.key<='9') enterNumber(+e.key);
   else if(e.key==='Backspace'||e.key==='Delete') util('erase');
   else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
-    if(!sel){sel={r:0,c:0};} else {
+    if(!sel){ sel={r:0,c:0}; } else {
       let {r,c}=sel;
       if(e.key==='ArrowUp') r=(r+8)%9; if(e.key==='ArrowDown') r=(r+1)%9;
       if(e.key==='ArrowLeft') c=(c+8)%9; if(e.key==='ArrowRight') c=(c+1)%9;
@@ -335,13 +433,185 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-function updateCounts(){
-  const rem=[0,0,0,0,0,0,0,0,0];
-  for(let r=0;r<9;r++) for(let c=0;c<9;c++) if(!puzzle[r][c]) rem[solution[r][c]-1]++;
+/* ---------- mode switching ---------- */
+$('btnSolo').addEventListener('click',()=>{ startSolo(); });
+$('btnRace').addEventListener('click',()=>{
+  if(!firebaseReady()){ $('raceSetup').style.display='none'; $('fbSetup').style.display='block'; }
+  else { $('raceSetup').style.display='block'; $('fbSetup').style.display='none'; }
+  show('s_race');
+});
+const backHome=e=>{ e.preventDefault(); show('s_home'); };
+$('backHome1').addEventListener('click',backHome);
+$('backHome2').addEventListener('click',backHome);
+
+function startSolo(){
+  mode='solo';
+  $('racebar').classList.remove('on');
+  $('soloControls').style.display='flex';
+  $('mistWrap').style.display=''; $('hintWrap').style.display='';
+  $('u_hint').style.display=''; $('pauseBtn').style.display='';
+  show('s_game');
+  newGame(currentDiff());
 }
 
+/* ================= RACE (Firebase) ================= */
+let db=null, race=null; // race: {code, pid, name, isHost, diff, players:{}, winner, offset}
+function firebaseReady(){
+  try{
+    if(FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('PASTE') && typeof firebase!=='undefined'){
+      if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+      db=firebase.database();
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+const CODE_CHARS='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+function makeCode(){ let s=''; const r=Math.random; for(let i=0;i<6;i++) s+=CODE_CHARS[Math.floor(r()*CODE_CHARS.length)]; return s; }
+function myName(){ return ($('raceName').value||'').trim().slice(0,16)||'Player'; }
+function roomRef(code){ return db.ref('rooms/'+code); }
+
+$('btnCreate').addEventListener('click',()=>{
+  const code=makeCode(), name=myName(), diff=raceDiff();
+  const pid='p'+Math.random().toString(36).slice(2,10);
+  roomRef(code).set({
+    diff, status:'lobby', createdAt:firebase.database.ServerValue.TIMESTAMP, winner:null,
+    players:{ [pid]:{ name, progress:0, mistakes:0, finished:false, finishTime:null, joinedAt:firebase.database.ServerValue.TIMESTAMP } }
+  }).then(()=>{
+    enterRace(code,pid,name,true,diff);
+  }).catch(()=>{ msg.textContent='Could not create room — check connection.'; });
+});
+$('btnJoin').addEventListener('click',()=>{
+  const code=($('joinCode').value||'').trim().toUpperCase();
+  if(code.length!==6){ $('joinCode').focus(); return; }
+  const name=myName(), pid='p'+Math.random().toString(36).slice(2,10);
+  roomRef(code).get().then(snap=>{
+    const room=snap.val();
+    if(!room){ alert('Room not found — check the code.'); return; }
+    const n=Object.keys(room.players||{}).length;
+    if(n>=10){ alert('Room is full (10 players max).'); return; }
+    if(room.status!=='lobby'){ alert('Race already started — ask the host for a new room.'); return; }
+    roomRef(code+'/players/'+pid).set({ name, progress:0, mistakes:0, finished:false, finishTime:null,
+      joinedAt:firebase.database.ServerValue.TIMESTAMP }).then(()=>enterRace(code,pid,name,false,room.diff));
+  });
+});
+function enterRace(code,pid,name,isHost,diff){
+  race={code,pid,name,isHost,diff,players:{},winner:null,startedAt:null,offset:0,finished:false};
+  $('roomcode').textContent=code;
+  const link=location.origin+location.pathname+'#race-'+code;
+  $('roomlink').textContent=link;
+  $('btnStart').style.display=isHost?'block':'none';
+  $('lobbyMsg').textContent=isHost?'Share the link, then start when everyone is in.':'Waiting for the host to start…';
+  const pr=db.ref('rooms/'+code);
+  pr.child('players').on('value',s=>{ race.players=s.val()||{}; renderLobby(); });
+  pr.child('status').on('value',s=>{ if(s.val()==='live') beginRace(); });
+  pr.child('winner').on('value',s=>{ race.winner=s.val(); if(race.winner&&mode==='race') showWinner(); });
+  db.ref('.info/serverTimeOffset').on('value',s=>{ race.offset=s.val()||0; });
+  const me=db.ref('rooms/'+code+'/players/'+pid);
+  me.onDisconnect().remove();
+  if(location.hash!=='#race-'+code) history.replaceState(null,'','#race-'+code);
+  show('s_lobby');
+}
+function renderLobby(){
+  const list=$('lobbyList'); list.innerHTML='';
+  const ps=Object.values(race.players);
+  ps.forEach(p=>{ const d=document.createElement('div'); d.className='prow'; d.textContent=p.name; list.appendChild(d); });
+  $('lobbyMsg').textContent = race.isHost
+    ? ps.length+' player'+(ps.length===1?'':'s')+' in — share the link, then start.'
+    : 'Waiting for the host to start… ('+ps.length+' in)';
+}
+$('btnCopy').addEventListener('click',()=>{
+  const link=$('roomlink').textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(link).then(()=>{$('btnCopy').textContent='Copied!'; setTimeout(()=>$('btnCopy').textContent='Copy invite link',1500);});
+  else prompt('Copy the invite link:',link);
+});
+function leaveRoom(){
+  if(!race) return;
+  db.ref('rooms/'+race.code).off();
+  db.ref('rooms/'+race.code+'/players/'+race.pid).remove().catch(()=>{});
+  race=null; history.replaceState(null,'',location.pathname);
+  show('s_home');
+}
+$('leaveLobby').addEventListener('click',e=>{ e.preventDefault(); leaveRoom(); });
+$('btnLeaveRace').addEventListener('click',leaveRoom);
+
+$('btnStart').addEventListener('click',()=>{
+  roomRef(race.code).update({ status:'live', startedAt:firebase.database.ServerValue.TIMESTAMP });
+});
+function beginRace(){
+  if(mode==='race') return;
+  mode='race';
+  db.ref('rooms/'+race.code+'/startedAt').get().then(s=>{ race.startedAt=s.val(); startRaceClock(); });
+  $('racebar').classList.add('on');
+  $('rbCode').textContent=race.code;
+  $('soloControls').style.display='none';
+  $('mistWrap').style.display=''; $('hintWrap').style.display='none';
+  $('u_hint').style.display='none'; $('pauseBtn').style.display='none';
+  show('s_game');
+  newGame(race.diff, 'race-'+race.code+'-'+race.diff); // identical puzzle for everyone
+  renderLB();
+  db.ref('rooms/'+race.code+'/players').on('value',s=>{ race.players=s.val()||{}; renderLB(); });
+}
+function startRaceClock(){
+  clearInterval(timerId);
+  const t0=race.startedAt;
+  timerId=setInterval(()=>{
+    const el=Math.max(0,Date.now()+race.offset-t0);
+    $('time').textContent=fmt(Math.floor(el/1000));
+    $('rbTime').textContent=fmt(Math.floor(el/1000));
+  },500);
+}
+function raceReport(){
+  if(!race||race.finished) return;
+  db.ref('rooms/'+race.code+'/players/'+race.pid).update({ progress:progress(), mistakes });
+}
+function raceFinish(){
+  if(!race||race.finished) return;
+  race.finished=true;
+  const el=Date.now()+race.offset-race.startedAt;
+  const me=db.ref('rooms/'+race.code+'/players/'+race.pid);
+  me.update({ progress:100, mistakes, finished:true, finishTime:el });
+  roomRef(race.code+'/winner').transaction(w=>w||{ name:race.name, time:el, pid:race.pid });
+}
+function raceRestart(){
+  msg.textContent='The host starts a new room for a rematch — leave and create one.';
+}
+function renderLB(){
+  const lb=$('lb'); lb.innerHTML='';
+  const arr=Object.entries(race.players).map(([pid,p])=>({pid,...p}));
+  arr.sort((a,b)=>{
+    if(a.finished&&b.finished) return a.finishTime-b.finishTime;
+    if(a.finished) return -1; if(b.finished) return 1;
+    return b.progress-a.progress;
+  });
+  arr.forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='lbrow'+(p.finished?' done':'')+(p.pid===race.pid?' me':'');
+    const medal=i===0&&p.finished?'<span class="crown">👑</span> ':'';
+    d.innerHTML='<span class="nm">'+medal+escapeHtml(p.name)+'</span>'+
+      '<span class="bar"><span class="fill" style="width:'+p.progress+'%"></span></span>'+
+      '<span class="pc">'+(p.finished?fmt(Math.floor(p.finishTime/1000)):p.progress+'%')+'</span>';
+    lb.appendChild(d);
+  });
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function showWinner(){
+  const w=race.winner;
+  if(w.pid===race.pid) msg.textContent='🏆 You win! '+fmt(Math.floor(w.time/1000));
+  else msg.textContent='🏆 '+w.name+' wins in '+fmt(Math.floor(w.time/1000))+' — keep going!';
+}
+/* deep link: open #race-CODE straight into join */
+(function(){
+  const m=location.hash.match(/^#race-([A-Z0-9]{6})$/i);
+  if(m && firebaseReady()){
+    $('joinCode').value=m[1].toUpperCase();
+    show('s_race');
+    setTimeout(()=>$('btnJoin').focus(),300);
+  }
+})();
+
 /* boot */
-newGame('easy');
+show('s_home');
 </script>
 </body>
 </html>
