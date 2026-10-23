@@ -248,14 +248,16 @@
       <section class="module" id="m1">
         <div class="mod-head"><div class="num">1</div><h2>Buy Filters</h2><span class="badge" data-badge></span></div>
         <div class="lesson">
-          <p>A business qualifies only if it clears <strong>all four filters</strong>. Fail one, and the deal stops — unless Group approves a written exception (Module 7).</p>
+          <p>A business qualifies only if it clears <strong>all five filters</strong>. Fail one, and the deal stops — unless Group approves a written exception (Module 7).</p>
           <p><strong>Cash is not EBITDA.</strong> Cash = revenue collected, minus all operating costs (including a market GM salary where the business is owner-run), minus tax, minus maintenance capex only — what keeps the business as it is, not growth. The result is free cash <em>before</em> acquisition debt.</p>
           <p><strong>The GM test:</strong> if the owner works for less than market pay, restate the numbers with a market GM salary before testing. A business that only clears 12% because the owner underpays himself does not clear 12%.</p>
-          <p><strong>Regular years only.</strong> A windfall contract or one-off boom is stripped out of the test and the price. The 3-year rule is flat — no longer tier for big deals.</p>
+          <p><strong>Track record — two separate tests.</strong> The <strong>3 years is the financial statements we check</strong> in diligence — the last 3 years of statements. It is <em>not</em> the company's age. Separately, the <strong>company itself must have been established for over 10 years</strong> — the longer, the better. A young company with 3 good statements does not pass.</p>
+          <p><strong>Regular years only.</strong> Within those 3 years of statements, a windfall contract or one-off boom is stripped out of the test and the price. The statements check is flat — no longer tier for big deals.</p>
         </div>
         <div class="keys">
           <div class="key"><span class="v">≥ 12%</span><span class="l">Cash margin, after GM cost</span></div>
-          <div class="key"><span class="v">3 years</span><span class="l">Proven cash flow — regular years</span></div>
+          <div class="key"><span class="v">3 years</span><span class="l">Financial statements checked — regular years only</span></div>
+          <div class="key"><span class="v">10+ years</span><span class="l">Company established — longer is better</span></div>
           <div class="key"><span class="v">≤ 5%</span><span class="l">Largest single customer, % of revenue</span></div>
         </div>
         <div class="quiz" data-quiz="m1"></div>
@@ -361,13 +363,13 @@
         <div class="lesson">
           <p>Acquisition decisions are made at <strong>LOG Business Group level — not Holdings level</strong>. Holdings manages; Group decides.</p>
           <p><strong>Dammy personally approves every acquisition</strong>, for now. Approval thresholds for others will be added as the Group team grows. Growth spending beyond a company's retained earnings also needs Group approval.</p>
-          <p><strong>Exceptions — flexible on buying:</strong> Group may approve a written exception to a buy filter — the 12% cash test, the 5× price cap, the 3-year rule, or the 5% customer cap — case by case. Holdings cannot grant its own exception. An exception is recorded with the deal: which filter, by how much, and why. It changes that deal only, never the standard.</p>
+          <p><strong>Exceptions — flexible on buying:</strong> Group may approve a written exception to a buy filter — the 12% cash test, the 5× price cap, the 3-year statements check, the 10+ year establishment rule, or the 5% customer cap — case by case. Holdings cannot grant its own exception. An exception is recorded with the deal: which filter, by how much, and why. It changes that deal only, never the standard.</p>
           <div class="rule-callout"><strong>Absolute on debt:</strong> no exception, at any level, can touch the three debt laws — acquisitions only, cleared within 7 years, paid before any distribution.</div>
           <p>Structure: LOG Holdings Inc. sits under LOG Business Group Inc. Holdings is the only subsidiary registered country by country — Canada first, then the US, Nigeria, the UK, Australia, Brazil, and others — and each country's Holdings directly owns the operating businesses there.</p>
         </div>
         <div class="keys">
           <div class="key"><span class="v">Group</span><span class="l">Level where acquisition decisions sit</span></div>
-          <div class="key"><span class="v">4</span><span class="l">Buy filters that can be excepted, case by case</span></div>
+          <div class="key"><span class="v">5</span><span class="l">Buy filters that can be excepted, case by case</span></div>
           <div class="key"><span class="v">0</span><span class="l">Debt laws that can be excepted</span></div>
         </div>
         <div class="quiz" data-quiz="m7"></div>
@@ -402,8 +404,8 @@
             <input type="number" id="dMargin" inputmode="decimal" step="0.1" min="0" max="100" placeholder="e.g. 13.5" required />
           </div>
           <div class="field">
-            <label for="dYears">Years of proven cash flow <span class="hint">— regular years only; strip out extraordinary years</span></label>
-            <input type="number" id="dYears" inputmode="decimal" step="0.5" min="0" max="60" placeholder="e.g. 4" required />
+            <label for="dYears">Years company has been established <span class="hint">— must be over 10 years, longer is better; diligence reviews the last 3 years of financial statements (regular years only)</span></label>
+            <input type="number" id="dYears" inputmode="decimal" step="0.5" min="0" max="100" placeholder="e.g. 15" required />
           </div>
           <div class="field">
             <label for="dCustomer">Largest customer, % of revenue</label>
@@ -455,18 +457,18 @@
           { q: "A seller's business shows a 14% margin — but the owner pays himself half a market salary. Does it clear the buy filter?",
             opts: ["Yes — 14% is above the 12% floor", "No — restate the numbers with a full market GM salary first, then test", "Yes, if revenue has grown three years in a row"],
             a: 1, why: "The GM test comes first. If the margin only clears 12% because the owner underpays himself, it does not clear 12%." },
-          { q: "Which years count toward the 3-year proven record?",
-            opts: ["The seller's three best years", "Any three of the last five years", "Three regular years — extraordinary years are stripped out"],
-            a: 2, why: "A windfall contract or one-off boom is not proof. It is removed from both the test and the price." },
+          { q: "What does the 3-year rule actually check?",
+            opts: ["How long the company has been established", "How long the current owner has owned the business", "The last 3 years of financial statements — regular years only, extraordinary years stripped out"],
+            a: 2, why: "The 3 years is the financial statements we review in diligence — not the company's age. A windfall contract or one-off boom is not proof; it is removed from both the test and the price." },
           { q: "A company's largest customer is 7% of revenue. The other filters all pass. Verdict?",
             opts: ["It fails the customer filter — no single customer above 5%", "It passes — 7% is close enough", "It passes if the customer has been loyal for 3 years"],
             a: 0, why: "No customer above 5% of revenue. Above that, the deal needs a written Group exception or it does not proceed." },
           { q: "Under the cash definition, which spending is deducted to get to cash?",
             opts: ["Growth capex, because the business must keep growing", "Maintenance capex only — what keeps the business as it is", "No capex at all — cash is the same as EBITDA"],
             a: 1, why: "Cash = revenue collected − operating costs (incl. market GM salary) − tax − maintenance capex only. Growth is funded separately, from retained earnings or by Group approval." },
-          { q: "For a very large deal, how many years of proven cash flow are required?",
-            opts: ["5 years — big deals get a stricter tier", "3 years — the rule is flat for every deal", "It depends on the industry"],
-            a: 1, why: "Flat 3 regular years for all deals. There is no 5-year tier for large deals." }
+          { q: "How long must a company have been established to pass the buy filter?",
+            opts: ["3 years — the same as the statements we check", "Over 10 years — and the longer, the better", "5 years for large deals, 3 years for small ones"],
+            a: 1, why: "Establishment is a separate filter from the statements. We review 3 years of financial statements, but the company itself must be established for over 10 years — longer is better. The rule is flat for every deal." }
         ],
         m2: [
           { q: "The maximum price is 5× what, exactly?",
@@ -552,8 +554,8 @@
             opts: ["Holdings level, where the companies are owned", "Business Group level", "Whichever level finds the deal"],
             a: 1, why: "Group decides; Holdings manages. That is also why the acquisition capital sits at Business Group." },
           { q: "Which rules can Group except, case by case?",
-            opts: ["Any rule in the manual, if the reason is written down", "The buy filters — 12% cash, 5× price, 3 years, 5% customer", "The debt laws, for strategic deals"],
-            a: 1, why: "Flexible on buying, absolute on debt. The four buy filters are exceptionable in writing; the three debt laws are not." },
+            opts: ["Any rule in the manual, if the reason is written down", "The buy filters — 12% cash, 5× price, 3-year statements, 10+ years established, 5% customer", "The debt laws, for strategic deals"],
+            a: 1, why: "Flexible on buying, absolute on debt. The five buy filters are exceptionable in writing; the three debt laws are not." },
           { q: "A country Holdings spots a business at 11% margin and wants to approve its own exception. Allowed?",
             opts: ["Yes — Holdings manages its own market", "No — exceptions are granted at Group level only, and recorded with the deal", "Yes, if the exception is under 2 points"],
             a: 1, why: "Holdings cannot grant its own exception. Group records which filter, by how much, and why — and the standard itself does not change." }
@@ -759,15 +761,15 @@
         checks.push({ ok: mOk, label: "Cash margin " + fmt(margin, 1) + "% vs the 12% floor",
           note: mOk ? "Clears Filter 1." : "Below the 12% floor — fails Filter 1." });
 
-        var yOk = years >= 3;
+        var yOk = years > 10;
         if (!yOk) fails++;
-        checks.push({ ok: yOk, label: "Proven record: " + fmt(years, 1) + " regular years vs 3 required",
-          note: yOk ? "Clears Filter 2." : "Short of 3 proven regular years — fails Filter 2." });
+        checks.push({ ok: yOk, label: "Established: " + fmt(years, 1) + " years vs over 10 required",
+          note: yOk ? "Clears the establishment filter — longer is better. Diligence still reviews the last 3 years of financial statements (regular years only)." : "Established 10 years or less — fails the establishment filter. The 3 years is the financial statements we check, not the company's age." });
 
         var cOk = customer <= 5;
         if (!cOk) fails++;
         checks.push({ ok: cOk, label: "Largest customer " + fmt(customer, 1) + "% vs the 5% cap",
-          note: cOk ? "Clears Filter 3." : "One customer above 5% of revenue — fails Filter 3." });
+          note: cOk ? "Clears the customer filter." : "One customer above 5% of revenue — fails the customer filter." });
 
         var pOk = multiple <= 5;
         if (!pOk) fails++;
@@ -780,7 +782,7 @@
             note: "The owner is paid below market. Restate the numbers with a full market GM salary — the real margin is lower than " + fmt(margin, 1) + "%, and the 5× cap falls with it. Re-score after the restatement." });
         } else if (owner === "owner-critical") {
           checks.push({ warn: true, label: "Owner is the business",
-            note: "Cash flow depends on the departing owner. The proven record may not transfer — treat the margin and the 3 years as unproven until a GM can run it without them." });
+            note: "Cash flow depends on the departing owner. The recent record may not transfer — treat the margin and the last 3 years of statements as unproven until a GM can run it without them." });
         } else if (owner === "owner-market") {
           checks.push({ ok: true, label: "GM test already reflected in the numbers",
             note: "The margin above already carries a full market GM salary. The test stands as scored." });
@@ -792,10 +794,10 @@
         var verdict = document.getElementById("verdict");
         if (fails === 0 && !gmIssue) {
           verdict.className = "verdict show buy";
-          verdict.innerHTML = "<h3>BUY — clears the filters</h3><p>All four filters pass on the numbers as scored. Standard structure: 25% down, 75% financed flexibly, debt cleared within 7 years. Still required: Dammy's personal approval, and a +5-point improvement plan drafted from the diligence levers.</p>";
+          verdict.innerHTML = "<h3>BUY — clears the filters</h3><p>All filters pass on the numbers as scored — including over 10 years established, with the last 3 years of financial statements to be verified in diligence. Standard structure: 25% down, 75% financed flexibly, debt cleared within 7 years. Still required: Dammy's personal approval, and a +5-point improvement plan drafted from the diligence levers.</p>";
         } else if (fails === 0 && gmIssue) {
           verdict.className = "verdict show exc";
-          verdict.innerHTML = "<h3>NOT YET — run the GM test first</h3><p>The four filters pass on the seller's numbers, but those numbers are not yet on the manual's basis. Restate with a market GM salary and re-score. If it still clears 12% and 5×, it is a Buy. If it only clears because of the owner, it does not clear.</p>";
+          verdict.innerHTML = "<h3>NOT YET — run the GM test first</h3><p>The filters pass on the seller's numbers, but those numbers are not yet on the manual's basis. Restate with a market GM salary and re-score. If it still clears 12% and 5×, it is a Buy. If it only clears because of the owner, it does not clear.</p>";
         } else if (fails === 1) {
           verdict.className = "verdict show exc";
           verdict.innerHTML = "<h3>EXCEPTION CASE — one filter failed</h3><p>A single miss can go to Group for a written, case-by-case exception: which filter, by how much, and why — recorded with the deal. Holdings cannot grant it. And no exception can ever touch the debt laws.</p>";
