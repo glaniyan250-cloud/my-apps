@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Acquisition Masterclass — LOG Holdings</title>
+    <style>
+      :root {
+        --emerald: #113B2E;
+        --emerald-deep: #0B2A20;
+        --gold: #C9A24A;
+        --gold-soft: #D4AE5A;
+        --cream: #F5F0E8;
+        --paper: #FCFAF4;
+        --ink: #1C2420;
+        --ink-soft: #4A554E;
+        --line: #DDD3BC;
+        --good: #1E7A4F;
+        --good-bg: #E4F2E9;
+        --bad: #B03A2E;
+        --bad-bg: #F9E7E3;
+        --warn: #8A6D1F;
+        --warn-bg: #F6EDD2;
+        --chip-bg: #EFE8D6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #123528;
+          --ink: #F0EADB;
+          --ink-soft: #C4BCA4;
+          --line: #2E5546;
+          --good: #7BD6A8;
+          --good-bg: #14402E;
+          --bad: #F0937F;
+          --bad-bg: #4A241E;
+          --warn: #E3C766;
+          --warn-bg: #423812;
+          --chip-bg: #1B4636;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: var(--emerald-deep); }
+      }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 64px; }
+
+      /* ---------- Hero ---------- */
+      .hero {
+        background: var(--emerald);
+        color: var(--cream);
+        margin: 0 -16px;
+        padding: 34px 20px 26px;
+        border-bottom: 4px solid var(--gold);
+      }
+      .brandline {
+        font-size: 11px; letter-spacing: 3px; font-weight: 700;
+        color: var(--gold-soft); text-transform: uppercase; margin: 0 0 10px;
+      }
+      .hero h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 34px; line-height: 1.12; margin: 0 0 8px; font-weight: 700;
+      }
+      .hero p.lede { margin: 0 0 20px; color: #E7DFC9; font-size: 15px; max-width: 34em; }
+      .progress-meta {
+        display: flex; justify-content: space-between; align-items: baseline;
+        font-size: 13px; color: #E7DFC9; margin-bottom: 6px;
+      }
+      .progress-meta strong { color: #fff; font-size: 15px; }
+      .bar { height: 8px; background: rgba(245,240,232,.22); border-radius: 99px; overflow: hidden; }
+      .bar > div { height: 100%; width: 0%; background: var(--gold); border-radius: 99px; transition: width .4s ease; }
+      .hero .tagline {
+        margin: 16px 0 0; font-size: 11px; letter-spacing: 2.5px;
+        color: var(--gold-soft); text-transform: uppercase; font-weight: 600;
+      }
+
+      /* ---------- Table of contents ---------- */
+      .toc { margin: 22px 0 6px; display: grid; gap: 8px; }
+      .toc button {
+        display: flex; align-items: center; gap: 12px; width: 100%;
+        text-align: left; padding: 12px 14px; cursor: pointer;
+        background: var(--paper); color: var(--ink);
+        border: 1px solid var(--line); border-radius: 10px;
+        font: inherit; font-size: 15px;
+      }
+      .toc button:active { transform: scale(.99); }
+      .toc .num {
+        flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+        background: var(--emerald); color: var(--cream);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 14px;
+      }
+      @media (prefers-color-scheme: dark) { .toc .num { background: var(--gold); color: var(--emerald-deep); } }
+      .toc .t { flex: 1 1 auto; font-weight: 600; }
+      .toc .st { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+      .toc .st.done { color: var(--good); font-weight: 700; }
+      .toc button.drill-btn { border-color: var(--gold); }
+      .toc button.drill-btn .num { background: var(--gold); color: var(--emerald-deep); }
+
+      /* ---------- Modules ---------- */
+      section.module, section.drill {
+        background: var(--paper); border: 1px solid var(--line);
+        border-radius: 14px; padding: 22px 18px 20px; margin-top: 22px;
+      }
+      .mod-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+      .mod-head .num {
+        flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px;
+        background: var(--emerald); color: var(--gold-soft);
+        display: flex; align-items: center; justify-content: center;
+        font-family: Georgia, serif; font-size: 19px; font-weight: 700;
+      }
+      @media (prefers-color-scheme: dark) { .mod-head .num { background: var(--gold); color: var(--emerald-deep); } }
+      .mod-head h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 22px; margin: 2px 0 0; line-height: 1.2; color: var(--emerald);
+      }
+      @media (prefers-color-scheme: dark) { .mod-head h2 { color: var(--cream); } }
+      .mod-head .badge {
+        margin-left: auto; flex: 0 0 auto; font-size: 11px; font-weight: 700;
+        letter-spacing: .4px; padding: 4px 9px; border-radius: 99px;
+        background: var(--chip-bg); color: var(--ink-soft); white-space: nowrap;
+      }
+      .mod-head .badge.done { background: var(--good-bg); color: var(--good); }
+      .lesson p { margin: 10px 0; font-size: 15.5px; }
+      .lesson strong { color: var(--emerald); }
+      @media (prefers-color-scheme: dark) { .lesson strong { color: var(--gold-soft); } }
+      .rule-callout {
+        background: var(--emerald); color: var(--cream);
+        border-left: 5px solid var(--gold);
+        padding: 13px 15px; margin: 14px 0; font-size: 15px;
+      }
+      .rule-callout strong { color: var(--gold-soft); }
+
+      .keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 14px 0 4px; }
+      .key {
+        background: var(--chip-bg); border-radius: 10px; padding: 10px 12px;
+      }
+      .key .v { font-family: Georgia, serif; font-size: 21px; font-weight: 700; color: var(--emerald); display: block; line-height: 1.15; }
+      @media (prefers-color-scheme: dark) { .key .v { color: var(--gold-soft); } }
+      .key .l { font-size: 12px; color: var(--ink-soft); display: block; margin-top: 2px; }
+
+      .wx { margin: 14px 0 4px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+      .wx h3 {
+        margin: 0; padding: 9px 13px; font-size: 12px; letter-spacing: 1.6px;
+        text-transform: uppercase; background: var(--emerald); color: var(--gold-soft);
+      }
+      .wx .row { display: flex; justify-content: space-between; gap: 14px; padding: 8px 13px; font-size: 14.5px; border-top: 1px solid var(--line); }
+      .wx .row:first-of-type { border-top: none; }
+      .wx .row span:last-child { font-weight: 700; text-align: right; white-space: nowrap; }
+      .wx .row.total { background: var(--chip-bg); }
+
+      /* ---------- Quiz ---------- */
+      .quiz { margin-top: 18px; border-top: 2px solid var(--gold); padding-top: 14px; }
+      .quiz > h3 {
+        margin: 0 0 4px; font-size: 12px; letter-spacing: 1.8px;
+        text-transform: uppercase; color: var(--ink-soft);
+      }
+      .q { margin: 14px 0; }
+      .q p { margin: 0 0 8px; font-weight: 600; font-size: 15.5px; }
+      .opts { display: grid; gap: 7px; }
+      .opts button {
+        text-align: left; padding: 11px 13px; font: inherit; font-size: 14.5px;
+        background: transparent; color: var(--ink);
+        border: 1.5px solid var(--line); border-radius: 9px; cursor: pointer;
+      }
+      .opts button:disabled { cursor: default; opacity: 1; }
+      .opts button.correct { border-color: var(--good); background: var(--good-bg); font-weight: 600; }
+      .opts button.wrong { border-color: var(--bad); background: var(--bad-bg); }
+      .opts button.dim { opacity: .55; }
+      .why { display: none; margin: 8px 0 0; font-size: 14px; padding: 9px 12px; border-radius: 8px; }
+      .why.show { display: block; }
+      .why.ok { background: var(--good-bg); color: var(--good); }
+      .why.no { background: var(--bad-bg); color: var(--bad); }
+      .quiz-foot { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+      .score-line { font-size: 14.5px; font-weight: 700; }
+      .btn {
+        font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer;
+        padding: 11px 18px; border-radius: 9px; border: none;
+        background: var(--emerald); color: var(--cream);
+      }
+      .btn.gold { background: var(--gold); color: var(--emerald-deep); }
+      .btn.ghost { background: transparent; color: var(--ink-soft); border: 1.5px solid var(--line); }
+      .btn:disabled { opacity: .45; cursor: default; }
+
+      /* ---------- Drill ---------- */
+      section.drill { border: 2px solid var(--gold); }
+      .drill .mod-head .num { background: var(--gold); color: var(--emerald-deep); }
+      .field { margin: 13px 0; }
+      .field label { display: block; font-weight: 600; font-size: 14.5px; margin-bottom: 5px; }
+      .field .hint { font-weight: 400; color: var(--ink-soft); font-size: 13px; }
+      .field input, .field select {
+        width: 100%; padding: 12px; font: inherit; font-size: 16px;
+        border: 1.5px solid var(--line); border-radius: 9px;
+        background: var(--paper); color: var(--ink);
+      }
+      .verdict { display: none; margin-top: 18px; border-radius: 12px; padding: 16px; }
+      .verdict.show { display: block; }
+      .verdict h3 { margin: 0 0 6px; font-family: Georgia, serif; font-size: 24px; }
+      .verdict p { margin: 0; font-size: 14.5px; }
+      .verdict.buy { background: var(--good-bg); color: var(--good); }
+      .verdict.exc { background: var(--warn-bg); color: var(--warn); }
+      .verdict.pass { background: var(--bad-bg); color: var(--bad); }
+      .checks { margin-top: 14px; display: grid; gap: 7px; }
+      .check {
+        display: flex; gap: 10px; align-items: flex-start;
+        padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; font-size: 14.5px;
+      }
+      .check .ic { flex: 0 0 auto; font-weight: 800; width: 20px; text-align: center; }
+      .check.ok .ic { color: var(--good); }
+      .check.no .ic { color: var(--bad); }
+      .check.warn .ic { color: var(--warn); }
+      .check small { display: block; color: var(--ink-soft); font-size: 13px; }
+      .derived { margin-top: 12px; font-size: 14.5px; background: var(--chip-bg); border-radius: 9px; padding: 11px 13px; }
+      .derived p { margin: 3px 0; }
+
+      footer { margin-top: 34px; text-align: center; color: var(--ink-soft); font-size: 13px; }
+      footer .rule-line { width: 52px; height: 3px; background: var(--gold); margin: 0 auto 12px; }
+      .reset-row { margin-top: 14px; }
+    </style>
+  </head>
+  <body><div style="background:#113B2E;padding:10px 18px;font-family:sans-serif;position:relative;z-index:50"><a href="../" style="color:#F5F0E8;text-decoration:none;font-size:14px">&#8592; My Apps</a></div>
+    <div class="wrap">
+      <header class="hero">
+        <p class="brandline">LOG Business Group · LOG Holdings Inc.</p>
+        <h1>Acquisition Masterclass</h1>
+        <p class="lede">The LOG Business Group Acquisition Manual, taught as a course. Eight modules, your rules, your numbers — study them until they are second nature.</p>
+        <div class="progress-meta">
+          <span><strong id="progCount">0 of 8</strong> modules complete</span>
+          <span id="progScore"></span>
+        </div>
+        <div class="bar"><div id="progBar"></div></div>
+        <p class="tagline">Legacy · Growth · Stewardship</p>
+      </header>
+
+      <nav class="toc" id="toc" aria-label="Course modules"></nav>
+
+      <!-- ============ MODULE 1 ============ -->
+      <section class="module" id="m1">
+        <div class="mod-head"><div class="num">1</div><h2>Buy Filters</h2><span class="badge" data-badge></span></div>
+        <div class="lesson">
+          <p>A business qualifies only if it clears <strong>all four filters</strong>. Fail one, and the deal stops — unless Group approves a written exception (Module 7).</p>
+          <p><strong>Cash is not EBITDA.</strong> Cash = revenue collected, minus all operating costs (including a market GM salary where the business is owner-run), minus tax, minus maintenance capex only — what keeps the business as it is, not growth. The result is free cash <em>before</em> acquisition debt.</p>
+          <p><strong>The GM test:</strong> if the owner works for less than market pay, restate the numbers with a market GM salary before testing. A business that only clears 12% because the owner underpays himself does not clear 12%.</p>
+          <p><strong>Regular years only.</strong> A windfall contract or one-off boom is stripped out of the test and the price. The 3-year rule is flat — no longer tier for big deals.</p>
+        </div>
+        <div class="keys">
+          <div class="key"><span class="v">≥ 12%</span><span class="l">Cash margin, after GM cost</span></div>
+          <div class="key"><span class="v">3 years</span><span class="l">Proven cash flow — regular years</span></div>
+          <div class="key"><span class="v">≤ 5%</span><span class="l">Largest single customer, % of revenue</span></div>
+        </div>
+        <div class="quiz" data-quiz="m1"></div>
+      </section>
+
+      <!-- ============ MODULE 2 ============ -->
+      <section class="module" id="m2">
+        <div class="mod-head"><div class="num">2</div><h2>Price &amp; Deal Structure</h2><span class="badge" data-badge></span></div>
+        <div class="lesson">
+          <div class="rule-callout"><strong>Maximum price: 5× annual cash flow</strong> — cash as defined in Module 1, after the GM adjustment.</div>
+          <p>Price follows proven, regular cash — never a seller's best year. If the price only works above 5×, the deal does not proceed at that price.</p>
+          <p>The standard structure is <strong>25% cash down</strong>, with the remaining <strong>75%</strong> split between seller financing and bank debt. That split is <strong>flexible, deal by deal</strong> — there is no fixed target mix.</p>
+        </div>
+        <div class="wx">
+          <h3>Worked example — max-price deal, revenue of 100</h3>
+          <div class="row"><span>Cash at the 12% floor</span><span>12</span></div>
+          <div class="row"><span>Maximum price (5 × 12)</span><span>60</span></div>
+          <div class="row"><span>Down payment (25%)</span><span>15</span></div>
+          <div class="row total"><span>Financed (75%)</span><span>45</span></div>
+        </div>
+        <div class="quiz" data-quiz="m2"></div>
+      </section>
+
+      <!-- ============ MODULE 3 ============ -->
+      <section class="module" id="m3">
+        <div class="mod-head"><div class="num">3</div><h2>Debt Laws</h2><span class="badge" data-badge></span></div>
+        <div class="lesson">
+          <p>Three laws govern all debt in LOG Holdings. They are <strong>absolute</strong> — Module 7 allows exceptions to the buy filters, but no exception can touch these laws.</p>
+          <div class="rule-callout"><strong>Law 1 — Acquisitions only.</strong> Debt is taken on to acquire businesses, never to fund operations. Operating companies self-finance.</div>
+          <div class="rule-callout"><strong>Law 2 — Gone within 7 years.</strong> Every acquisition debt is paid off within 7 years of purchase.</div>
+          <div class="rule-callout"><strong>Law 3 — Debt before everything.</strong> Debt is paid before any distribution. “We always pay our debt.”</div>
+          <p>In practice: a company in difficulty does not borrow to cover operating costs — Group intervenes under Module 6 instead. And deal terms are tested against Law 2 before signing: if the financed balance cannot clear within 7 years from proven cash, the price or the structure is wrong.</p>
+        </div>
+        <div class="keys">
+          <div class="key"><span class="v">7 years</span><span class="l">Maximum life of any acquisition debt</span></div>
+          <div class="key"><span class="v">0</span><span class="l">Exceptions permitted to the debt laws</span></div>
+          <div class="key"><span class="v">1st</span><span class="l">Debt is paid first — before every distribution</span></div>
+        </div>
+        <div class="quiz" data-quiz="m3"></div>
+      </section>
+
+      <!-- ============ MODULE 4 ============ -->
+      <section class="module" id="m4">
+        <div class="mod-head"><div class="num">4</div><h2>The Cash Waterfall</h2><span class="badge" data-badge></span></div>
+        <div class="lesson">
+          <p>The split applies <strong>only to cash remaining after debt payments</strong>. Debt service comes first, in full, every period. What is left is the distributable pot.</p>
+          <p><strong>Why the capital sits at Business Group:</strong> acquisition decisions are made at Group level, so cash follows decision rights. Holdings is a lean management layer paid on its 5% fee — not the capital holder. Central capital keeps control and sound judgement in one place, and cash never lies idle in a country Holdings.</p>
+          <p>By purpose, the split is: <strong>55% compounding</strong> (acquisitions + LOG Investments), 20% retained, 5% staff, 10% foundation work, 10% management and admin across all layers. Companies <strong>report monthly</strong>; cash <strong>sweeps quarterly</strong>.</p>
+        </div>
+        <div class="wx">
+          <h3>The split — and the worked example (pot of 3.65)</h3>
+          <div class="row"><span>Company — 25% (20% retained · 5% staff bonuses)</span><span>0.91</span></div>
+          <div class="row"><span>Holdings — 5% (2.5% mgmt fee · 2.5% admin)</span><span>0.18</span></div>
+          <div class="row"><span>Business Group — 57.5% (40% acquisitions · 15% Investments · 2.5% admin)</span><span>2.10</span></div>
+          <div class="row"><span>Global Foundation — 12.5% (10% work · 2.5% admin)</span><span>0.46</span></div>
+          <div class="row total"><span>Distributable pot (cash 12 − debt service 8.35)</span><span>3.65</span></div>
+        </div>
+        <div class="quiz" data-quiz="m4"></div>
+      </section>
+
+      <!-- ============ MODULE 5 ============ -->
+      <section class="module" id="m5">
+        <div class="mod-head"><div class="num">5</div><h2>Post-Acquisition Improvement</h2><span class="badge" data-badge></span></div>
+        <div class="lesson">
+          <div class="rule-callout"><strong>Target: +5 percentage points of margin</strong> on every acquisition — 12% to 17%. Not 5% relative.</div>
+          <p>After every acquisition, Group and management hunt two kinds of lever: <strong>eliminate inefficiencies</strong> — cost, waste, and process that add nothing for the customer — and <strong>increase prices</strong> where the offer supports it.</p>
+          <p>The levers are identified during diligence and the first 100 days, sequenced into a plan, and must be <strong>100% fully activated by month 30</strong>. Thirty months, not sooner, because some levers are locked by contracts — leases, supplier terms, pricing agreements, labour contracts — that must run off or be renegotiated first.</p>
+          <p><strong>The live proof:</strong> North Sea Fish Market, the group's first operating company, is already running this rule — margin being raised from <strong>40% to 45%</strong> through price increases.</p>
+          <p>Why it matters: the debt payment does not change when margin rises, so the improvement falls almost entirely into the distributable pot.</p>
+        </div>
+        <div class="wx">
+          <h3>The +5-point effect — revenue of 100</h3>
+          <div class="row"><span>Cash: 12 → 17</span><span>+42%</span></div>
+          <div class="row"><span>Debt service as % of cash: 69.6% →</span><span>49.1%</span></div>
+          <div class="row total"><span>Distributable pot: 3.65 →</span><span>8.65 (+137%)</span></div>
+        </div>
+        <div class="quiz" data-quiz="m5"></div>
+      </section>
+
+      <!-- ============ MODULE 6 ============ -->
+      <section class="module" id="m6">
+        <div class="mod-head"><div class="num">6</div><h2>Underperformer Ladder</h2><span class="badge" data-badge></span></div>
+        <div class="lesson">
+          <p>The ladder applies when a company's cash margin falls below 12%. Debt is still paid first at every step.</p>
+          <p><strong>Why the triggers are early:</strong> on a max-price deal, debt service takes 69.6% of cash at a 12% margin. At 9% it takes <strong>92.8%</strong>. At 8% it takes <strong>104.4%</strong> — more than all the cash. There is no room to wait for a full bad year.</p>
+          <p><strong>Step 1 — Watch</strong> (1 quarter below 12%): bonuses and distributions pause. Management explains the cause in writing — temporary, management, or structural.</p>
+          <p><strong>Step 2 — Intervene</strong> (2 consecutive quarters below): Group turnaround plan, growth spending frozen, Holdings may replace the GM with a LOG-trained manager.</p>
+          <p><strong>Step 3 — Decide</strong> (no return to 12% and no clear path back after the <strong>2-year recovery window</strong>): Group decides — fix, restructure, or sell while the business still has value.</p>
+          <div class="rule-callout"><strong>Emergency override:</strong> cash negative, or a debt payment at risk — Group intervenes immediately. The timeline does not apply.</div>
+          <p>One extraordinary bad year alone is not a sell trigger, just as one extraordinary good year was not proof at purchase. Cause decides: fix what is fixable, sell what is structural.</p>
+        </div>
+        <div class="keys">
+          <div class="key"><span class="v">1 qtr</span><span class="l">Below 12% → Watch</span></div>
+          <div class="key"><span class="v">2 qtrs</span><span class="l">Below 12% → Intervene</span></div>
+          <div class="key"><span class="v">2 years</span><span class="l">Recovery window before Decide</span></div>
+        </div>
+        <div class="quiz" data-quiz="m6"></div>
+      </section>
+
+      <!-- ============ MODULE 7 ============ -->
+      <section class="module" id="m7">
+        <div class="mod-head"><div class="num">7</div><h2>Governance &amp; Exceptions</h2><span class="badge" data-badge></span></div>
+        <div class="lesson">
+          <p>Acquisition decisions are made at <strong>LOG Business Group level — not Holdings level</strong>. Holdings manages; Group decides.</p>
+          <p><strong>Dammy personally approves every acquisition</strong>, for now. Approval thresholds for others will be added as the Group team grows. Growth spending beyond a company's retained earnings also needs Group approval.</p>
+          <p><strong>Exceptions — flexible on buying:</strong> Group may approve a written exception to a buy filter — the 12% cash test, the 5× price cap, the 3-year rule, or the 5% customer cap — case by case. Holdings cannot grant its own exception. An exception is recorded with the deal: which filter, by how much, and why. It changes that deal only, never the standard.</p>
+          <div class="rule-callout"><strong>Absolute on debt:</strong> no exception, at any level, can touch the three debt laws — acquisitions only, cleared within 7 years, paid before any distribution.</div>
+          <p>Structure: LOG Holdings Inc. sits under LOG Business Group Inc. Holdings is the only subsidiary registered country by country — Canada first, then the US, Nigeria, the UK, Australia, Brazil, and others — and each country's Holdings directly owns the operating businesses there.</p>
+        </div>
+        <div class="keys">
+          <div class="key"><span class="v">Group</span><span class="l">Level where acquisition decisions sit</span></div>
+          <div class="key"><span class="v">4</span><span class="l">Buy filters that can be excepted, case by case</span></div>
+          <div class="key"><span class="v">0</span><span class="l">Debt laws that can be excepted</span></div>
+        </div>
+        <div class="quiz" data-quiz="m7"></div>
+      </section>
+
+      <!-- ============ MODULE 8 ============ -->
+      <section class="module" id="m8">
+        <div class="mod-head"><div class="num">8</div><h2>Reporting Standard</h2><span class="badge" data-badge></span></div>
+        <div class="lesson">
+          <p>One page per company, every month. Six items. The same format for every company in every country.</p>
+          <p><strong>1.</strong> Revenue and cash (per the Module 1 definition), with the cash margin % &nbsp;·&nbsp; <strong>2.</strong> Debt balance, and confirmation the payment was made &nbsp;·&nbsp; <strong>3.</strong> Largest customer as % of revenue &nbsp;·&nbsp; <strong>4.</strong> Cash in bank &nbsp;·&nbsp; <strong>5.</strong> Red flags — GM issue, lost customer, major breakdown &nbsp;·&nbsp; <strong>6.</strong> Improvement progress — margin now against the +5-point plan, and what activates next.</p>
+          <p>The report feeds everything: items 1, 2 and 5 trigger the <strong>underperformer ladder</strong>; items 1, 2 and 4 set the pot for the <strong>quarterly sweep</strong>; the same six items are the record Group decides <strong>exceptions</strong> from.</p>
+          <p>If an item has nothing to report, it says so. A blank item is a missing report.</p>
+        </div>
+        <div class="keys">
+          <div class="key"><span class="v">6 items</span><span class="l">One page, every company</span></div>
+          <div class="key"><span class="v">Monthly</span><span class="l">Reporting cadence</span></div>
+          <div class="key"><span class="v">Quarterly</span><span class="l">Cash sweep cadence</span></div>
+        </div>
+        <div class="quiz" data-quiz="m8"></div>
+      </section>
+
+      <!-- ============ DEAL REVIEW DRILL ============ -->
+      <section class="drill" id="drill">
+        <div class="mod-head"><div class="num">✎</div><h2>Deal Review Drill</h2><span class="badge" id="drillBadge"></span></div>
+        <div class="lesson">
+          <p>Score a live deal against the manual. Enter the numbers as presented by the seller — after the GM test — and get the verdict the rules produce.</p>
+        </div>
+        <form id="drillForm">
+          <div class="field">
+            <label for="dMargin">Cash margin % <span class="hint">— per the Module 1 cash definition, after GM cost</span></label>
+            <input type="number" id="dMargin" inputmode="decimal" step="0.1" min="0" max="100" placeholder="e.g. 13.5" required />
+          </div>
+          <div class="field">
+            <label for="dYears">Years of proven cash flow <span class="hint">— regular years only; strip out extraordinary years</span></label>
+            <input type="number" id="dYears" inputmode="decimal" step="0.5" min="0" max="60" placeholder="e.g. 4" required />
+          </div>
+          <div class="field">
+            <label for="dCustomer">Largest customer, % of revenue</label>
+            <input type="number" id="dCustomer" inputmode="decimal" step="0.1" min="0" max="100" placeholder="e.g. 3.2" required />
+          </div>
+          <div class="field">
+            <label for="dMultiple">Asking price, × annual cash flow</label>
+            <input type="number" id="dMultiple" inputmode="decimal" step="0.1" min="0" max="50" placeholder="e.g. 4.5" required />
+          </div>
+          <div class="field">
+            <label for="dOwner">Owner dependence</label>
+            <select id="dOwner">
+              <option value="gm">Professional GM in place — business runs without the owner</option>
+              <option value="owner-market">Owner-run, but the numbers already carry a full market GM salary</option>
+              <option value="owner-underpaid">Owner-run, owner paid below market — GM test not yet applied</option>
+              <option value="owner-critical">Owner is the business — key relationships and skills leave with them</option>
+            </select>
+          </div>
+          <button type="submit" class="btn gold" style="width:100%;">Score this deal</button>
+        </form>
+        <div class="verdict" id="verdict" role="status"></div>
+        <div class="checks" id="drillChecks"></div>
+        <div class="derived" id="drillDerived" style="display:none;"></div>
+      </section>
+
+      <footer>
+        <div class="rule-line"></div>
+        <p>Built from the <strong>LOG Business Group Acquisition Manual</strong>, v1.0 — October 2026.<br />Progress is saved on this device.</p>
+        <div class="reset-row"><button class="btn ghost" id="resetBtn" type="button">Reset course progress</button></div>
+      </footer>
+    </div>
+
+    <script>
+      "use strict";
+
+      var MODULES = [
+        { id: "m1", n: 1, title: "Buy Filters" },
+        { id: "m2", n: 2, title: "Price & Deal Structure" },
+        { id: "m3", n: 3, title: "Debt Laws" },
+        { id: "m4", n: 4, title: "The Cash Waterfall" },
+        { id: "m5", n: 5, title: "Post-Acquisition Improvement" },
+        { id: "m6", n: 6, title: "Underperformer Ladder" },
+        { id: "m7", n: 7, title: "Governance & Exceptions" },
+        { id: "m8", n: 8, title: "Reporting Standard" }
+      ];
+
+      var QUIZZES = {
+        m1: [
+          { q: "A seller's business shows a 14% margin — but the owner pays himself half a market salary. Does it clear the buy filter?",
+            opts: ["Yes — 14% is above the 12% floor", "No — restate the numbers with a full market GM salary first, then test", "Yes, if revenue has grown three years in a row"],
+            a: 1, why: "The GM test comes first. If the margin only clears 12% because the owner underpays himself, it does not clear 12%." },
+          { q: "Which years count toward the 3-year proven record?",
+            opts: ["The seller's three best years", "Any three of the last five years", "Three regular years — extraordinary years are stripped out"],
+            a: 2, why: "A windfall contract or one-off boom is not proof. It is removed from both the test and the price." },
+          { q: "A company's largest customer is 7% of revenue. The other filters all pass. Verdict?",
+            opts: ["It fails the customer filter — no single customer above 5%", "It passes — 7% is close enough", "It passes if the customer has been loyal for 3 years"],
+            a: 0, why: "No customer above 5% of revenue. Above that, the deal needs a written Group exception or it does not proceed." },
+          { q: "Under the cash definition, which spending is deducted to get to cash?",
+            opts: ["Growth capex, because the business must keep growing", "Maintenance capex only — what keeps the business as it is", "No capex at all — cash is the same as EBITDA"],
+            a: 1, why: "Cash = revenue collected − operating costs (incl. market GM salary) − tax − maintenance capex only. Growth is funded separately, from retained earnings or by Group approval." },
+          { q: "For a very large deal, how many years of proven cash flow are required?",
+            opts: ["5 years — big deals get a stricter tier", "3 years — the rule is flat for every deal", "It depends on the industry"],
+            a: 1, why: "Flat 3 regular years for all deals. There is no 5-year tier for large deals." }
+        ],
+        m2: [
+          { q: "The maximum price is 5× what, exactly?",
+            opts: ["5× EBITDA", "5× revenue", "5× annual cash flow, per the cash definition, after the GM adjustment"],
+            a: 2, why: "Price is capped at 5× cash — never EBITDA, never revenue, and always after the GM test." },
+          { q: "Revenue is 100 and cash is 12 (the 12% floor). What is the maximum price, and the down payment?",
+            opts: ["Price 60, down 15", "Price 100, down 25", "Price 48, down 12"],
+            a: 0, why: "5 × 12 = 60 maximum price. 25% down = 15. The remaining 45 is financed." },
+          { q: "How is the financed 75% split between seller financing and bank debt?",
+            opts: ["Fixed at 50 / 50", "All seller financing wherever possible", "Flexible — set deal by deal, no fixed target mix"],
+            a: 2, why: "The 25 / 75 structure is standard; the split inside the 75% is decided on each deal." },
+          { q: "A seller asks 6×, pointing to last year's boom. The right response?",
+            opts: ["Pay it — the boom shows the potential", "Price follows proven, regular cash. Above 5×, the deal does not proceed at that price", "Meet in the middle at 5.5×"],
+            a: 1, why: "Extraordinary years are stripped out, and the 5× cap is the cap. If it only works above 5×, it does not work." }
+        ],
+        m3: [
+          { q: "Which of these is NOT one of the three debt laws?",
+            opts: ["Debt only for acquisitions", "Debt cleared within 7 years", "Debt may cover a rough quarter's operating costs"],
+            a: 2, why: "Borrowing for operations is exactly what Law 1 forbids. Operating companies self-finance; a company in difficulty gets a Group intervention, not a loan." },
+          { q: "A portfolio company wants to borrow to make payroll this month. What does the manual say?",
+            opts: ["Approve it if the GM is confident about next quarter", "No. Debt is for acquisitions only — Group intervenes under the ladder instead", "Approve it, but only from the country Holdings"],
+            a: 1, why: "Law 1 is absolute. The ladder — Watch, Intervene, Decide — is the route for a struggling company." },
+          { q: "Can a Group-approved exception stretch an acquisition debt to 9 years?",
+            opts: ["Yes, if Dammy signs it", "Yes, for deals above a certain size", "No — the debt laws admit no exceptions at any level"],
+            a: 2, why: "Exceptions apply to buy filters only. Acquisitions only, gone within 7 years, paid before distributions — no approval can override these." },
+          { q: "In what order does cash move each period?",
+            opts: ["Distributions first, debt with what remains", "Debt payment first, then the distribution split on what is left", "Bonuses first, to keep the team motivated"],
+            a: 1, why: "Law 3: debt before everything. “We always pay our debt.”" }
+        ],
+        m4: [
+          { q: "The 25 / 5 / 57.5 / 12.5 split applies to which cash?",
+            opts: ["All cash the company generates", "Revenue, before costs", "Only the cash remaining after debt payments"],
+            a: 2, why: "Debt service comes first, in full. The split divides the distributable pot — what is left." },
+          { q: "Business Group's 57.5% share is made up of…",
+            opts: ["40% acquisitions · 15% LOG Investments · 2.5% administration", "57.5% acquisitions", "40% retained · 15% bonuses · 2.5% foundation"],
+            a: 0, why: "40 points build the acquisition fund, 15 points flow to LOG Investments, 2.5 points run Group admin." },
+          { q: "Why does Holdings keep only 5%?",
+            opts: ["Holdings is being phased out", "Holdings is a lean management layer — 2.5% management fee + 2.5% admin — not the capital holder", "Because each country keeps its own war chest"],
+            a: 1, why: "Acquisition decisions sit at Group level, so the capital sits at Group level. Cash follows decision rights — nothing lies idle in a country Holdings." },
+          { q: "On the worked example the distributable pot is 3.65. How much does Business Group receive?",
+            opts: ["0.91", "0.46", "2.10"],
+            a: 2, why: "57.5% of 3.65 = 2.10. The company keeps 0.91, Holdings 0.18, the Foundation 0.46." },
+          { q: "What is the reporting and sweep rhythm?",
+            opts: ["Report quarterly, sweep quarterly", "Report monthly, sweep quarterly", "Report monthly, sweep monthly"],
+            a: 1, why: "Monthly reports give Group early sight; the cash itself moves quarterly." }
+        ],
+        m5: [
+          { q: "The improvement target is “+5”. What does that mean on a company bought at 12%?",
+            opts: ["Margin goes to 12.6% — 5% relative growth", "Margin goes to 17% — 5 percentage points", "Revenue grows 5% at the same margin"],
+            a: 1, why: "Percentage points, not percent. 12% → 17% — the same move North Sea is making from 40% to 45%." },
+          { q: "By when must the improvement be 100% fully activated?",
+            opts: ["Month 12", "Month 24", "Month 30"],
+            a: 2, why: "Month 30. Some levers are locked by contracts that must run off or be renegotiated before they can move." },
+          { q: "What are the two kinds of improvement lever?",
+            opts: ["Cut staff and cut quality", "Eliminate inefficiencies, and increase prices where the offer supports it", "Open new locations and buy competitors"],
+            a: 1, why: "Remove cost and waste that add nothing for the customer; price to the value delivered." },
+          { q: "On the worked example, after the +5-point improvement, debt service falls to what share of cash?",
+            opts: ["69.6% — it does not change", "49.1%", "25%"],
+            a: 1, why: "Cash rises 12 → 17 while the payment stays 8.35, so debt service drops from 69.6% to 49.1% of cash — and the distributable pot jumps from 3.65 to 8.65." }
+        ],
+        m6: [
+          { q: "A company's margin prints 11% for one quarter. What happens?",
+            opts: ["Nothing until a full year is below 12%", "Watch: bonuses and distributions pause; management explains the cause in writing", "Decide: Group prepares to sell"],
+            a: 1, why: "Step 1 — Watch. The written cause matters: temporary, management, or structural." },
+          { q: "The margin is still below 12% in the next quarter. Step 2 — Intervene — means what?",
+            opts: ["A strongly worded letter to the GM", "Group turnaround plan, growth spending frozen, GM may be replaced by a LOG-trained manager", "The company borrows to bridge the gap"],
+            a: 1, why: "Two consecutive quarters below 12% triggers real intervention. Borrowing for operations is never the answer — Law 1." },
+          { q: "How long is the recovery window before Group moves to Decide?",
+            opts: ["6 months", "1 year", "2 years"],
+            a: 2, why: "Two years to return to 12%. If there is no return and no clear path back, Group decides: fix, restructure, or sell while the business still has value." },
+          { q: "Mid-quarter, a company's cash goes negative and a debt payment is at risk. What applies?",
+            opts: ["Wait for the quarter-end report", "The emergency override — Group intervenes immediately, timeline does not apply", "Move straight to selling the company"],
+            a: 1, why: "Cash negative or a debt payment at risk overrides the ladder's timing. Debt is always paid — Law 3." },
+          { q: "On a max-price deal, what happens to debt service if margin slips to 8%?",
+            opts: ["It takes 69.6% of cash", "It takes 92.8% of cash", "It takes 104.4% of cash — more than all of it"],
+            a: 2, why: "At 9% it is already 92.8%. At 8%, debt service exceeds the entire cash flow. That is why the ladder triggers after a single quarter." }
+        ],
+        m7: [
+          { q: "Who approves every acquisition today?",
+            opts: ["The country Holdings board", "Dammy personally — thresholds for others come later, as the Group team grows", "The company's GM, with Group notified"],
+            a: 1, why: "For now, every deal crosses one desk. Approval thresholds are a later step, not the current rule." },
+          { q: "Acquisition decisions sit at which level?",
+            opts: ["Holdings level, where the companies are owned", "Business Group level", "Whichever level finds the deal"],
+            a: 1, why: "Group decides; Holdings manages. That is also why the acquisition capital sits at Business Group." },
+          { q: "Which rules can Group except, case by case?",
+            opts: ["Any rule in the manual, if the reason is written down", "The buy filters — 12% cash, 5× price, 3 years, 5% customer", "The debt laws, for strategic deals"],
+            a: 1, why: "Flexible on buying, absolute on debt. The four buy filters are exceptionable in writing; the three debt laws are not." },
+          { q: "A country Holdings spots a business at 11% margin and wants to approve its own exception. Allowed?",
+            opts: ["Yes — Holdings manages its own market", "No — exceptions are granted at Group level only, and recorded with the deal", "Yes, if the exception is under 2 points"],
+            a: 1, why: "Holdings cannot grant its own exception. Group records which filter, by how much, and why — and the standard itself does not change." }
+        ],
+        m8: [
+          { q: "What is the monthly reporting standard?",
+            opts: ["A full financial statement pack from every company", "One page per company, six items, same format everywhere", "A phone call from each GM to Group"],
+            a: 1, why: "One page, six items, every month, every company, every country." },
+          { q: "Which of these is NOT one of the six items?",
+            opts: ["Debt balance and confirmation the payment was made", "Improvement progress against the +5-point plan", "Competitor pricing survey"],
+            a: 2, why: "The six: revenue & cash with margin %, debt, largest customer %, cash in bank, red flags, improvement progress." },
+          { q: "An item has nothing to report this month. The GM leaves it blank. Acceptable?",
+            opts: ["Yes — blank means nothing happened", "No — the item must say so. A blank item is a missing report", "Yes, for item 5 only"],
+            a: 1, why: "Silence and 'nothing to report' are not the same thing. The standard requires the item to say so explicitly." },
+          { q: "What does the monthly report feed?",
+            opts: ["Only the year-end accounts", "The underperformer ladder, the quarterly sweep, and exception decisions", "The Foundation's annual report"],
+            a: 1, why: "Items 1, 2 and 5 trigger the ladder; items 1, 2 and 4 set the sweep pot; the same six items are the record Group decides exceptions from." }
+        ]
+      };
+
+      var LS_KEY = "log-acquisition-masterclass-v1";
+      var state = loadState();
+
+      function loadState() {
+        try {
+          var raw = localStorage.getItem(LS_KEY);
+          if (raw) { var p = JSON.parse(raw); if (p && typeof p === "object") return p; }
+        } catch (e) {}
+        return { done: {}, best: {}, drills: 0 };
+      }
+      function saveState() {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+      }
+
+      /* ---------- TOC ---------- */
+      var toc = document.getElementById("toc");
+      MODULES.forEach(function (m) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.innerHTML = '<span class="num">' + m.n + '</span><span class="t">' + m.title + '</span><span class="st" data-toc-st="' + m.id + '">Not started</span>';
+        b.addEventListener("click", function () {
+          document.getElementById(m.id).scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        toc.appendChild(b);
+      });
+      var db = document.createElement("button");
+      db.type = "button"; db.className = "drill-btn";
+      db.innerHTML = '<span class="num">✎</span><span class="t">Deal Review Drill</span><span class="st" id="tocDrill">Practice scoring a deal</span>';
+      db.addEventListener("click", function () {
+        document.getElementById("drill").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      toc.appendChild(db);
+
+      /* ---------- Quizzes ---------- */
+      MODULES.forEach(function (m) { buildQuiz(m); });
+
+      function buildQuiz(m) {
+        var host = document.querySelector('[data-quiz="' + m.id + '"]');
+        var qs = QUIZZES[m.id];
+        var answered = 0, correct = 0;
+        var h = document.createElement("h3");
+        h.textContent = "Self-check — " + qs.length + " questions";
+        host.appendChild(h);
+
+        qs.forEach(function (item, qi) {
+          var qd = document.createElement("div"); qd.className = "q";
+          var p = document.createElement("p"); p.textContent = (qi + 1) + ". " + item.q;
+          qd.appendChild(p);
+          var opts = document.createElement("div"); opts.className = "opts";
+          var why = document.createElement("p"); why.className = "why";
+          item.opts.forEach(function (text, oi) {
+            var btn = document.createElement("button");
+            btn.type = "button"; btn.textContent = text;
+            btn.addEventListener("click", function () {
+              var buttons = opts.querySelectorAll("button");
+              for (var i = 0; i < buttons.length; i++) { buttons[i].disabled = true; buttons[i].classList.add("dim"); }
+              buttons[item.a].classList.remove("dim");
+              buttons[item.a].classList.add("correct");
+              answered++;
+              if (oi === item.a) {
+                correct++;
+                why.className = "why show ok";
+                why.textContent = "Correct. " + item.why;
+              } else {
+                btn.classList.remove("dim"); btn.classList.add("wrong");
+                why.className = "why show no";
+                why.textContent = "Not quite. " + item.why;
+              }
+              if (answered === qs.length) finishQuiz();
+            });
+            opts.appendChild(btn);
+          });
+          qd.appendChild(opts); qd.appendChild(why);
+          host.appendChild(qd);
+        });
+
+        var foot = document.createElement("div"); foot.className = "quiz-foot";
+        var score = document.createElement("span"); score.className = "score-line";
+        var completeBtn = document.createElement("button");
+        completeBtn.type = "button"; completeBtn.className = "btn gold";
+        completeBtn.textContent = "Mark module complete";
+        completeBtn.disabled = true;
+        completeBtn.addEventListener("click", function () {
+          state.done[m.id] = true;
+          saveState(); refreshProgress();
+          completeBtn.textContent = "Completed ✓";
+          completeBtn.disabled = true;
+        });
+        var retakeBtn = document.createElement("button");
+        retakeBtn.type = "button"; retakeBtn.className = "btn ghost";
+        retakeBtn.textContent = "Retake quiz";
+        retakeBtn.style.display = "none";
+        retakeBtn.addEventListener("click", function () {
+          host.innerHTML = ""; buildQuiz(m); refreshProgress();
+        });
+        foot.appendChild(score); foot.appendChild(completeBtn); foot.appendChild(retakeBtn);
+        host.appendChild(foot);
+
+        var prevBest = state.best[m.id];
+        if (prevBest != null) {
+          score.textContent = "Best score so far: " + prevBest + " / " + qs.length + ". Answer all questions to update it.";
+        }
+
+        function finishQuiz() {
+          score.textContent = "Score: " + correct + " / " + qs.length + (correct === qs.length ? " — perfect. That is the standard." : "");
+          if (state.best[m.id] == null || correct > state.best[m.id]) state.best[m.id] = correct;
+          saveState();
+          completeBtn.disabled = false;
+          if (state.done[m.id]) { completeBtn.textContent = "Completed ✓"; completeBtn.disabled = true; }
+          retakeBtn.style.display = "";
+          refreshProgress();
+        }
+      }
+
+      /* ---------- Progress ---------- */
+      function refreshProgress() {
+        var doneCount = 0, scored = 0, totalQ = 0, totalC = 0;
+        MODULES.forEach(function (m) {
+          var badge = document.querySelector('#' + m.id + ' [data-badge]');
+          var st = document.querySelector('[data-toc-st="' + m.id + '"]');
+          var best = state.best[m.id];
+          if (state.done[m.id]) {
+            doneCount++;
+            badge.textContent = "Complete · " + best + "/" + QUIZZES[m.id].length;
+            badge.className = "badge done";
+            st.textContent = "✓ " + best + "/" + QUIZZES[m.id].length;
+            st.className = "st done";
+          } else if (best != null) {
+            badge.textContent = "Best " + best + "/" + QUIZZES[m.id].length;
+            badge.className = "badge";
+            st.textContent = "Best " + best + "/" + QUIZZES[m.id].length;
+            st.className = "st";
+          } else {
+            badge.textContent = "Not started";
+            badge.className = "badge";
+            st.textContent = "Not started";
+            st.className = "st";
+          }
+          if (best != null) { scored++; totalC += best; totalQ += QUIZZES[m.id].length; }
+        });
+        document.getElementById("progCount").textContent = doneCount + " of 8";
+        document.getElementById("progBar").style.width = (doneCount / 8 * 100) + "%";
+        document.getElementById("progScore").textContent = scored ? ("Quiz best: " + totalC + " / " + totalQ) : "";
+        var td = document.getElementById("tocDrill");
+        if (td && state.drills) td.textContent = state.drills + (state.drills === 1 ? " deal scored" : " deals scored");
+        var dBadge = document.getElementById("drillBadge");
+        if (dBadge) dBadge.textContent = state.drills ? (state.drills + " scored") : "";
+      }
+      refreshProgress();
+
+      document.getElementById("resetBtn").addEventListener("click", function () {
+        state = { done: {}, best: {}, drills: 0 };
+        saveState();
+        MODULES.forEach(function (m) {
+          var host = document.querySelector('[data-quiz="' + m.id + '"]');
+          host.innerHTML = ""; buildQuiz(m);
+        });
+        document.getElementById("verdict").className = "verdict";
+        document.getElementById("verdict").innerHTML = "";
+        document.getElementById("drillChecks").innerHTML = "";
+        document.getElementById("drillDerived").style.display = "none";
+        refreshProgress();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      /* ---------- Deal Review Drill ---------- */
+      function fmt(n, d) { return n.toFixed(d == null ? 2 : d); }
+
+      document.getElementById("drillForm").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var margin = parseFloat(document.getElementById("dMargin").value);
+        var years = parseFloat(document.getElementById("dYears").value);
+        var customer = parseFloat(document.getElementById("dCustomer").value);
+        var multiple = parseFloat(document.getElementById("dMultiple").value);
+        var owner = document.getElementById("dOwner").value;
+        if ([margin, years, customer, multiple].some(function (v) { return isNaN(v); })) return;
+
+        var checks = [];
+        var fails = 0;
+
+        var mOk = margin >= 12;
+        if (!mOk) fails++;
+        checks.push({ ok: mOk, label: "Cash margin " + fmt(margin, 1) + "% vs the 12% floor",
+          note: mOk ? "Clears Filter 1." : "Below the 12% floor — fails Filter 1." });
+
+        var yOk = years >= 3;
+        if (!yOk) fails++;
+        checks.push({ ok: yOk, label: "Proven record: " + fmt(years, 1) + " regular years vs 3 required",
+          note: yOk ? "Clears Filter 2." : "Short of 3 proven regular years — fails Filter 2." });
+
+        var cOk = customer <= 5;
+        if (!cOk) fails++;
+        checks.push({ ok: cOk, label: "Largest customer " + fmt(customer, 1) + "% vs the 5% cap",
+          note: cOk ? "Clears Filter 3." : "One customer above 5% of revenue — fails Filter 3." });
+
+        var pOk = multiple <= 5;
+        if (!pOk) fails++;
+        checks.push({ ok: pOk, label: "Asking price " + fmt(multiple, 1) + "× cash vs the 5× cap",
+          note: pOk ? "Inside the price cap." : "Above the 5× cap — the deal does not proceed at that price." });
+
+        var gmIssue = (owner === "owner-underpaid" || owner === "owner-critical");
+        if (owner === "owner-underpaid") {
+          checks.push({ warn: true, label: "GM test not yet applied",
+            note: "The owner is paid below market. Restate the numbers with a full market GM salary — the real margin is lower than " + fmt(margin, 1) + "%, and the 5× cap falls with it. Re-score after the restatement." });
+        } else if (owner === "owner-critical") {
+          checks.push({ warn: true, label: "Owner is the business",
+            note: "Cash flow depends on the departing owner. The proven record may not transfer — treat the margin and the 3 years as unproven until a GM can run it without them." });
+        } else if (owner === "owner-market") {
+          checks.push({ ok: true, label: "GM test already reflected in the numbers",
+            note: "The margin above already carries a full market GM salary. The test stands as scored." });
+        } else {
+          checks.push({ ok: true, label: "Management in place",
+            note: "A professional GM runs the business — ownership can change without breaking operations." });
+        }
+
+        var verdict = document.getElementById("verdict");
+        if (fails === 0 && !gmIssue) {
+          verdict.className = "verdict show buy";
+          verdict.innerHTML = "<h3>BUY — clears the filters</h3><p>All four filters pass on the numbers as scored. Standard structure: 25% down, 75% financed flexibly, debt cleared within 7 years. Still required: Dammy's personal approval, and a +5-point improvement plan drafted from the diligence levers.</p>";
+        } else if (fails === 0 && gmIssue) {
+          verdict.className = "verdict show exc";
+          verdict.innerHTML = "<h3>NOT YET — run the GM test first</h3><p>The four filters pass on the seller's numbers, but those numbers are not yet on the manual's basis. Restate with a market GM salary and re-score. If it still clears 12% and 5×, it is a Buy. If it only clears because of the owner, it does not clear.</p>";
+        } else if (fails === 1) {
+          verdict.className = "verdict show exc";
+          verdict.innerHTML = "<h3>EXCEPTION CASE — one filter failed</h3><p>A single miss can go to Group for a written, case-by-case exception: which filter, by how much, and why — recorded with the deal. Holdings cannot grant it. And no exception can ever touch the debt laws.</p>";
+        } else {
+          verdict.className = "verdict show pass";
+          verdict.innerHTML = "<h3>PASS — " + fails + " filters failed</h3><p>Multiple misses are not an exception case; they are a different business from the one the manual buys. Exceptions are for a deal that misses on one point and is otherwise right. Walk away, or revisit only if the facts — or the price — genuinely change.</p>";
+        }
+
+        var host = document.getElementById("drillChecks");
+        host.innerHTML = "";
+        checks.forEach(function (c) {
+          var d = document.createElement("div");
+          d.className = "check " + (c.warn ? "warn" : (c.ok ? "ok" : "no"));
+          d.innerHTML = '<span class="ic">' + (c.warn ? "!" : (c.ok ? "✓" : "✕")) + '</span><span>' + c.label + "<small>" + c.note + "</small></span>";
+          host.appendChild(d);
+        });
+
+        var cash = margin; // per 100 of revenue
+        var maxPrice = 5 * cash;
+        var askPrice = multiple * cash;
+        var derived = document.getElementById("drillDerived");
+        derived.style.display = "";
+        derived.innerHTML =
+          "<p><strong>On revenue of 100:</strong> cash is " + fmt(cash, 1) + ". Maximum price at 5× = <strong>" + fmt(maxPrice, 1) + "</strong>. Asking price at " + fmt(multiple, 1) + "× = <strong>" + fmt(askPrice, 1) + "</strong>.</p>" +
+          "<p>At the maximum price: down payment " + fmt(maxPrice * 0.25, 1) + ", financed " + fmt(maxPrice * 0.75, 1) + " — and that balance must clear within 7 years from proven cash (Law 2), before any distribution (Law 3).</p>";
+
+        state.drills = (state.drills || 0) + 1;
+        saveState(); refreshProgress();
+        verdict.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+    </script>
+  </body>
+</html>
