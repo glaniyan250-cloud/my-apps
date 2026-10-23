@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOG Holdings Acquisition Manual</title>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+body { margin:0; font-family:'Liberation Sans','Noto Sans',sans-serif; color:#1a1a1a; font-size:10.5pt; line-height:1.55; }
+.page { min-height:297mm; padding:18mm 18mm 16mm 18mm; position:relative; }
+h1,h2,h3 { font-family:'Noto Serif','Liberation Serif',serif; color:#113B2E; margin:0; }
+h2 { font-size:19pt; line-height:1.2; border-bottom:2.5px solid #C9A24A; padding-bottom:6px; margin-bottom:12px; }
+h2 .no { color:#C9A24A; }
+h3 { font-size:12pt; margin:14px 0 5px 0; }
+p { margin:0 0 8px 0; }
+ul,ol { margin:4px 0 10px 0; padding-left:18px; }
+li { margin-bottom:4px; }
+table { width:100%; border-collapse:collapse; margin:8px 0 14px 0; font-size:10pt; }
+th { background:#113B2E; color:#F5F0E8; text-align:left; padding:7px 9px; font-weight:700; }
+td { padding:6px 9px; border-bottom:1px solid #ddd5c2; vertical-align:top; }
+tr.alt td { background:#faf7f0; }
+.rule { background:#113B2E; color:#F5F0E8; padding:12px 14px; margin:10px 0 14px 0; border-left:5px solid #C9A24A; }
+.rule strong { color:#C9A24A; }
+.box { background:#F5F0E8; border:1px solid #d8cdb2; padding:11px 14px; margin:10px 0 14px 0; }
+.box h3 { margin-top:0; }
+.foot { position:absolute; bottom:10mm; left:18mm; right:18mm; font-size:8pt; color:#777; border-top:1px solid #ddd; padding-top:5px; display:flex; justify-content:space-between; }
+.kicker { font-size:9pt; letter-spacing:2.5px; text-transform:uppercase; color:#8a6d2f; font-weight:700; margin-bottom:8px; }
+.check td:first-child { width:26px; text-align:center; font-size:12pt; color:#113B2E; }
+.small { font-size:9.5pt; color:#444; }
+.compact h3 { margin:8px 0 3px 0; }
+.compact table { margin:4px 0 8px 0; }
+.compact td, .compact th { padding:4px 9px; }
+section, table, .box, .rule { break-inside:avoid; page-break-inside:avoid; }
+</style></head><body><div style="background:#113B2E;padding:10px 18px;font-family:sans-serif"><a href="../" style="color:#F5F0E8;text-decoration:none;font-size:14px">&#8592; My Apps</a></div>
+
+<!-- COVER -->
+<div class="page" style="background:#113B2E; color:#F5F0E8; padding:26mm 20mm;">
+<div style="border:1.5px solid #C9A24A; padding:16mm 12mm; min-height:225mm;">
+<div class="kicker" style="color:#C9A24A;">LOG Business Group</div>
+<div style="font-family:'Noto Serif',serif; font-size:40pt; line-height:1.1; color:#F5F0E8;">LOG Holdings<br>Acquisition<br>Manual</div>
+<div style="width:58px; height:3px; background:#C9A24A; margin:16px 0;"></div>
+<p style="font-size:13pt; color:#e8e0cd; max-width:120mm;">How LOG Holdings Inc. buys existing businesses, pays for them, distributes their cash, and improves them after purchase.</p>
+<p style="margin-top:26mm; font-size:10.5pt; color:#e8e0cd;">LOG Holdings Inc. &mdash; a subsidiary of LOG Business Group Inc.<br>First operating company: North Sea Fish Market, Calgary.</p>
+<p style="margin-top:10mm; font-size:9.5pt; color:#bdb294;">Version 1.0 &mdash; October 2026 &nbsp;|&nbsp; LEGACY &middot; GROWTH &middot; STEWARDSHIP</p>
+</div>
+</div>
+
+<!-- CONTENTS -->
+<div class="page">
+<div class="kicker">Contents</div>
+<h2>Contents</h2>
+<table>
+<tr><td style="width:40px;"><strong>1</strong></td><td>Buy Filters &mdash; what qualifies</td><td style="width:50px; text-align:right;">3</td></tr>
+<tr class="alt"><td><strong>2</strong></td><td>Price and Deal Structure</td><td style="text-align:right;">4</td></tr>
+<tr><td><strong>3</strong></td><td>Debt Laws</td><td style="text-align:right;">5</td></tr>
+<tr class="alt"><td><strong>4</strong></td><td>Cash Distribution Waterfall</td><td style="text-align:right;">6</td></tr>
+<tr><td><strong>5</strong></td><td>Post-Acquisition Improvement</td><td style="text-align:right;">7</td></tr>
+<tr class="alt"><td><strong>6</strong></td><td>Underperformer Ladder</td><td style="text-align:right;">8</td></tr>
+<tr><td><strong>7</strong></td><td>Governance and Exceptions</td><td style="text-align:right;">9</td></tr>
+<tr class="alt"><td><strong>8</strong></td><td>Monthly Reporting Standard</td><td style="text-align:right;">10</td></tr>
+<tr><td><strong>A</strong></td><td>Worked Examples</td><td style="text-align:right;">11</td></tr>
+<tr class="alt"><td><strong>B</strong></td><td>Quick-Reference Checklist</td><td style="text-align:right;">12</td></tr>
+</table>
+<h3>Purpose</h3>
+<p>LOG Holdings Inc. is a diversified holding company. It buys existing businesses across industries, from any seller, and holds them for the long term. Acquired companies keep running independently, with their existing management, while LOG trains the next generation of managers.</p>
+<p>Startups do not belong in Holdings. New ventures belong to LOG Ventures Inc.</p>
+<h3>How this manual works</h3>
+<p>Chapters 1 to 3 decide whether a deal happens and on what terms. Chapter 4 decides where the cash goes. Chapters 5 and 6 govern the company after purchase. Chapters 7 and 8 set who decides and what Group sees each month. Appendix A works the numbers. Appendix B is the whole manual on one page.</p>
+<div class="rule"><strong>The order never changes:</strong> debt is paid first, always. No distribution, bonus, or new acquisition comes ahead of a debt payment.</div>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>2</span></div>
+</div>
+
+<!-- CH 1 -->
+<div class="page">
+<div class="kicker">Chapter 1</div>
+<h2><span class="no">1</span> &nbsp;Buy Filters</h2>
+<p>A business qualifies for acquisition only if it clears all four filters. A business that fails a filter is not bought, unless Group approves a written exception under Chapter 7.</p>
+<table>
+<tr><th style="width:34%;">Filter</th><th>Standard</th></tr>
+<tr><td><strong>Cash margin</strong></td><td>At least <strong>12%</strong> cash margin, measured on the cash definition below, after the general manager (GM) replacement cost.</td></tr>
+<tr class="alt"><td><strong>Proven record</strong></td><td>At least <strong>3 years</strong> of proven cash flow. The rule is flat for all deals &mdash; there is no longer tier for large deals.</td></tr>
+<tr><td><strong>Regular years</strong></td><td>The 3 years must be <strong>regular</strong> years. An extraordinary year &mdash; a windfall contract, a one-off boom, a freak year &mdash; does not count as proof and is stripped out of the test and the price.</td></tr>
+<tr class="alt"><td><strong>Customer concentration</strong></td><td><strong>No single customer above 5%</strong> of revenue.</td></tr>
+</table>
+<h3>The cash definition</h3>
+<p>Every rule in this manual uses the same definition of cash. Cash is not EBITDA.</p>
+<div class="box">
+<p style="margin:0;"><strong>Cash</strong> = revenue collected, minus:</p>
+<ul style="margin-bottom:0;">
+<li>all operating costs, including a market GM salary where the business is owner-run;</li>
+<li>tax;</li>
+<li>maintenance capital expenditure only &mdash; what is needed to keep the business as it is, not growth spending.</li>
+</ul>
+</div>
+<p>The result is free cash <strong>before</strong> acquisition debt. Acquisition debt is paid from it. What remains is the distributable pot divided under Chapter 4.</p>
+<p>Growth spending is funded separately: from the company&rsquo;s retained earnings under Chapter 4, or by Group approval.</p>
+<h3>The GM test</h3>
+<p>For an owner-run business, restate the numbers with a market salary for a replacement GM before applying the 12% test and the 5x price cap. A business that only clears 12% because the owner works for less than market pay does not clear 12%.</p>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>3</span></div>
+</div>
+
+<!-- CH 2 -->
+<div class="page">
+<div class="kicker">Chapter 2</div>
+<h2><span class="no">2</span> &nbsp;Price and Deal Structure</h2>
+<div class="rule"><strong>Maximum price: 5x annual cash flow</strong>, calculated on cash as defined in Chapter 1, after the GM adjustment.</div>
+<table>
+<tr><th style="width:34%;">Term</th><th>Standard</th></tr>
+<tr><td><strong>Cash down</strong></td><td><strong>25%</strong> of the purchase price.</td></tr>
+<tr class="alt"><td><strong>Balance &mdash; 75%</strong></td><td>A mix of <strong>seller financing</strong> and <strong>financial institution debt</strong>.</td></tr>
+<tr><td><strong>Split of the 75%</strong></td><td><strong>Flexible, deal by deal.</strong> There is no fixed target split between seller financing and bank debt.</td></tr>
+</table>
+<h3>Worked shape of a max-price deal</h3>
+<p>On revenue of 100, a business at the 12% floor produces cash of 12. The maximum price is 60. The buyer pays 15 down and finances 45. Appendix A works this deal in full, including what the financing costs each year and what is left to distribute.</p>
+<h3>Discipline</h3>
+<ul>
+<li>Price follows proven, regular cash &mdash; never a seller&rsquo;s best year.</li>
+<li>If the price only works above 5x, the deal does not proceed at that price.</li>
+<li>The down payment and the financing mix are set deal by deal, inside the 25 / 75 structure above.</li>
+</ul>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>4</span></div>
+</div>
+
+<!-- CH 3 -->
+<div class="page">
+<div class="kicker">Chapter 3</div>
+<h2><span class="no">3</span> &nbsp;Debt Laws</h2>
+<p>Three laws govern all debt in LOG Holdings. They are absolute. Chapter 7 allows exceptions to the buy filters; no exception can touch these laws.</p>
+<div class="rule"><strong>Law 1 &mdash; Acquisitions only.</strong> Debt is taken on to acquire businesses, never to fund operations. Operating companies self-finance.</div>
+<div class="rule"><strong>Law 2 &mdash; Gone within 7 years.</strong> Every acquisition debt is paid off within 7 years of the purchase.</div>
+<div class="rule"><strong>Law 3 &mdash; Debt before everything.</strong> Debt is paid before any distribution. &ldquo;We always pay our debt.&rdquo;</div>
+<h3>What the laws mean in practice</h3>
+<ul>
+<li>A company in difficulty does not borrow to cover operating costs. Group intervenes under Chapter 6 instead.</li>
+<li>No layer of the group &mdash; company, Holdings, or Business Group &mdash; receives a distribution in a period where a due debt payment has not been made.</li>
+<li>Deal terms are tested against Law 2 before signing: if the financed balance cannot be cleared within 7 years from the company&rsquo;s proven cash, the price or the structure is wrong.</li>
+</ul>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>5</span></div>
+</div>
+
+<!-- CH 4 -->
+<div class="page">
+<div class="kicker">Chapter 4</div>
+<h2><span class="no">4</span> &nbsp;Cash Distribution Waterfall</h2>
+<p>The split applies only to cash remaining <strong>after</strong> acquisition debt payments. Debt service comes first, in full, every period.</p>
+<h3>Step 1 &mdash; Pay the debt</h3>
+<p>The company pays its acquisition debt from its cash, as defined in Chapter 1. The balance after that payment is the distributable pot.</p>
+<h3>Step 2 &mdash; Split the distributable pot</h3>
+<table>
+<tr><th>Recipient</th><th style="width:70px;">Share</th><th>Inside the share</th></tr>
+<tr><td><strong>Company</strong></td><td>25%</td><td>20% retained earnings &middot; 5% staff bonuses</td></tr>
+<tr class="alt"><td><strong>Holdings</strong> (country)</td><td>5%</td><td>2.5% management fee &middot; 2.5% administration</td></tr>
+<tr><td><strong>LOG Business Group</strong></td><td>57.5%</td><td>40% acquisitions &middot; 15% LOG Investments &middot; 2.5% administration</td></tr>
+<tr class="alt"><td><strong>LOG Global Foundation</strong></td><td>12.5%</td><td>10% foundation work &middot; 2.5% administration</td></tr>
+<tr><td colspan="2"><strong>Total</strong></td><td><strong>100%</strong></td></tr>
+</table>
+<h3>The split by purpose</h3>
+<table>
+<tr><th>Purpose</th><th style="width:70px;">Share</th></tr>
+<tr><td>Compounding &mdash; acquisitions and LOG Investments</td><td>55%</td></tr>
+<tr class="alt"><td>Retained in the company</td><td>20%</td></tr>
+<tr><td>Staff bonuses</td><td>5%</td></tr>
+<tr class="alt"><td>Foundation work</td><td>10%</td></tr>
+<tr><td>Management and administration, all layers</td><td>10%</td></tr>
+</table>
+<h3>Why the capital sits at Business Group</h3>
+<p>Acquisition decisions are made at Group level, not at Holdings level. Cash follows decision rights. Holdings is a lean management layer paid on its 5% fee; it is not the capital holder. Holding the acquisition fund centrally keeps control and sound judgement in one place and keeps cash from lying idle in a country Holdings.</p>
+<h3>Timing</h3>
+<p>Companies <strong>report monthly</strong>. Cash <strong>sweeps and distributes quarterly</strong>.</p>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>6</span></div>
+</div>
+
+<!-- CH 5 -->
+<div class="page">
+<div class="kicker">Chapter 5</div>
+<h2><span class="no">5</span> &nbsp;Post-Acquisition Improvement</h2>
+<div class="rule"><strong>Target: +5 percentage points of margin</strong> on every acquisition &mdash; for example, 12% to 17%. Not 5% relative.</div>
+<p>After every acquisition, Group and management actively look for two kinds of lever:</p>
+<ul>
+<li><strong>Eliminate inefficiencies</strong> &mdash; costs, waste, and process that add nothing for the customer.</li>
+<li><strong>Increase prices</strong> &mdash; where the offer supports it, price to the value delivered.</li>
+</ul>
+<h3>The clock</h3>
+<table>
+<tr><th style="width:34%;">Milestone</th><th>Standard</th></tr>
+<tr><td><strong>Plan</strong></td><td>Improvement levers are identified during diligence and the first 100 days, and sequenced into a plan.</td></tr>
+<tr class="alt"><td><strong>Full activation</strong></td><td><strong>100% fully activated by month 30.</strong></td></tr>
+<tr><td><strong>Why 30 months</strong></td><td>Some levers are constrained by contractual obligations &mdash; leases, supplier terms, customer pricing agreements, labour contracts &mdash; that must run off or be renegotiated before the lever can move.</td></tr>
+</table>
+<h3>Live example</h3>
+<div class="box">
+<h3>North Sea Fish Market</h3>
+<p style="margin:0;">LOG Holdings&rsquo; first operating company is already running this rule: margin is being raised from <strong>40% to 45%</strong> by increasing prices. That is the same +5-point move this chapter requires of every future acquisition.</p>
+</div>
+<h3>Why it matters</h3>
+<p>The debt payment does not change when margin rises, so the improvement falls almost entirely into the distributable pot. Appendix A shows the effect on a max-price deal: the pot rises from 3.65 to 8.65 on revenue of 100, an increase of 137%.</p>
+<p>Progress against the plan is reported monthly &mdash; see item 6 of the reporting standard in Chapter 8.</p>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>7</span></div>
+</div>
+
+<!-- CH 6 -->
+<div class="page">
+<div class="kicker">Chapter 6</div>
+<h2><span class="no">6</span> &nbsp;Underperformer Ladder</h2>
+<p>The ladder applies when a company&rsquo;s cash margin falls below 12%. Debt is still paid first at every step.</p>
+<p class="small">Why the triggers are early: at a max-price purchase, annual debt service takes about 70% of cash at a 12% margin. At 9% it takes 92.8%. At 8% it takes 104.4% &mdash; more than all of the cash. There is no room to wait for a full bad year. See Appendix A.</p>
+<table>
+<tr><th style="width:22%;">Step</th><th style="width:26%;">Trigger</th><th>Action</th></tr>
+<tr><td><strong>1 &mdash; Watch</strong></td><td>Below 12% for 1 quarter</td><td>Bonuses pause. Distributions pause. Management explains the cause in writing: temporary, management, or structural.</td></tr>
+<tr class="alt"><td><strong>2 &mdash; Intervene</strong></td><td>Below 12% for 2 consecutive quarters</td><td>Group turnaround plan. Growth spending frozen. Holdings may replace the GM with a LOG-trained manager.</td></tr>
+<tr><td><strong>3 &mdash; Decide</strong></td><td>No return to 12% and no clear path back after the <strong>2-year recovery window</strong></td><td>Group decides: fix, restructure, or sell while the business still has value.</td></tr>
+</table>
+<div class="rule"><strong>Emergency override:</strong> if cash goes negative, or a debt payment is at risk, Group intervenes immediately. The ladder timeline does not apply.</div>
+<h3>Judgement rules</h3>
+<ul>
+<li>One extraordinary bad year alone is not a sell trigger, just as one extraordinary good year was not proof at purchase. Cause decides.</li>
+<li>Fix what is fixable. Sell what is structural.</li>
+<li>While a company is below 12%, its paused bonuses and distributions stay paused until it returns to 12%.</li>
+</ul>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>8</span></div>
+</div>
+
+<!-- CH 7 -->
+<div class="page">
+<div class="kicker">Chapter 7</div>
+<h2><span class="no">7</span> &nbsp;Governance and Exceptions</h2>
+<h3>Where decisions sit</h3>
+<table>
+<tr><th style="width:34%;">Decision</th><th>Owner</th></tr>
+<tr><td>Acquisition decisions</td><td><strong>LOG Business Group level</strong> &mdash; not Holdings level.</td></tr>
+<tr class="alt"><td>Deal approval</td><td><strong>Dammy personally approves every acquisition</strong>, for now. Approval thresholds for others will be added as the Group team grows.</td></tr>
+<tr><td>Company management</td><td>Each country Holdings manages its operating companies for its 5% fee under Chapter 4.</td></tr>
+<tr class="alt"><td>Growth spending above retained earnings</td><td>Group approval.</td></tr>
+</table>
+<h3>Structure</h3>
+<p>LOG Holdings Inc. sits under LOG Business Group Inc. Holdings is the only subsidiary registered country by country &mdash; Canada first, then the United States, Nigeria, the United Kingdom, Australia, Brazil, and others. Each country&rsquo;s Holdings directly owns the operating businesses in that country. The other subsidiaries &mdash; LOG Capital, LOG Ventures, LOG Properties, and LOG Investments &mdash; form a local entity only where a specific business case requires it.</p>
+<h3>Exceptions</h3>
+<div class="box">
+<p><strong>Buy filters &mdash; exceptionable, case by case.</strong> Group may approve a written exception to the 12% cash test, the 5x price cap, the 3-year rule, or the 5% customer cap. Holdings cannot grant its own exception.</p>
+<p style="margin:0;"><strong>Debt laws &mdash; no exceptions.</strong> Acquisitions-only debt, cleared within 7 years, paid before any distribution. No approval, at any level, can override these.</p>
+</div>
+<p>An exception is recorded with the deal: which filter, by how much, and why. An exception changes that deal only. It does not change the standard.</p>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>9</span></div>
+</div>
+
+<!-- CH 8 -->
+<div class="page">
+<div class="kicker">Chapter 8</div>
+<h2><span class="no">8</span> &nbsp;Monthly Reporting Standard</h2>
+<p>One page per company, every month. Six items. The same format for every company in every country.</p>
+<table>
+<tr><th style="width:36px;">#</th><th>Item</th><th>What it shows</th></tr>
+<tr><td><strong>1</strong></td><td><strong>Revenue and cash</strong></td><td>Revenue and cash per the Chapter 1 definition, with the cash margin %.</td></tr>
+<tr class="alt"><td><strong>2</strong></td><td><strong>Debt</strong></td><td>Debt balance, and confirmation the payment was made.</td></tr>
+<tr><td><strong>3</strong></td><td><strong>Largest customer</strong></td><td>Largest customer as a % of revenue.</td></tr>
+<tr class="alt"><td><strong>4</strong></td><td><strong>Cash in bank</strong></td><td>Cash balance at month end.</td></tr>
+<tr><td><strong>5</strong></td><td><strong>Red flags</strong></td><td>Any red flag: GM issue, lost customer, major breakdown, or equivalent.</td></tr>
+<tr class="alt"><td><strong>6</strong></td><td><strong>Improvement progress</strong></td><td>Margin now against the +5-point plan, and what activates next.</td></tr>
+</table>
+<h3>What the report feeds</h3>
+<ul>
+<li><strong>The underperformer ladder</strong> (Chapter 6) &mdash; items 1, 2, and 5 trigger the steps.</li>
+<li><strong>The quarterly sweep</strong> (Chapter 4) &mdash; items 1, 2, and 4 set the distributable pot.</li>
+<li><strong>Exception and approval decisions</strong> (Chapter 7) &mdash; the same six items are the record Group decides from.</li>
+</ul>
+<p>If an item has nothing to report, it says so. A blank item is a missing report.</p>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>10</span></div>
+</div>
+
+<!-- APPENDIX A -->
+<div class="page compact" style="padding-top:12mm; padding-bottom:10mm;">
+<div class="kicker">Appendix A</div>
+<h2>Worked Examples</h2>
+<p class="small">Illustration on revenue of 100. Financing at 7% interest over a 7-year term.</p>
+<h3>Example 1 &mdash; A max-price deal at the 12% floor</h3>
+<table>
+<tr><th>Line</th><th style="width:90px;">Amount</th><th>Note</th></tr>
+<tr><td>Revenue</td><td>100</td><td></td></tr>
+<tr class="alt"><td>Cash (12% margin)</td><td>12</td><td>Per the Chapter 1 definition, after GM cost</td></tr>
+<tr><td>Maximum price (5x cash)</td><td>60</td><td>Chapter 2 price cap</td></tr>
+<tr class="alt"><td>Down payment (25%)</td><td>15</td><td></td></tr>
+<tr><td>Financed (75%)</td><td>45</td><td>Seller financing and bank debt, flexible mix</td></tr>
+<tr class="alt"><td>Annual debt service</td><td>8.35</td><td>7% interest, 7-year term</td></tr>
+<tr><td>Debt service as % of cash</td><td>69.6%</td><td>8.35 of 12</td></tr>
+<tr class="alt"><td><strong>Distributable after debt</strong></td><td><strong>3.65</strong></td><td>12 &minus; 8.35</td></tr>
+</table>
+<h3>The distributable pot, split under Chapter 4</h3>
+<table>
+<tr><th>Recipient</th><th style="width:90px;">Share</th><th style="width:90px;">Amount</th></tr>
+<tr><td>Company (25%)</td><td>25%</td><td>0.91</td></tr>
+<tr class="alt"><td>Holdings (5%)</td><td>5%</td><td>0.18</td></tr>
+<tr><td>LOG Business Group (57.5%)</td><td>57.5%</td><td>2.10</td></tr>
+<tr class="alt"><td>LOG Global Foundation (12.5%)</td><td>12.5%</td><td>0.46</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>100%</strong></td><td><strong>3.65</strong></td></tr>
+</table>
+<h3>Example 2 &mdash; After the +5-point improvement</h3>
+<p>Margin rises from 12% to 17%. Cash rises from 12 to 17 on the same revenue. The debt payment does not change.</p>
+<table>
+<tr><th>Line</th><th style="width:110px;">At purchase</th><th style="width:110px;">After improvement</th></tr>
+<tr><td>Cash</td><td>12</td><td>17</td></tr>
+<tr class="alt"><td>Annual debt service</td><td>8.35</td><td>8.35</td></tr>
+<tr><td>Debt service as % of cash</td><td>69.6%</td><td>49.1%</td></tr>
+<tr class="alt"><td><strong>Distributable pot</strong></td><td><strong>3.65</strong></td><td><strong>8.65 (+137%)</strong></td></tr>
+</table>
+<h3>Sensitivity &mdash; why the ladder triggers early</h3>
+<table>
+<tr><th>Cash margin</th><th style="width:110px;">Cash</th><th>Debt service as % of cash</th></tr>
+<tr><td>12%</td><td>12</td><td>69.6%</td></tr>
+<tr class="alt"><td>9%</td><td>9</td><td>92.8%</td></tr>
+<tr><td>8%</td><td>8</td><td>104.4% &mdash; debt service exceeds all cash</td></tr>
+</table>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>11</span></div>
+</div>
+
+<!-- APPENDIX B -->
+<div class="page compact" style="padding-top:12mm; padding-bottom:10mm;">
+<div class="kicker">Appendix B</div>
+<h2>Quick-Reference Checklist</h2>
+<p>Use in a live deal review. Every box must be checked, or a Group exception recorded under Chapter 7.</p>
+<h3>Before we buy</h3>
+<table class="check">
+<tr><td>&#9744;</td><td>Cash margin at least <strong>12%</strong>, on the Chapter 1 cash definition</td></tr>
+<tr><td>&#9744;</td><td>Numbers restated with a <strong>market GM salary</strong> (GM test)</td></tr>
+<tr><td>&#9744;</td><td><strong>3 regular years</strong> of proven cash flow &mdash; extraordinary years stripped out</td></tr>
+<tr><td>&#9744;</td><td><strong>No customer above 5%</strong> of revenue</td></tr>
+<tr><td>&#9744;</td><td>Price at or below <strong>5x annual cash</strong></td></tr>
+<tr><td>&#9744;</td><td><strong>25% down</strong>; 75% as seller financing and bank debt, mix set for this deal</td></tr>
+<tr><td>&#9744;</td><td>Financed balance clears <strong>within 7 years</strong> from proven cash</td></tr>
+<tr><td>&#9744;</td><td>Improvement levers identified; <strong>+5-point plan</strong> drafted</td></tr>
+<tr><td>&#9744;</td><td><strong>Dammy&rsquo;s approval</strong> obtained</td></tr>
+</table>
+<h3>Every period, in order</h3>
+<table class="check">
+<tr><td>1</td><td><strong>Pay the debt.</strong> Before anything else. Always.</td></tr>
+<tr><td>2</td><td>Split what remains: <strong>Company 25% &middot; Holdings 5% &middot; Business Group 57.5% &middot; Foundation 12.5%</strong></td></tr>
+<tr><td>3</td><td><strong>Report monthly</strong> &mdash; six items, one page. <strong>Sweep quarterly.</strong></td></tr>
+</table>
+<h3>Non-negotiables</h3>
+<table class="check">
+<tr><td>&mdash;</td><td>Debt for <strong>acquisitions only</strong>, never operations</td></tr>
+<tr><td>&mdash;</td><td>Every acquisition debt <strong>gone within 7 years</strong></td></tr>
+<tr><td>&mdash;</td><td><strong>Debt paid before any distribution</strong> &mdash; no exceptions</td></tr>
+<tr><td>&mdash;</td><td>Below 12%: <strong>Watch</strong> (1 quarter) &rarr; <strong>Intervene</strong> (2 quarters) &rarr; <strong>Decide</strong> (2-year window)</td></tr>
+<tr><td>&mdash;</td><td>Cash negative or a debt payment at risk: <strong>Group intervenes immediately</strong></td></tr>
+<tr><td>&mdash;</td><td><strong>+5 points by month 30</strong>, 100% activated</td></tr>
+</table>
+<div style="margin-top:6mm; border-top:2px solid #C9A24A; padding-top:8px;">
+<p class="small" style="margin:0;">LOG Holdings Acquisition Manual &middot; Version 1.0 &middot; October 2026 &middot; LOG Business Group &mdash; LEGACY &middot; GROWTH &middot; STEWARDSHIP</p>
+</div>
+<div class="foot"><span>LOG Holdings Acquisition Manual</span><span>12</span></div>
+</div>
+
+</body></html>
