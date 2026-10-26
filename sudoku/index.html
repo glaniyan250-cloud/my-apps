@@ -26,8 +26,10 @@
   .bigbtn{background:var(--navy); color:var(--cream); border:0; border-radius:14px; padding:16px 28px;
     font-size:18px; font-weight:700; cursor:pointer; margin:8px; min-width:min(80vw,300px);}
   .bigbtn.gold{background:var(--gold); color:var(--navy);}
+  .bigbtn:disabled{opacity:.45; cursor:default;}
   .btn{background:var(--navy); color:var(--cream); border:0; border-radius:10px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
   .btn.ghost{background:transparent; color:var(--navy); border:2px solid var(--navy);}
+  .btn.small{padding:4px 12px; font-size:12px;}
   .btn:disabled{opacity:.45; cursor:default;}
   .controls{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; align-items:center;}
   .seg{display:flex; border:2px solid var(--navy); border-radius:10px; overflow:hidden;}
@@ -64,27 +66,39 @@
   #racebar{width:min(92vw,440px); background:#fff; border:2px solid var(--navy); border-radius:12px;
     padding:10px 14px; margin-bottom:12px; display:none;}
   #racebar.on{display:block;}
-  #racebar .row{display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:600; color:var(--navy);}
+  #racebar .row{display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:600; color:var(--navy); gap:6px;}
   #roomcode{font-size:20px; letter-spacing:4px; font-weight:800; color:var(--navy);}
-  #lb{margin-top:8px; max-height:150px; overflow-y:auto;}
+  #lb{margin-top:8px; max-height:170px; overflow-y:auto;}
   .lbrow{display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 0;}
   .lbrow .nm{width:88px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600;}
   .lbrow .bar{flex:1; height:8px; background:var(--rel); border-radius:4px; overflow:hidden;}
   .lbrow .fill{height:100%; background:var(--gold); border-radius:4px; transition:width .3s;}
   .lbrow.done .fill{background:var(--ok);}
-  .lbrow .pc{width:38px; text-align:right; font-variant-numeric:tabular-nums; color:var(--muted);}
+  .lbrow .pc{width:44px; text-align:right; font-variant-numeric:tabular-nums; color:var(--muted);}
   .lbrow.me .nm{color:var(--navy); text-decoration:underline;}
   .card{background:#fff; border-radius:14px; padding:20px; width:min(92vw,400px); margin:8px 0;
     border:2px solid var(--line); text-align:center;}
+  .card h3{margin:0 0 8px; color:var(--navy); font-size:17px;}
   .card input{width:100%; padding:12px; font-size:16px; border:2px solid var(--line); border-radius:10px;
-    margin:8px 0; text-align:center; letter-spacing:2px; text-transform:uppercase;}
+    margin:8px 0; text-align:center;}
+  .card input.code{letter-spacing:3px; text-transform:uppercase;}
   .card input.name{text-transform:none; letter-spacing:0;}
   .plink{font-size:12px; color:var(--muted); word-break:break-all; margin:8px 0;}
-  #lobbyList{text-align:left; margin:10px 0;}
-  #lobbyList .prow{padding:6px 0; font-weight:600; border-bottom:1px solid var(--rel); font-size:14px;}
+  .stepper{display:flex; align-items:center; justify-content:center; gap:14px; margin:10px 0;}
+  .stepper button{width:38px; height:38px; border-radius:50%; border:2px solid var(--navy); background:#fff;
+    color:var(--navy); font-size:20px; font-weight:700; cursor:pointer;}
+  .stepper .val{font-size:22px; font-weight:800; color:var(--navy); min-width:30px;}
+  .stepper .lbl{font-size:13px; color:var(--muted); max-width:150px; text-align:left;}
+  .prow{display:flex; justify-content:space-between; align-items:center; padding:7px 0; font-weight:600;
+    border-bottom:1px solid var(--rel); font-size:14px;}
+  .prow .dot{width:9px; height:9px; border-radius:50%; background:var(--ok); display:inline-block; margin-right:7px;}
+  .prow .dot.off{background:var(--muted);}
+  .reqrow{display:flex; justify-content:space-between; align-items:center; padding:7px 0; font-weight:600;
+    border-bottom:1px solid var(--rel); font-size:14px;}
   .crown{color:var(--gold);}
   .setup ol{text-align:left; font-size:13.5px; color:var(--ink); padding-left:20px;}
   .setup code{background:var(--rel); padding:1px 5px; border-radius:4px; font-size:12px;}
+  .count{font-size:15px; font-weight:700; color:var(--navy); margin:8px 0;}
 </style>
 </head>
 <body>
@@ -104,15 +118,28 @@
   <div class="card" id="raceSetup">
     <div class="tag">Your display name</div>
     <input class="name" id="raceName" maxlength="16" placeholder="e.g. Dammy">
+    <h3>Create a room</h3>
     <div class="seg" id="raceDiff" style="margin:8px auto; width:fit-content;">
       <button data-d="easy" class="active">Easy</button>
       <button data-d="medium">Medium</button>
       <button data-d="hard">Hard</button>
     </div>
+    <div class="stepper">
+      <button id="expMinus">−</button>
+      <span class="val" id="expVal">2</span>
+      <button id="expPlus">+</button>
+      <span class="lbl">total players, including you</span>
+    </div>
     <button class="bigbtn gold" id="btnCreate" style="min-width:0; width:100%;">Create room</button>
-    <div class="tag" style="margin:12px 0 4px;">— or join with a code —</div>
-    <input id="joinCode" maxlength="6" placeholder="ABC123">
-    <button class="btn ghost" id="btnJoin" style="width:100%;">Join room</button>
+    <div class="tag" style="margin:14px 0 4px;">— or join a room —</div>
+    <div id="joinViaLink" style="display:none;">
+      <div class="tag">You're joining room <b id="joinRoomCode" style="color:var(--navy); letter-spacing:2px;"></b></div>
+      <button class="btn" id="btnAskJoin" style="width:100%;">Ask to join</button>
+    </div>
+    <div id="joinViaCode">
+      <input class="code" id="joinCode" maxlength="6" placeholder="Room code (ABC123)">
+      <button class="btn ghost" id="btnAskJoin2" style="width:100%;">Ask to join</button>
+    </div>
     <div class="tag"><br><a href="#" id="backHome1" style="color:var(--navy);">← back</a></div>
   </div>
   <div class="card setup" id="fbSetup" style="display:none;">
@@ -127,6 +154,17 @@
   </div>
 </div>
 
+<!-- WAITING FOR ADMISSION -->
+<div class="screen" id="s_wait">
+  <h1>WAITING</h1>
+  <div class="card">
+    <div class="tag">Request sent to the host of room <b id="waitCode" style="color:var(--navy); letter-spacing:2px;"></b></div>
+    <p style="font-weight:600;">Waiting for the host to admit you…</p>
+    <div class="tag" id="waitMsg"></div>
+    <button class="btn ghost" id="btnCancelJoin" style="width:100%;">Cancel request</button>
+  </div>
+</div>
+
 <!-- LOBBY -->
 <div class="screen" id="s_lobby">
   <h1>LOBBY</h1>
@@ -135,9 +173,20 @@
     <div id="roomcode">------</div>
     <div class="plink" id="roomlink"></div>
     <button class="btn" id="btnCopy">Copy invite link</button>
+    <div class="count" id="admitCount"></div>
+    <div id="expAdjust" style="display:none;">
+      <div class="stepper" style="margin:4px 0;">
+        <button id="lobbyExpMinus">−</button>
+        <span class="val" id="lobbyExpVal">2</span>
+        <button id="lobbyExpPlus">+</button>
+        <span class="lbl">expected players</span>
+      </div>
+    </div>
     <div id="lobbyList"></div>
+    <div id="reqList"></div>
     <div class="tag" id="lobbyMsg">Waiting for players…</div>
-    <button class="bigbtn gold" id="btnStart" style="min-width:0; width:100%; display:none;">Start race</button>
+    <div class="tag" id="hostLeftMsg" style="display:none; color:var(--err);">The host has left the room. You can leave and create your own room.</div>
+    <button class="bigbtn gold" id="btnStart" style="min-width:0; width:100%; display:none;" disabled>Start race</button>
     <div class="tag"><a href="#" id="leaveLobby" style="color:var(--navy);">Leave room</a></div>
   </div>
 </div>
@@ -145,8 +194,11 @@
 <!-- GAME -->
 <div class="screen" id="s_game">
   <div id="racebar">
-    <div class="row"><span>ROOM <b id="rbCode"></b></span><span><b id="rbTime">0:00</b></span>
-      <button class="btn ghost" id="btnLeaveRace" style="padding:4px 10px; font-size:12px;">Leave</button></div>
+    <div class="row"><span>ROOM <b id="rbCode"></b></span>
+      <span>
+        <button class="btn ghost small" id="btnRacePause">Pause</button>
+        <button class="btn ghost small" id="btnLeaveRace">Leave</button>
+      </span></div>
     <div id="lb"></div>
   </div>
   <div class="controls" id="soloControls">
@@ -171,9 +223,7 @@
 
 <script>
 "use strict";
-/* ================= FIREBASE CONFIG =================
-   Paste your web app's firebaseConfig here to enable Race mode.
-   Leave as-is and Race will show setup instructions. */
+/* ================= FIREBASE CONFIG ================= */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCE_pqG3fWWEZamtSR3T4OXHSgTSdlRLQA",
   authDomain: "sudoku-race-608ba.firebaseapp.com",
@@ -248,7 +298,7 @@ function makePuzzle(level,rand){
 let solution, puzzle, given=[], notes=[], undoStack=[];
 let sel=null, notesMode=false, paused=false, locked=false;
 let mistakes=0, hintsLeft=3, timer=0, timerId=null;
-let mode='solo'; // 'solo' | 'race'
+let mode='solo';
 const board=$('board'), msg=$('msg'), cells=[];
 
 for(let r=0;r<9;r++) for(let c=0;c<9;c++){
@@ -260,11 +310,11 @@ for(let r=0;r<9;r++) for(let c=0;c<9;c++){
   d.addEventListener('click',()=>select(r,c));
   board.appendChild(d); cells.push(d);
 }
-const pad=$('pad'), numBtns=[];
+const pad=$('pad');
 for(let n=1;n<=9;n++){
   const b=document.createElement('button'); b.textContent=n;
   b.addEventListener('click',()=>enterNumber(n));
-  pad.appendChild(b); numBtns.push(b);
+  pad.appendChild(b);
 }
 [['erase','Erase'],['notes','Notes'],['hint','Hint'],['undo','Undo'],['restart','Restart']]
 .forEach(([id,label])=>{
@@ -337,12 +387,13 @@ function enterNumber(n){
   pushUndo();
   if(notesMode){
     if(notes[r][c].has(n)) notes[r][c].delete(n); else notes[r][c].add(n);
-    render(); highlight(); return;
+    render(); highlight(); saveLocal(); return;
   }
   if(n===solution[r][c]){
     puzzle[r][c]=n; notes[r][c].clear(); clearPeerNotes(r,c,n);
     render(); highlight();
     if(mode==='race') raceReport();
+    saveLocal();
     if(isComplete()) win();
     else { const nc=autoAdvance(r,c); if(nc){ sel=nc; highlight(); } }
   } else {
@@ -355,6 +406,7 @@ function enterNumber(n){
       $('mist').textContent=mistakes+'/3';
       if(mistakes>=3){ locked=true; clearInterval(timerId); msg.textContent='Game over — 3 mistakes. Start a new game to try again.'; }
     }
+    saveLocal();
   }
 }
 function clearPeerNotes(r,c,n){
@@ -376,11 +428,11 @@ function win(){
 function util(id){
   if(id==='notes'){ notesMode=!notesMode; $('u_notes').classList.toggle('on',notesMode); return; }
   if(paused && id!=='restart'){ msg.textContent='Resume to play.'; return; }
-  if(!sel||locked) { if(id==='restart') newGame(currentDiff()); return; }
+  if(!sel||locked) { if(id==='restart') { if(mode==='race') raceRestart(); else newGame(currentDiff()); } return; }
   const {r,c}=sel;
   if(id==='erase'){
     if(given[r][c]||puzzle[r][c]) return;
-    pushUndo(); notes[r][c].clear(); render(); highlight();
+    pushUndo(); notes[r][c].clear(); render(); highlight(); saveLocal();
   }
   else if(id==='hint'){
     if(mode==='race'){ msg.textContent='No hints in a race — pure skill.'; return; }
@@ -398,9 +450,10 @@ function util(id){
     mistakes=s.m; hintsLeft=s.h; sel=s.sel;
     render(); highlight();
     if(mode==='race') raceReport();
+    saveLocal();
   }
   else if(id==='restart'){
-    if(mode==='race'){ raceRestart(); } else newGame(currentDiff());
+    if(mode==='race') raceRestart(); else newGame(currentDiff());
   }
 }
 function pushUndo(){ undoStack.push({p:puzzle.map(r=>r.slice()), n:notes.map(r=>r.map(s=>new Set(s))), m:mistakes, h:hintsLeft, sel:sel?{...sel}:null}); }
@@ -446,6 +499,7 @@ $('btnSolo').addEventListener('click',()=>{ startSolo(); });
 $('btnRace').addEventListener('click',()=>{
   if(!firebaseReady()){ $('raceSetup').style.display='none'; $('fbSetup').style.display='block'; }
   else { $('raceSetup').style.display='block'; $('fbSetup').style.display='none'; }
+  setupRaceScreen();
   show('s_race');
 });
 const backHome=e=>{ e.preventDefault(); show('s_home'); };
@@ -463,7 +517,7 @@ function startSolo(){
 }
 
 /* ================= RACE (Firebase) ================= */
-let db=null, race=null; // race: {code, pid, name, isHost, diff, players:{}, winner, offset}
+let db=null, race=null;
 function firebaseReady(){
   try{
     if(FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('PASTE') && typeof firebase!=='undefined'){
@@ -475,77 +529,195 @@ function firebaseReady(){
   return false;
 }
 const CODE_CHARS='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-function makeCode(){ let s=''; const r=Math.random; for(let i=0;i<6;i++) s+=CODE_CHARS[Math.floor(r()*CODE_CHARS.length)]; return s; }
+function makeCode(){ let s=''; for(let i=0;i<6;i++) s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)]; return s; }
 function myName(){ return ($('raceName').value||'').trim().slice(0,16)||'Player'; }
 function roomRef(code){ return db.ref('rooms/'+code); }
+function hashCode(){ const m=location.hash.match(/^#race-([A-Z0-9]{6})$/i); return m?m[1].toUpperCase():null; }
+function inviteLink(code){ return location.origin+location.pathname+'#race-'+code; }
 
+let expectedCount=2;
+function setupRaceScreen(){
+  const hc=hashCode();
+  if(hc){
+    $('joinViaLink').style.display='block';
+    $('joinViaCode').style.display='none';
+    $('joinRoomCode').textContent=hc;
+  } else {
+    $('joinViaLink').style.display='none';
+    $('joinViaCode').style.display='block';
+  }
+  $('expVal').textContent=expectedCount;
+}
+$('expMinus').addEventListener('click',()=>{ expectedCount=Math.max(2,expectedCount-1); $('expVal').textContent=expectedCount; });
+$('expPlus').addEventListener('click',()=>{ expectedCount=Math.min(10,expectedCount+1); $('expVal').textContent=expectedCount; });
+
+/* ---------- create room ---------- */
 $('btnCreate').addEventListener('click',()=>{
   const code=makeCode(), name=myName(), diff=raceDiff();
   const pid='p'+Math.random().toString(36).slice(2,10);
   roomRef(code).set({
-    diff, status:'lobby', createdAt:firebase.database.ServerValue.TIMESTAMP, winner:null,
-    players:{ [pid]:{ name, progress:0, mistakes:0, finished:false, finishTime:null, joinedAt:firebase.database.ServerValue.TIMESTAMP } }
-  }).then(()=>{
-    enterRace(code,pid,name,true,diff);
-  }).catch(()=>{ msg.textContent='Could not create room — check connection.'; });
+    diff, status:'lobby', expected:expectedCount, hostPid:pid,
+    createdAt:firebase.database.ServerValue.TIMESTAMP, startedAt:null, winner:null,
+    players:{ [pid]:{ name, progress:0, mistakes:0, finished:false, finishTime:null,
+      paused:false, pausedTotal:0, connected:true } },
+    requests:{}
+  }).then(()=>enterLobby(code,pid,name,true,diff,expectedCount,pid));
 });
-$('btnJoin').addEventListener('click',()=>{
-  const code=($('joinCode').value||'').trim().toUpperCase();
-  if(code.length!==6){ $('joinCode').focus(); return; }
-  const name=myName(), pid='p'+Math.random().toString(36).slice(2,10);
+
+/* ---------- ask to join ---------- */
+function askToJoin(code){
+  const name=myName();
+  const pid='p'+Math.random().toString(36).slice(2,10);
   roomRef(code).get().then(snap=>{
     const room=snap.val();
     if(!room){ alert('Room not found — check the code.'); return; }
-    const n=Object.keys(room.players||{}).length;
-    if(n>=10){ alert('Room is full (10 players max).'); return; }
     if(room.status!=='lobby'){ alert('Race already started — ask the host for a new room.'); return; }
-    roomRef(code+'/players/'+pid).set({ name, progress:0, mistakes:0, finished:false, finishTime:null,
-      joinedAt:firebase.database.ServerValue.TIMESTAMP }).then(()=>enterRace(code,pid,name,false,room.diff));
+    const pending=Object.values(room.requests||{}).filter(r=>r.status==='pending').length;
+    const admitted=Object.keys(room.players||{}).length;
+    if(admitted+pending>=10){ alert('Room is full (10 players max).'); return; }
+    roomRef(code+'/requests/'+pid).set({ name, status:'pending',
+      requestedAt:firebase.database.ServerValue.TIMESTAMP }).then(()=>{
+      race={code,pid,name,isHost:false,diff:room.diff,expected:room.expected,
+        players:room.players||{},requests:room.requests||{},winner:null,startedAt:null,offset:0,
+        paused:false,pausedTotal:0,pauseStartedAt:0,finished:false,hostPid:room.hostPid};
+      $('waitCode').textContent=code;
+      $('waitMsg').textContent='';
+      show('s_wait');
+      roomRef(code+'/requests/'+pid+'/status').on('value',s=>{
+        const st=s.val();
+        if(st==='admitted'){
+          roomRef(code+'/requests/'+pid+'/status').off();
+          enterLobby(code,pid,name,false,room.diff,room.expected,room.hostPid);
+        } else if(st==='declined'){
+          roomRef(code+'/requests/'+pid+'/status').off();
+          roomRef(code+'/requests/'+pid).remove().catch(()=>{});
+          $('waitMsg').textContent='The host declined your request.';
+          setTimeout(()=>{ show('s_race'); setupRaceScreen(); },1800);
+        }
+      });
+    });
   });
+}
+$('btnAskJoin').addEventListener('click',()=>{ const c=hashCode(); if(c) askToJoin(c); });
+$('btnAskJoin2').addEventListener('click',()=>{
+  const code=($('joinCode').value||'').trim().toUpperCase();
+  if(code.length!==6){ $('joinCode').focus(); return; }
+  askToJoin(code);
 });
-function enterRace(code,pid,name,isHost,diff){
-  race={code,pid,name,isHost,diff,players:{},winner:null,startedAt:null,offset:0,finished:false};
+$('btnCancelJoin').addEventListener('click',()=>{
+  if(race) roomRef(race.code+'/requests/'+race.pid).remove().catch(()=>{});
+  race=null; show('s_race'); setupRaceScreen();
+});
+
+/* ---------- lobby ---------- */
+function enterLobby(code,pid,name,isHost,diff,expected,hostPid){
+  race={code,pid,name,isHost,diff,expected,players:{},requests:{},winner:null,
+    startedAt:null,offset:0,paused:false,pausedTotal:0,pauseStartedAt:0,finished:false,hostPid};
   $('roomcode').textContent=code;
-  const link=location.origin+location.pathname+'#race-'+code;
-  $('roomlink').textContent=link;
+  $('roomlink').textContent=inviteLink(code);
   $('btnStart').style.display=isHost?'block':'none';
-  $('lobbyMsg').textContent=isHost?'Share the link, then start when everyone is in.':'Waiting for the host to start…';
-  const pr=db.ref('rooms/'+code);
-  pr.child('players').on('value',s=>{ race.players=s.val()||{}; renderLobby(); });
-  pr.child('status').on('value',s=>{ if(s.val()==='live') beginRace(); });
-  pr.child('winner').on('value',s=>{ race.winner=s.val(); if(race.winner&&mode==='race') showWinner(); });
-  db.ref('.info/serverTimeOffset').on('value',s=>{ race.offset=s.val()||0; });
+  $('expAdjust').style.display=isHost?'block':'none';
+  $('lobbyExpVal').textContent=expected;
+  const pr=roomRef(code);
+  pr.child('players').on('value',s=>{ if(!race) return; race.players=s.val()||{}; renderLobby(); });
+  pr.child('requests').on('value',s=>{ if(!race) return; race.requests=s.val()||{}; renderLobby(); });
+  pr.child('expected').on('value',s=>{ if(!race) return; race.expected=s.val()||race.expected; $('lobbyExpVal').textContent=race.expected; renderLobby(); });
+  pr.child('status').on('value',s=>{ if(!race) return; if(s.val()==='live') beginRace(); });
+  pr.child('winner').on('value',s=>{ if(!race) return; race.winner=s.val(); if(race.winner&&mode==='race') showWinner(); });
+  db.ref('.info/serverTimeOffset').on('value',s=>{ if(!race) return; race.offset=s.val()||0; });
   const me=db.ref('rooms/'+code+'/players/'+pid);
-  me.onDisconnect().remove();
+  me.child('connected').onDisconnect().set(false);
+  me.update({ connected:true });
   if(location.hash!=='#race-'+code) history.replaceState(null,'','#race-'+code);
+  saveLocal();
   show('s_lobby');
 }
 function renderLobby(){
+  const admitted=Object.keys(race.players).length;
+  $('admitCount').textContent='Admitted '+admitted+' of '+race.expected;
   const list=$('lobbyList'); list.innerHTML='';
-  const ps=Object.values(race.players);
-  ps.forEach(p=>{ const d=document.createElement('div'); d.className='prow'; d.textContent=p.name; list.appendChild(d); });
-  $('lobbyMsg').textContent = race.isHost
-    ? ps.length+' player'+(ps.length===1?'':'s')+' in — share the link, then start.'
-    : 'Waiting for the host to start… ('+ps.length+' in)';
+  Object.entries(race.players).forEach(([pid,p])=>{
+    const d=document.createElement('div'); d.className='prow';
+    d.innerHTML='<span><span class="dot'+(p.connected===false?' off':'')+'"></span>'+escapeHtml(p.name)+(pid===race.pid?' (you)':'')+'</span>'+
+      (race.isHost&&pid!==race.pid?'<button class="btn ghost small" data-kick="'+pid+'">Remove</button>':'');
+    list.appendChild(d);
+  });
+  list.querySelectorAll('[data-kick]').forEach(b=>b.addEventListener('click',()=>{
+    roomRef(race.code+'/players/'+b.dataset.kick).remove();
+  }));
+  const req=$('reqList'); req.innerHTML='';
+  const pend=Object.entries(race.requests).filter(([,r])=>r.status==='pending');
+  if(race.isHost && pend.length){
+    const h=document.createElement('div'); h.className='tag'; h.style.marginTop='12px';
+    h.textContent='Waiting for your admission:'; req.appendChild(h);
+    pend.forEach(([pid,r])=>{
+      const d=document.createElement('div'); d.className='reqrow';
+      d.innerHTML='<span>'+escapeHtml(r.name)+'</span><span>'+
+        '<button class="btn small" data-admit="'+pid+'">Admit</button> '+
+        '<button class="btn ghost small" data-decline="'+pid+'">Decline</button></span>';
+      req.appendChild(d);
+    });
+    req.querySelectorAll('[data-admit]').forEach(b=>b.addEventListener('click',()=>admitPlayer(b.dataset.admit)));
+    req.querySelectorAll('[data-decline]').forEach(b=>b.addEventListener('click',()=>{
+      roomRef(race.code+'/requests/'+b.dataset.decline+'/status').set('declined');
+    }));
+  }
+  if(!race.isHost){
+    $('lobbyMsg').textContent='Waiting for the host to start…';
+  } else if(admitted>=race.expected){
+    $('lobbyMsg').textContent='Everyone is in — start the race!';
+  } else {
+    $('lobbyMsg').textContent='Waiting for '+(race.expected-admitted)+' more…';
+  }
+  const hostGone = race.hostPid && race.players[race.hostPid] && race.players[race.hostPid].connected===false;
+  $('hostLeftMsg').style.display=(hostGone&&!race.isHost)?'block':'none';
+  const startBtn=$('btnStart');
+  if(race.isHost){
+    startBtn.disabled = admitted<race.expected;
+  }
 }
+function admitPlayer(pid){
+  const admitted=Object.keys(race.players).length;
+  if(admitted>=race.expected){ alert('Room is at its expected count. Raise the expected number first.'); return; }
+  const req=race.requests[pid]; if(!req) return;
+  const pr=roomRef(race.code);
+  pr.child('players/'+pid).set({ name:req.name, progress:0, mistakes:0, finished:false, finishTime:null,
+    paused:false, pausedTotal:0, connected:false });
+  pr.child('requests/'+pid+'/status').set('admitted');
+}
+$('lobbyExpMinus').addEventListener('click',()=>{
+  const admitted=Object.keys(race.players).length;
+  const v=Math.max(admitted,race.expected-1);
+  roomRef(race.code+'/expected').set(v);
+});
+$('lobbyExpPlus').addEventListener('click',()=>{
+  roomRef(race.code+'/expected').set(Math.min(10,race.expected+1));
+});
 $('btnCopy').addEventListener('click',()=>{
   const link=$('roomlink').textContent;
   if(navigator.clipboard) navigator.clipboard.writeText(link).then(()=>{$('btnCopy').textContent='Copied!'; setTimeout(()=>$('btnCopy').textContent='Copy invite link',1500);});
   else prompt('Copy the invite link:',link);
 });
 function leaveRoom(){
-  if(!race) return;
-  db.ref('rooms/'+race.code).off();
-  db.ref('rooms/'+race.code+'/players/'+race.pid).remove().catch(()=>{});
-  race=null; history.replaceState(null,'',location.pathname);
+  if(race){
+    roomRef(race.code+'/players/'+race.pid).update({ connected:false }).catch(()=>{});
+    roomRef(race.code).off();
+    race=null;
+  }
+  clearInterval(timerId);
+  history.replaceState(null,'',location.pathname);
   show('s_home');
 }
 $('leaveLobby').addEventListener('click',e=>{ e.preventDefault(); leaveRoom(); });
 $('btnLeaveRace').addEventListener('click',leaveRoom);
-
 $('btnStart').addEventListener('click',()=>{
+  const admitted=Object.keys(race.players).length;
+  if(admitted<race.expected) return;
   roomRef(race.code).update({ status:'live', startedAt:firebase.database.ServerValue.TIMESTAMP });
 });
+
+/* ---------- race play ---------- */
+function raceSeed(){ return 'race-'+race.code+'-'+race.diff; }
 function beginRace(){
   if(mode==='race') return;
   mode='race';
@@ -556,18 +728,21 @@ function beginRace(){
   $('mistWrap').style.display=''; $('hintWrap').style.display='none';
   $('u_hint').style.display='none'; $('pauseBtn').style.display='none';
   show('s_game');
-  newGame(race.diff, 'race-'+race.code+'-'+race.diff); // identical puzzle for everyone
+  const restored=restoreLocal();
+  if(!restored) newGame(race.diff, raceSeed());
   renderLB();
-  db.ref('rooms/'+race.code+'/players').on('value',s=>{ race.players=s.val()||{}; renderLB(); });
+  db.ref('rooms/'+race.code+'/players').on('value',s=>{ if(!race) return; race.players=s.val()||{}; renderLB(); });
+}
+function ownElapsed(){
+  if(!race.startedAt) return 0;
+  const now=Date.now()+race.offset;
+  let el=now-race.startedAt-race.pausedTotal;
+  if(race.paused) el-=now-race.pauseStartedAt;
+  return Math.max(0,el);
 }
 function startRaceClock(){
   clearInterval(timerId);
-  const t0=race.startedAt;
-  timerId=setInterval(()=>{
-    const el=Math.max(0,Date.now()+race.offset-t0);
-    $('time').textContent=fmt(Math.floor(el/1000));
-    $('rbTime').textContent=fmt(Math.floor(el/1000));
-  },500);
+  timerId=setInterval(()=>{ $('time').textContent=fmt(Math.floor(ownElapsed()/1000)); },500);
 }
 function raceReport(){
   if(!race||race.finished) return;
@@ -576,14 +751,34 @@ function raceReport(){
 function raceFinish(){
   if(!race||race.finished) return;
   race.finished=true;
-  const el=Date.now()+race.offset-race.startedAt;
-  const me=db.ref('rooms/'+race.code+'/players/'+race.pid);
-  me.update({ progress:100, mistakes, finished:true, finishTime:el });
+  const el=ownElapsed();
+  db.ref('rooms/'+race.code+'/players/'+race.pid).update({ progress:100, mistakes, finished:true, finishTime:el });
   roomRef(race.code+'/winner').transaction(w=>w||{ name:race.name, time:el, pid:race.pid });
+  saveLocal();
 }
 function raceRestart(){
   msg.textContent='The host starts a new room for a rematch — leave and create one.';
 }
+$('btnRacePause').addEventListener('click',()=>{
+  if(!race||race.finished) return;
+  const now=Date.now()+race.offset;
+  const me=db.ref('rooms/'+race.code+'/players/'+race.pid);
+  if(!race.paused){
+    race.paused=true; race.pauseStartedAt=now;
+    me.update({ paused:true, pauseStartedAt:now });
+    board.classList.add('paused');
+    $('btnRacePause').textContent='Resume';
+    msg.textContent='Paused — your timer is frozen.';
+  } else {
+    race.pausedTotal+=now-race.pauseStartedAt;
+    race.paused=false;
+    me.update({ paused:false, pausedTotal:race.pausedTotal, pauseStartedAt:null });
+    board.classList.remove('paused');
+    $('btnRacePause').textContent='Pause';
+    msg.textContent='';
+  }
+  saveLocal();
+});
 function renderLB(){
   const lb=$('lb'); lb.innerHTML='';
   const arr=Object.entries(race.players).map(([pid,p])=>({pid,...p}));
@@ -596,9 +791,12 @@ function renderLB(){
     const d=document.createElement('div');
     d.className='lbrow'+(p.finished?' done':'')+(p.pid===race.pid?' me':'');
     const medal=i===0&&p.finished?'<span class="crown">👑</span> ':'';
-    d.innerHTML='<span class="nm">'+medal+escapeHtml(p.name)+'</span>'+
-      '<span class="bar"><span class="fill" style="width:'+p.progress+'%"></span></span>'+
-      '<span class="pc">'+(p.finished?fmt(Math.floor(p.finishTime/1000)):p.progress+'%')+'</span>';
+    const pauseBadge=p.paused?' ⏸':'';
+    const offBadge=p.connected===false?' (away)':'';
+    d.innerHTML='<span class="nm">'+medal+escapeHtml(p.name)+pauseBadge+'</span>'+
+      '<span class="bar"><span class="fill" style="width:'+(p.progress||0)+'%"></span></span>'+
+      '<span class="pc">'+(p.finished?fmt(Math.floor(p.finishTime/1000)):(p.progress||0)+'%')+'</span>'+
+      '<span style="font-size:11px;color:var(--muted);">'+offBadge+'</span>';
     lb.appendChild(d);
   });
 }
@@ -608,13 +806,69 @@ function showWinner(){
   if(w.pid===race.pid) msg.textContent='🏆 You win! '+fmt(Math.floor(w.time/1000));
   else msg.textContent='🏆 '+w.name+' wins in '+fmt(Math.floor(w.time/1000))+' — keep going!';
 }
-/* deep link: open #race-CODE straight into join */
+
+/* ---------- local persistence (rejoin) ---------- */
+function localKey(code){ return 'sudoku-race-'+code; }
+function saveLocal(){
+  if(!race) return;
+  try{
+    localStorage.setItem(localKey(race.code), JSON.stringify({
+      pid:race.pid, name:race.name, grid:puzzle||null,
+      notes:(notes||[]).map(r=>r.map(s=>[...s])),
+      mistakes, pausedTotal:race.pausedTotal, finished:race.finished
+    }));
+  }catch(e){}
+}
+function restoreLocal(){
+  if(!race) return false;
+  try{
+    const raw=localStorage.getItem(localKey(race.code));
+    if(!raw) return false;
+    const s=JSON.parse(raw);
+    if(s.pid!==race.pid||!s.grid) return false;
+    const {puzzle:pk,solution:so}=makePuzzle(race.diff, rngFromSeed(raceSeed()));
+    solution=so; given=pk.map(r=>r.map(v=>v!==0));
+    puzzle=s.grid; notes=s.notes.map(r=>r.map(a=>new Set(a)));
+    mistakes=s.mistakes||0; race.pausedTotal=s.pausedTotal||0; race.finished=!!s.finished;
+    sel=null; notesMode=false; locked=race.finished; paused=false;
+    undoStack=[]; hintsLeft=3;
+    $('u_notes').classList.remove('on');
+    msg.textContent=race.finished?'You already finished this race.':''; 
+    render();
+    if(race.finished){ clearInterval(timerId); }
+    return true;
+  }catch(e){ return false; }
+}
+/* deep link: open #race-CODE straight into the race screen */
 (function(){
-  const m=location.hash.match(/^#race-([A-Z0-9]{6})$/i);
-  if(m && firebaseReady()){
-    $('joinCode').value=m[1].toUpperCase();
-    show('s_race');
-    setTimeout(()=>$('btnJoin').focus(),300);
+  const hc=hashCode();
+  if(hc && firebaseReady()){
+    try{
+      const raw=localStorage.getItem(localKey(hc));
+      if(raw){
+        const s=JSON.parse(raw);
+        roomRef(hc).get().then(snap=>{
+          const room=snap.val(); if(!room) return;
+          const me=(room.players||{})[s.pid];
+          if(room.status==='live' && me){
+            race={code:hc,pid:s.pid,name:s.name,isHost:room.hostPid===s.pid,diff:room.diff,
+              expected:room.expected,players:room.players,requests:{},winner:room.winner||null,
+              startedAt:room.startedAt,offset:0,paused:false,pausedTotal:s.pausedTotal||0,
+              pauseStartedAt:0,finished:!!s.finished,hostPid:room.hostPid};
+            db.ref('.info/serverTimeOffset').on('value',v=>{ race.offset=v.val()||0; });
+            db.ref('rooms/'+hc+'/players/'+s.pid).update({ connected:true });
+            db.ref('rooms/'+hc+'/players/'+s.pid+'/connected').onDisconnect().set(false);
+            db.ref('rooms/'+hc+'/players').on('value',v=>{ race.players=v.val()||{}; renderLB(); });
+            db.ref('rooms/'+hc+'/winner').on('value',v=>{ race.winner=v.val(); if(race.winner) showWinner(); });
+            beginRace();
+          } else if(room.status==='lobby' && me){
+            enterLobby(hc,s.pid,s.name,room.hostPid===s.pid,room.diff,room.expected,room.hostPid);
+          }
+        });
+        return;
+      }
+    }catch(e){}
+    show('s_race'); setupRaceScreen();
   }
 })();
 
