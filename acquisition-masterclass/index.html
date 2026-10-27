@@ -159,6 +159,24 @@
       .wx .row span:last-child { font-weight: 700; text-align: right; white-space: nowrap; }
       .wx .row.total { background: var(--chip-bg); }
 
+      /* ---------- Target Profile (hunting guide, not a filter) ---------- */
+      .target-profile {
+        margin: 16px 0 4px; border: 2px dashed var(--gold);
+        border-radius: 10px; padding: 14px 15px; background: var(--chip-bg);
+      }
+      .target-profile .tp-tag {
+        display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1.4px;
+        text-transform: uppercase; background: var(--gold); color: var(--emerald-deep);
+        padding: 3px 9px; border-radius: 99px; margin-bottom: 8px;
+      }
+      .target-profile h3 {
+        margin: 0 0 6px; font-family: Georgia, "Times New Roman", serif;
+        font-size: 17px; color: var(--emerald);
+      }
+      @media (prefers-color-scheme: dark) { .target-profile h3 { color: var(--cream); } }
+      .target-profile p { margin: 8px 0; font-size: 15px; }
+      .target-profile .wx { background: var(--paper); }
+
       /* ---------- Quiz ---------- */
       .quiz { margin-top: 18px; border-top: 2px solid var(--gold); padding-top: 14px; }
       .quiz > h3 {
@@ -228,7 +246,7 @@
       .reset-row { margin-top: 14px; }
     </style>
   </head>
-  <body><div style="background:#113B2E;padding:10px 18px;font-family:sans-serif;position:relative;z-index:50"><a href="../" style="color:#F5F0E8;text-decoration:none;font-size:14px">&#8592; My Apps</a></div>
+  <body>
     <div class="wrap">
       <header class="hero">
         <p class="brandline">LOG Business Group · LOG Holdings Inc.</p>
@@ -259,6 +277,22 @@
           <div class="key"><span class="v">3 years</span><span class="l">Financial statements checked — regular years only</span></div>
           <div class="key"><span class="v">10+ years</span><span class="l">Company established — longer is better</span></div>
           <div class="key"><span class="v">≤ 5%</span><span class="l">Largest single customer, % of revenue</span></div>
+        </div>
+        <div class="target-profile">
+          <span class="tp-tag">Hunting guide — not a buy filter</span>
+          <h3>The Target Profile: what to go looking for</h3>
+          <p>The five filters above decide what you may <em>buy</em>. This profile is separate: it decides which listings are worth <em>opening</em>. It is <strong>not a sixth buy filter</strong> — a deal that clears the five filters still qualifies, even if it sits outside this profile. The 12% Cash test and the 5× price cap are unchanged.</p>
+          <p><strong>Target revenue: around $5,000,000</strong> — search roughly the <strong>$3M–$10M</strong> band. Big enough that a professional GM is a small slice of the economics, not the whole story.</p>
+          <p><strong>SDE floor: 25% of revenue.</strong> If a listing's SDE is below 25% of revenue, don't open it. That is the screening minimum, not a pass.</p>
+          <p><strong>Warning — SDE is not Cash.</strong> Listing SDE is only an <em>upper bound</em>: it is the seller's best story, loaded with add-backs. True Cash = SDE − a market GM salary − tax − maintenance capex, with fake add-backs stripped out. Cash is always lower than SDE, often by a lot.</p>
+          <p><strong>Why the floor is 25%:</strong> SDE has to survive the GM, tax and capex haircuts and <em>still</em> clear the 12% Cash test. At 25% SDE there is room to survive them; at 20% there is almost none.</p>
+          <div class="wx">
+            <h3>Why the floor exists — at $5M revenue</h3>
+            <div class="row"><span>SDE at the 25% floor</span><span>$1.25M</span></div>
+            <div class="row"><span>Cash after GM, tax &amp; capex</span><span>$820K — 16.4% ✓ comfortable</span></div>
+            <div class="row"><span>SDE at 20%</span><span>$1.00M</span></div>
+            <div class="row total"><span>Cash after GM, tax &amp; capex</span><span>$620K — 12.4% ✓ but no margin for error</span></div>
+          </div>
         </div>
         <div class="quiz" data-quiz="m1"></div>
       </section>
@@ -468,7 +502,10 @@
             a: 1, why: "Cash = revenue collected − operating costs (incl. market GM salary) − tax − maintenance capex only. Growth is funded separately, from retained earnings or by Group approval." },
           { q: "How long must a company have been established to pass the buy filter?",
             opts: ["3 years — the same as the statements we check", "Over 10 years — and the longer, the better", "5 years for large deals, 3 years for small ones"],
-            a: 1, why: "Establishment is a separate filter from the statements. We review 3 years of financial statements, but the company itself must be established for over 10 years — longer is better. The rule is flat for every deal." }
+            a: 1, why: "Establishment is a separate filter from the statements. We review 3 years of financial statements, but the company itself must be established for over 10 years — longer is better. The rule is flat for every deal." },
+          { q: "Why does the Target Profile set an SDE floor of 25% of revenue?",
+            opts: ["It is a sixth buy filter — below 25% SDE, a deal can never be bought", "Because SDE is only an upper bound: the GM salary, tax and maintenance capex haircuts come off it, and what remains must still clear the 12% Cash test", "Because sellers always inflate SDE by exactly 25%"],
+            a: 1, why: "At $5M revenue, 25% SDE lands around 16.4% Cash — comfortable. At 20% SDE it lands around 12.4% — passing, but with no margin for error. The floor is a hunting guide for which listings to open; the binding test is still Cash ≥ 12%." }
         ],
         m2: [
           { q: "The maximum price is 5× what, exactly?",
