@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOG Investments — Stock Screener</title>
+<style>
+  :root{--emerald:#113B2E;--gold:#C9A24A;--cream:#F5F0E8;--ink:#1a1a1a;--muted:#5c665f;--line:#d8d2c4;--white:#fff;--red:#9b2c2c;--green:#1f6b3a}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;background:var(--cream);color:var(--ink);line-height:1.5}
+  header{background:var(--emerald);color:var(--cream);padding:1.4rem 1.2rem 1.1rem;border-bottom:4px solid var(--gold)}
+  header h1{margin:0;font-size:1.45rem;letter-spacing:.02em}
+  header p{margin:.3rem 0 0;opacity:.9;font-size:.92rem}
+  main{max-width:1180px;margin:0 auto;padding:1rem 1.2rem 3rem}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:8px;padding:1rem 1.1rem;margin-bottom:1rem}
+  .card h2{margin:0 0 .6rem;font-size:1.05rem;color:var(--emerald)}
+  .card h3{margin:1rem 0 .4rem;font-size:.95rem;color:var(--emerald)}
+  .row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+  .row>*{flex:0 0 auto}
+  button{background:var(--emerald);color:var(--cream);border:1px solid var(--emerald);border-radius:6px;padding:.45rem .9rem;cursor:pointer;font-size:.9rem}
+  button.secondary{background:var(--white);color:var(--emerald)}
+  button.gold{background:var(--gold);border-color:var(--gold);color:#1a1a1a}
+  button.danger{background:var(--white);color:var(--red);border-color:var(--red)}
+  button:disabled{opacity:.5;cursor:default}
+  input,select,textarea{border:1px solid var(--line);border-radius:6px;padding:.42rem .55rem;font-size:.9rem;background:#fff;color:var(--ink)}
+  label{font-size:.85rem;font-weight:600;color:#333}
+  .field{display:flex;flex-direction:column;gap:.15rem;min-width:150px}
+  .field small{font-weight:400;color:var(--muted)}
+  .note{font-size:.85rem;color:var(--muted)}
+  .banner{background:#fdf6dd;border:1px solid var(--gold);border-radius:6px;padding:.6rem .8rem;font-size:.9rem;margin-bottom:1rem}
+  .banner.sample{border-color:var(--gold)}
+  .ok{color:var(--green)} .bad{color:var(--red)} .muted{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th,td{border-bottom:1px solid var(--line);padding:.45rem .5rem;text-align:left;vertical-align:top}
+  th{color:var(--emerald);white-space:nowrap}
+  td.num,th.num{text-align:right}
+  tr:hover td{background:#faf7ef}
+  .badge{display:inline-block;background:var(--gold);color:#1a1a1a;font-size:.7rem;font-weight:700;border-radius:4px;padding:.1rem .35rem;letter-spacing:.03em}
+  .badge.sample{background:#e8c86a}
+  .star{cursor:pointer;font-size:1.1rem;background:none;border:none;padding:0 .2rem;color:var(--gold)}
+  .star.off{color:#c9c2b2}
+  .tag{font-size:.78rem;border-radius:4px;padding:.08rem .4rem;font-weight:600}
+  .tag.deep{background:#e2efe6;color:var(--green)} .tag.watch{background:#fdf6dd;color:#7a5c00} .tag.pass{background:#f3e6e6;color:var(--red)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.6rem}
+  .metric{border:1px solid var(--line);border-radius:6px;padding:.55rem .7rem}
+  .metric b{display:block;font-size:1.05rem}
+  .metric span{font-size:.8rem;color:var(--muted)}
+  details{margin-top:.5rem}
+  details summary{cursor:pointer;font-weight:600;color:var(--emerald);font-size:.92rem}
+  .hidden{display:none}
+  .empty{border:1px dashed var(--line);border-radius:8px;padding:1.4rem;text-align:left;background:#fff}
+  .empty ol{margin:.5rem 0}
+  .tabs{display:flex;gap:.4rem;margin-bottom:.8rem}
+  .tabs button{border-radius:6px 6px 0 0}
+  .tabs button.active{background:var(--gold);border-color:var(--gold);color:#1a1a1a}
+  footer{font-size:.82rem;color:var(--muted);text-align:center;padding:1rem}
+  @media(max-width:700px){table{font-size:.8rem} .field{min-width:130px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>LOG Investments — Stock Screener</h1>
+  <p>Berkshire-style minority stakes in public companies. A slice of the pizza, not the entire pizza.</p>
+  <p style="font-size:.82rem;opacity:.85">Universe: S&amp;P 500 only &middot; All sectors, each scored against its own industry benchmark &middot; Re-run quarterly after earnings season (mid-Feb, mid-May, mid-Aug, mid-Nov) and on demand &middot; No 5x price cap applies here.</p>
+</header>
+<main>
+  <div id="sampleBanner" class="banner sample hidden">Sample data is loaded. Every company marked <span class="badge sample">SAMPLE</span> is illustrative only — not real company figures. Remove it before entering real data.</div>
+
+  <div id="emptyState" class="empty">
+    <h2 style="margin-top:0;color:var(--emerald)">Start here</h2>
+    <ol>
+      <li><b>Add a company manually</b> — plug in the numbers from its financial statements using the form below.</li>
+      <li><b>Or fetch from SEC EDGAR</b> — enter a ticker and the tool pulls its latest annual filing data. You still enter the share price by hand (EDGAR does not publish prices).</li>
+      <li><b>Or learn the UI first</b> — press “Load sample data” to see three clearly-labeled SAMPLE companies, then remove them.</li>
+    </ol>
+    <p class="note">How it works: Stage 1 filters decide who gets to play (S&amp;P 500 member, enough years of history, complete data). Stage 2 scores and ranks the survivors against their own industry benchmark. Companies that fail a filter appear in the Excluded view with the reason stated. Nothing here is investment advice.</p>
+  </div>
+
+  <div class="card">
+    <h2>Companies</h2>
+    <div class="row" style="margin-bottom:.8rem">
+      <button id="btnToggleForm">+ Add company manually</button>
+      <button id="btnSamples" class="gold">Load sample data</button>
+      <button id="btnClearSamples" class="secondary hidden">Remove sample data</button>
+      <button id="btnExport" class="secondary">Export JSON</button>
+      <button id="btnImport" class="secondary">Import JSON</button>
+      <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
+      <label style="display:flex;gap:.3rem;align-items:center"><input type="checkbox" id="chkWatchOnly"> Watchlist only</label>
+      <label>Compare to snapshot
+        <select id="selCompare"><option value="">— none —</option></select>
+      </label>
+    </div>
+    <div class="row" style="margin-bottom:.8rem">
+      <div class="field"><label>10-year Treasury rate (%)</label><input type="number" id="inpTreasury" step="0.1" style="width:110px"></div>
+      <div class="field"><label>Minimum years of history (gate)</label><input type="number" id="inpMinYears" step="1" min="1" style="width:110px"></div>
+      <div class="field"><label>Snapshot name</label><input type="text" id="inpSnapshotName" style="width:130px"></div>
+      <button id="btnSnapshot" class="secondary">Save quarterly snapshot</button>
+      <span id="snapMsg" class="note"></span>
+    </div>
+
+    <div id="formWrap" class="hidden" style="border-top:1px solid var(--line);padding-top:.8rem">
+      <h3>Manual entry</h3>
+      <p class="note">Enter all money figures in the same unit (for example, $ millions), except price (per share) and share counts (actual share counts). Market cap = price &times; shares outstanding, so keep the unit consistent with the money figures.</p>
+      <div class="grid">
+        <div class="field"><label>Ticker *</label><input type="text" id="fTicker" placeholder="e.g. AAPL"></div>
+        <div class="field"><label>Company name *</label><input type="text" id="fName"></div>
+        <div class="field"><label>Sector</label><select id="fSector"></select></div>
+        <div class="field"><label>S&amp;P 500 member</label><select id="fSP"><option value="yes">Yes</option><option value="no">No</option></select></div>
+        <div class="field"><label>Years of history</label><input type="number" id="fYears" min="0" step="1"></div>
+        <div class="field"><label>Revenue</label><input type="number" id="fRevenue" step="any"></div>
+        <div class="field"><label>Operating cash flow</label><input type="number" id="fOCF" step="any"></div>
+        <div class="field"><label>Maintenance capex</label><input type="number" id="fCapex" step="any"></div>
+        <div class="field"><label>Net income</label><input type="number" id="fNetIncome" step="any"></div>
+        <div class="field"><label>Depreciation &amp; amortisation</label><input type="number" id="fDA" step="any"></div>
+        <div class="field"><label>Shareholders' equity</label><input type="number" id="fEquity" step="any"></div>
+        <div class="field"><label>Total debt</label><input type="number" id="fDebt" step="any"></div>
+        <div class="field"><label>Share count — now</label><input type="number" id="fSharesNow" step="any"></div>
+        <div class="field"><label>Share count — 5 years ago</label><input type="number" id="fShares5y" step="any"></div>
+        <div class="field"><label>Current share price</label><input type="number" id="fPrice" step="any"></div>
+        <div class="field"><label>Shares outstanding</label><input type="number" id="fSharesOut" step="any"></div>
+        <div class="field"><label>ROE by year (%, oldest first, comma-separated)</label><input type="text" id="fRoeSeries" placeholder="e.g. 18, 21, 19, 22, 20"></div>
+        <div class="field"><label>FCF margin by year (%, oldest first)</label><input type="text" id="fFcfSeries" placeholder="e.g. 12, 14, 13, 15, 16"></div>
+      </div>
+      <div class="row" style="margin-top:.8rem">
+        <button id="btnAdd">Add company</button>
+        <button id="btnCancelForm" class="secondary">Cancel</button>
+        <span id="formMsg" class="note"></span>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin-top:1rem;padding-top:.8rem">
+      <h3>Fetch from SEC EDGAR (best effort)</h3>
+      <p class="note">Looks up the ticker, then pulls the latest annual (10-K) figures from EDGAR companyfacts. EDGAR does not publish share prices — enter the price by hand after fetching. If the fetch fails (network, SEC blocking direct browser requests, or an unknown ticker), the form is left for manual entry and nothing is presented as real data.</p>
+      <div class="row">
+        <input type="text" id="inpEdgarTicker" placeholder="Ticker, e.g. MSFT" style="width:160px">
+        <button id="btnEdgar">Fetch from EDGAR</button>
+        <span id="edgarMsg" class="note"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button id="tabRanked" class="active">Ranked</button>
+      <button id="tabExcluded">Excluded</button>
+      <button id="tabSnapshots">Snapshots</button>
+    </div>
+    <div id="viewRanked">
+      <table id="tblRanked">
+        <thead><tr><th>#</th><th>Ticker</th><th>Company</th><th>Sector</th><th class="num">Score</th><th class="num">FCF margin</th><th class="num">Owner-earnings yield</th><th class="num">ROE avg</th><th class="num">ROIC proxy</th><th class="num">Debt / equity</th><th class="num">Share count 5y</th><th id="thDelta" class="num hidden">Score Δ</th><th>Verdict</th><th>Watch</th><th></th></tr></thead>
+        <tbody id="tbodyRanked"></tbody>
+      </table>
+      <p id="rankedEmpty" class="note">No companies yet. Add one manually, fetch from EDGAR, or load sample data.</p>
+    </div>
+    <div id="viewExcluded" class="hidden">
+      <table>
+        <thead><tr><th>Ticker</th><th>Company</th><th>Sector</th><th>Reason excluded</th><th></th></tr></thead>
+        <tbody id="tbodyExcluded"></tbody>
+      </table>
+      <p id="excludedEmpty" class="note">Nothing excluded. Companies land here when they fail a Stage 1 gate.</p>
+    </div>
+    <div id="viewSnapshots" class="hidden">
+      <table>
+        <thead><tr><th>Snapshot</th><th>Saved</th><th>Companies</th><th></th></tr></thead>
+        <tbody id="tbodySnapshots"></tbody>
+      </table>
+      <p id="snapshotsEmpty" class="note">No snapshots yet. Save one with the snapshot name field above.</p>
+      <div id="snapshotDetail" class="hidden" style="margin-top:1rem"></div>
+    </div>
+  </div>
+
+  <div id="detailCard" class="card hidden">
+    <h2 id="detailTitle">Company detail</h2>
+    <div id="detailBody"></div>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>Benchmarks by sector (editable) — every score is measured against the company's own sector</summary>
+      <p class="note">Defaults are starting assumptions, not market data — edit them freely. Clear a sector's row to score its companies against the median of entered peers in that sector instead. If a sector has neither a benchmark nor peers, its metrics score a neutral 50 and the detail view says so.</p>
+      <div id="benchWrap" style="overflow-x:auto"></div>
+      <div class="row" style="margin-top:.6rem"><button id="btnSaveBench" class="secondary">Save benchmarks</button><span id="benchMsg" class="note"></span></div>
+    </details>
+    <details>
+      <summary>Scoring weights (editable)</summary>
+      <p class="note">Weights are relative. Metrics with no data are left out of the total and the detail view says which ones.</p>
+      <div class="grid" id="weightsWrap"></div>
+      <div class="row" style="margin-top:.6rem"><button id="btnSaveWeights" class="secondary">Save weights</button><span id="weightsMsg" class="note"></span></div>
+    </details>
+    <details>
+      <summary>How the scores work</summary>
+      <p class="note">
+        FCF margin = (operating cash flow − maintenance capex) / revenue.<br>
+        Owner earnings = net income + depreciation &amp; amortisation − maintenance capex.<br>
+        Owner-earnings yield = owner earnings / market cap (price &times; shares outstanding). Also shown against the 10-year Treasury rate you set.<br>
+        ROE average and consistency come from the yearly ROE series when entered, otherwise from the single-year figure; consistency reflects how steady the series is.<br>
+        ROIC proxy = owner earnings / (equity + debt). Debt / equity = total debt / equity.<br>
+        Margin stability comes from the yearly FCF margin series when entered.<br>
+        Share-count change = (now − 5 years ago) / 5 years ago; a shrinking count means buybacks, a growing count means dilution.<br>
+        Each metric scores 0–100 against its sector benchmark (higher is better, except debt / equity and share-count growth, where lower is better). Verdicts: 70+ worthy of a deep dive, 50–69 watch, below 50 pass.
+      </p>
+    </details>
+  </div>
+
+  <footer>LOG Investments — screening tool for learning and first-pass analysis. Not investment advice. Verify every figure against the company's own filings before any decision.</footer>
+</main>
+<script>
+"use strict";
+var LS = "logInvestmentsScreener.";
+var SECTORS = ["Technology","Healthcare","Financials","Consumer Discretionary","Consumer Staples","Industrials","Energy","Materials","Utilities","Communication Services","Real Estate"];
+var METRICS = [
+  {key:"fcfMargin", label:"FCF margin", dir:"high", fmt:"pct"},
+  {key:"oeYield", label:"Owner-earnings yield", dir:"high", fmt:"pct"},
+  {key:"roe", label:"ROE average", dir:"high", fmt:"pct"},
+  {key:"roic", label:"ROIC proxy", dir:"high", fmt:"pct"},
+  {key:"debtEquity", label:"Debt / equity", dir:"low", fmt:"x"},
+  {key:"marginStability", label:"Margin stability", dir:"high", fmt:"score"},
+  {key:"buyback", label:"Buybacks (share-count change)", dir:"low", fmt:"pct"}
+];
+var DEFAULT_WEIGHTS = {fcfMargin:15, oeYield:20, roe:20, roic:15, debtEquity:10, marginStability:10, buyback:10};
+function defaultBenchmarks(){
+  var b = {};
+  SECTORS.forEach(function(s){
+    b[s] = {fcfMargin:0.12, oeYield:0.05, roe:0.15, roic:0.12, debtEquity:1.0, marginStability:70};
+  });
+  b["Financials"] = {fcfMargin:0.15, oeYield:0.05, roe:0.12, roic:0.10, debtEquity:5.0, marginStability:70};
+  b["Utilities"] = {fcfMargin:0.08, oeYield:0.04, roe:0.10, roic:0.08, debtEquity:1.5, marginStability:70};
+  b["Real Estate"] = {fcfMargin:0.20, oeYield:0.04, roe:0.10, roic:0.08, debtEquity:1.5, marginStability:70};
+  b["Consumer Staples"] = {fcfMargin:0.08, oeYield:0.05, roe:0.15, roic:0.12, debtEquity:1.0, marginStability:70};
+  b["Energy"] = {fcfMargin:0.12, oeYield:0.06, roe:0.12, roic:0.10, debtEquity:1.0, marginStability:60};
+  return b;
+}
+var state = loadState();
+function loadState(){
+  try{
+    var raw = localStorage.getItem(LS + "state");
+    if(raw){
+      var s = JSON.parse(raw);
+      s.benchmarks = s.benchmarks || defaultBenchmarks();
+      s.weights = s.weights || Object.assign({}, DEFAULT_WEIGHTS);
+      s.companies = s.companies || [];
+      s.snapshots = s.snapshots || [];
+      s.treasury = (s.treasury === undefined) ? 4.5 : s.treasury;
+      s.minYears = (s.minYears === undefined) ? 5 : s.minYears;
+      return s;
+    }
+  }catch(e){}
+  return {companies:[], benchmarks:defaultBenchmarks(), weights:Object.assign({}, DEFAULT_WEIGHTS), snapshots:[], treasury:4.5, minYears:5};
+}
+function saveState(){
+  try{ localStorage.setItem(LS + "state", JSON.stringify(state)); }catch(e){}
+}
+function uid(){ return "c" + Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36); }
+function num(v){ if(v === null || v === undefined || v === "") return null; var n = parseFloat(v); return isNaN(n) ? null : n; }
+function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
+function esc(s){ return String(s === null || s === undefined ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function fmtPct(x, d){ if(x === null || x === undefined || isNaN(x)) return "—"; return (x*100).toFixed(d === undefined ? 1 : d) + "%"; }
+function fmtX(x, d){ if(x === null || x === undefined || isNaN(x)) return "—"; return x.toFixed(d === undefined ? 2 : d) + "x"; }
+function fmtNum(x, d){ if(x === null || x === undefined || isNaN(x)) return "—"; return x.toFixed(d === undefined ? 1 : d); }
+function parseSeries(txt){
+  if(!txt) return [];
+  return txt.split(",").map(function(p){ return parseFloat(p.trim()); }).filter(function(n){ return !isNaN(n); }).map(function(n){ return n/100; });
+}
+function mean(arr){ if(!arr.length) return null; return arr.reduce(function(a,b){ return a+b; }, 0) / arr.length; }
+function stdev(arr){
+  if(arr.length < 2) return 0;
+  var m = mean(arr);
+  var v = arr.reduce(function(a,b){ return a + Math.pow(b-m, 2); }, 0) / arr.length;
+  return Math.sqrt(v);
+}
+function median(arr){
+  if(!arr.length) return null;
+  var s = arr.slice().sort(function(a,b){ return a-b; });
+  var mid = Math.floor(s.length/2);
+  return s.length % 2 ? s[mid] : (s[mid-1] + s[mid]) / 2;
+}
+function currentQuarterName(){
+  var d = new Date();
+  return d.getFullYear() + "-Q" + (Math.floor(d.getMonth()/3) + 1);
+}
+function computeMetrics(c){
+  var m = {};
+  var rev = num(c.revenue), ocf = num(c.ocf), capex = num(c.capex);
+  var ni = num(c.netIncome), da = num(c.da), eq = num(c.equity), debt = num(c.debt);
+  var price = num(c.price), shOut = num(c.sharesOut);
+  m.fcfMargin = (rev && ocf !== null && capex !== null) ? (ocf - capex) / rev : null;
+  m.ownerEarnings = (ni !== null && da !== null && capex !== null) ? ni + da - capex : null;
+  m.marketCap = (price !== null && shOut !== null) ? price * shOut : null;
+  m.oeYield = (m.ownerEarnings !== null && m.marketCap) ? m.ownerEarnings / m.marketCap : null;
+  var roeSeries = parseSeries(c.roeSeries);
+  if(roeSeries.length){
+    m.roe = mean(roeSeries);
+    var sd = stdev(roeSeries);
+    m.roeConsistency = (m.roe > 0) ? clamp(100 * (1 - sd / m.roe), 0, 100) : 0;
+    m.roeMin = Math.min.apply(null, roeSeries);
+  } else {
+    m.roe = (ni !== null && eq) ? ni / eq : null;
+    m.roeConsistency = null;
+    m.roeMin = null;
+  }
+  m.roic = (m.ownerEarnings !== null && eq !== null && debt !== null && (eq + debt) !== 0) ? m.ownerEarnings / (eq + debt) : null;
+  m.debtEquity = (debt !== null && eq) ? debt / eq : null;
+  var fcfSeries = parseSeries(c.fcfSeries);
+  if(fcfSeries.length >= 2){
+    var fmean = mean(fcfSeries), fsd = stdev(fcfSeries);
+    m.marginStability = (fmean > 0) ? clamp(100 * (1 - fsd / fmean), 0, 100) : 0;
+  } else if(fcfSeries.length === 1){
+    m.marginStability = null;
+  } else {
+    m.marginStability = null;
+  }
+  var now = num(c.sharesNow), ago = num(c.shares5y);
+  m.shareChange = (now !== null && ago) ? (now - ago) / ago : null;
+  m.buyback = m.shareChange;
+  return m;
+}
+function gates(c){
+  var reasons = [];
+  if(c.sp !== "yes") reasons.push("Not an S&P 500 member");
+  var yrs = num(c.years);
+  if(yrs === null) reasons.push("Years of history not entered");
+  else if(yrs < state.minYears) reasons.push("Only " + yrs + " years of history (minimum " + state.minYears + ")");
+  var missing = [];
+  if(num(c.revenue) === null) missing.push("revenue");
+  if(num(c.ocf) === null) missing.push("operating cash flow");
+  if(num(c.capex) === null) missing.push("maintenance capex");
+  if(num(c.netIncome) === null) missing.push("net income");
+  if(num(c.equity) === null) missing.push("equity");
+  if(num(c.price) === null) missing.push("share price");
+  if(num(c.sharesOut) === null) missing.push("shares outstanding");
+  if(missing.length) reasons.push("Missing data: " + missing.join(", "));
+  return reasons;
+}
+function sectorBenchmark(sector, metricKey, excludeId){
+  var b = state.benchmarks[sector];
+  if(b && b[metricKey] !== null && b[metricKey] !== undefined && b[metricKey] !== ""){
+    var v = parseFloat(b[metricKey]);
+    if(!isNaN(v)) return {value: v, source: "sector benchmark"};
+  }
+  var peers = [];
+  state.companies.forEach(function(o){
+    if(o.id === excludeId) return;
+    if(o.sector !== sector) return;
+    if(gates(o).length) return;
+    var mm = computeMetrics(o);
+    if(mm[metricKey] !== null && mm[metricKey] !== undefined) peers.push(mm[metricKey]);
+  });
+  if(peers.length){
+    var med = median(peers);
+    if(metricKey === "buyback") return {value: 0, source: "no benchmark — flat share count assumed"};
+    return {value: med, source: "median of " + peers.length + " entered peer(s) in sector"};
+  }
+  return {value: null, source: "no benchmark or peers — scored neutral"};
+}
+function scoreValue(metricKey, value, bench){
+  if(value === null || value === undefined) return null;
+  if(bench.value === null || bench.value === undefined) return 50;
+  var def = null;
+  METRICS.forEach(function(x){ if(x.key === metricKey) def = x; });
+  if(metricKey === "buyback"){
+    return clamp(100 - 8 * (value * 100), 0, 100);
+  }
+  if(def && def.dir === "low"){
+    if(value === 0) return 100;
+    if(bench.value === 0) return 50;
+    return clamp(100 * bench.value / value, 0, 100);
+  }
+  if(bench.value === 0) return value > 0 ? 100 : 0;
+  return clamp(100 * value / bench.value, 0, 100);
+}
+function scoreCompany(c){
+  var m = computeMetrics(c);
+  var scores = {}, wSum = 0, sSum = 0, scoredCount = 0;
+  METRICS.forEach(function(def){
+    var bench = sectorBenchmark(c.sector, def.key, c.id);
+    var val = m[def.key];
+    var sc = scoreValue(def.key, val, bench);
+    var pass = null, reason = "";
+    if(val === null){
+      reason = "No data entered for this metric.";
+    } else if(bench.value === null){
+      reason = "No benchmark or peers — scored neutral at 50.";
+      pass = null;
+    } else if(def.key === "buyback"){
+      pass = val <= 0;
+      reason = pass ? "Share count shrinking or flat — buybacks, not dilution." : "Share count growing — dilution.";
+    } else if(def.dir === "low"){
+      pass = val <= bench.value;
+      reason = pass ? "At or below the sector benchmark." : "Above the sector benchmark.";
+    } else {
+      pass = val >= bench.value;
+      reason = pass ? "At or above the sector benchmark." : "Below the sector benchmark.";
+    }
+    scores[def.key] = {value: val, score: sc, benchmark: bench.value, source: bench.source, pass: pass, reason: reason};
+    if(sc !== null){
+      var w = parseFloat(state.weights[def.key]) || 0;
+      wSum += w; sSum += sc * w; scoredCount++;
+    }
+  });
+  var total = wSum ? sSum / wSum : null;
+  var verdict = null;
+  if(total !== null){
+    verdict = total >= 70 ? "Worthy of a deep dive" : (total >= 50 ? "Watch" : "Pass");
+  }
+  var treasuryCheck = null;
+  if(m.oeYield !== null){
+    var t = state.treasury / 100;
+    treasuryCheck = {pass: m.oeYield >= t, text: "Owner-earnings yield " + fmtPct(m.oeYield) + " vs Treasury " + state.treasury.toFixed(1) + "% — " + (m.oeYield >= t ? "above" : "below") + " the Treasury rate."};
+  }
+  return {metrics: m, scores: scores, total: total, verdict: verdict, scoredCount: scoredCount, treasuryCheck: treasuryCheck};
+}
+var compareSnapshot = null;
+function fmtMetric(def, v){
+  if(v === null || v === undefined) return "—";
+  if(def.fmt === "pct") return fmtPct(v);
+  if(def.fmt === "x") return fmtX(v);
+  return fmtNum(v, 0);
+}
+function verdictTag(v){
+  if(v === "Worthy of a deep dive") return '<span class="tag deep">Deep dive</span>';
+  if(v === "Watch") return '<span class="tag watch">Watch</span>';
+  if(v === "Pass") return '<span class="tag pass">Pass</span>';
+  return "—";
+}
+function sampleBadge(c){ return c.isSample ? ' <span class="badge sample">SAMPLE</span>' : ""; }
+function watchOnly(){ return document.getElementById("chkWatchOnly").checked; }
+function render(){
+  var ranked = [], excluded = [];
+  state.companies.forEach(function(c){
+    var g = gates(c);
+    if(g.length) excluded.push({c: c, reasons: g});
+    else {
+      var s = scoreCompany(c);
+      ranked.push({c: c, s: s});
+    }
+  });
+  ranked.sort(function(a,b){ return (b.s.total === null ? -1 : b.s.total) - (a.s.total === null ? -1 : a.s.total); });
+  var tb = document.getElementById("tbodyRanked");
+  var shown = ranked.filter(function(r){ return !watchOnly() || r.c.watch; });
+  document.getElementById("rankedEmpty").classList.toggle("hidden", shown.length > 0);
+  document.getElementById("thDelta").classList.toggle("hidden", !compareSnapshot);
+  tb.innerHTML = shown.map(function(r, i){
+    var c = r.c, m = r.s.metrics;
+    var delta = "";
+    if(compareSnapshot){
+      var prev = null;
+      compareSnapshot.companies.forEach(function(p){ if(p.ticker === c.ticker) prev = p; });
+      if(prev && prev.total !== null && prev.total !== undefined && r.s.total !== null) delta = (r.s.total - prev.total >= 0 ? "+" : "") + (r.s.total - prev.total).toFixed(0);
+      else delta = "—";
+    }
+    return "<tr>" +
+      "<td>" + (i+1) + "</td>" +
+      "<td><b>" + esc(c.ticker) + "</b>" + sampleBadge(c) + "</td>" +
+      "<td>" + esc(c.name) + "</td>" +
+      "<td>" + esc(c.sector || "—") + "</td>" +
+      "<td class=\"num\"><b>" + (r.s.total === null ? "—" : r.s.total.toFixed(0)) + "</b></td>" +
+      "<td class=\"num\">" + fmtPct(m.fcfMargin) + "</td>" +
+      "<td class=\"num\">" + fmtPct(m.oeYield) + "</td>" +
+      "<td class=\"num\">" + fmtPct(m.roe) + "</td>" +
+      "<td class=\"num\">" + fmtPct(m.roic) + "</td>" +
+      "<td class=\"num\">" + fmtX(m.debtEquity) + "</td>" +
+      "<td class=\"num\">" + fmtPct(m.shareChange) + "</td>" +
+      (compareSnapshot ? "<td class=\"num\">" + delta + "</td>" : "") +
+      "<td>" + verdictTag(r.s.verdict) + "</td>" +
+      "<td><button class=\"star " + (c.watch ? "" : "off") + "\" data-watch=\"" + c.id + "\" title=\"Toggle watchlist\">★</button></td>" +
+      "<td><button class=\"secondary\" data-detail=\"" + c.id + "\">Detail</button> <button class=\"danger\" data-del=\"" + c.id + "\">Remove</button></td>" +
+      "</tr>";
+  }).join("");
+  var te = document.getElementById("tbodyExcluded");
+  document.getElementById("excludedEmpty").classList.toggle("hidden", excluded.length > 0);
+  te.innerHTML = excluded.map(function(e){
+    var c = e.c;
+    return "<tr><td><b>" + esc(c.ticker) + "</b>" + sampleBadge(c) + "</td><td>" + esc(c.name) + "</td><td>" + esc(c.sector || "—") + "</td><td>" + esc(e.reasons.join("; ")) + "</td><td><button class=\"secondary\" data-edit=\"" + c.id + "\">Edit</button> <button class=\"danger\" data-del=\"" + c.id + "\">Remove</button></td></tr>";
+  }).join("");
+  var hasSamples = state.companies.some(function(c){ return c.isSample; });
+  document.getElementById("sampleBanner").classList.toggle("hidden", !hasSamples);
+  document.getElementById("btnClearSamples").classList.toggle("hidden", !hasSamples);
+  document.getElementById("emptyState").classList.toggle("hidden", state.companies.length > 0);
+  renderSnapshotSelect();
+  renderSnapshots();
+  saveState();
+}
+function renderDetail(c){
+  var s = scoreCompany(c), m = s.metrics;
+  var card = document.getElementById("detailCard");
+  var title = esc(c.ticker) + " — " + esc(c.name) + sampleBadge(c);
+  document.getElementById("detailTitle").innerHTML = title + " <span class=\"muted\" style=\"font-size:.85rem\">(" + esc(c.sector || "—") + ")</span>";
+  var rows = METRICS.map(function(def){
+    var sc = s.scores[def.key];
+    var valTxt = fmtMetric(def, sc.value);
+    var benchTxt = sc.benchmark === null ? "—" : fmtMetric(def, sc.benchmark);
+    var passTxt = sc.pass === null ? "—" : (sc.pass ? '<span class="ok">Pass</span>' : '<span class="bad">Below benchmark</span>');
+    if(def.key === "buyback" && sc.pass === false) passTxt = '<span class="bad">Dilution</span>';
+    if(def.key === "buyback" && sc.pass === true) passTxt = '<span class="ok">Pass</span>';
+    return "<div class=\"metric\"><span>" + def.label + " — score " + (sc.score === null ? "—" : sc.score.toFixed(0)) + "</span><b>" + valTxt + "</b><span>Benchmark: " + benchTxt + " (" + esc(sc.source) + ")<br>" + passTxt + " — " + esc(sc.reason) + "</span></div>";
+  }).join("");
+  var extra = "";
+  if(s.treasuryCheck) extra += "<p><b>Treasury check:</b> " + esc(s.treasuryCheck.text) + "</p>";
+  if(m.roeConsistency !== null) extra += "<p><b>ROE consistency:</b> " + m.roeConsistency.toFixed(0) + "/100 (lowest year " + fmtPct(m.roeMin) + ").</p>";
+  if(m.marketCap !== null) extra += "<p><b>Market cap (same unit as money figures):</b> " + fmtNum(m.marketCap, 0) + " &nbsp; <b>Owner earnings:</b> " + fmtNum(m.ownerEarnings, 0) + "</p>";
+  if(s.scoredCount < METRICS.length) extra += "<p class=\"muted\">Some metrics had no data and were left out of the total (" + s.scoredCount + " of " + METRICS.length + " scored).</p>";
+  document.getElementById("detailBody").innerHTML =
+    (c.isSample ? "<div class=\"banner sample\">SAMPLE company — illustrative figures only, not real data.</div>" : "") +
+    "<p><b>Total score:</b> " + (s.total === null ? "—" : s.total.toFixed(0)) + " &nbsp; " + verdictTag(s.verdict) + "</p>" +
+    "<div class=\"grid\">" + rows + "</div>" + extra;
+  card.classList.remove("hidden");
+  card.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function renderBenchmarks(){
+  var wrap = document.getElementById("benchWrap");
+  var html = "<table><thead><tr><th>Sector</th><th class=\"num\">FCF margin</th><th class=\"num\">OE yield</th><th class=\"num\">ROE</th><th class=\"num\">ROIC</th><th class=\"num\">Debt/equity</th><th class=\"num\">Margin stability</th></tr></thead><tbody>";
+  SECTORS.forEach(function(sec){
+    var b = state.benchmarks[sec] || {};
+    function inp(key, isPct){
+      var v = b[key];
+      var shown = (v === null || v === undefined) ? "" : (isPct ? (v*100) : v);
+      return "<input type=\"number\" step=\"any\" data-bench-sector=\"" + esc(sec) + "\" data-bench-key=\"" + key + "\" value=\"" + shown + "\" style=\"width:86px\">";
+    }
+    html += "<tr><td>" + esc(sec) + "</td><td class=\"num\">" + inp("fcfMargin", true) + "</td><td class=\"num\">" + inp("oeYield", true) + "</td><td class=\"num\">" + inp("roe", true) + "</td><td class=\"num\">" + inp("roic", true) + "</td><td class=\"num\">" + inp("debtEquity", false) + "</td><td class=\"num\">" + inp("marginStability", false) + "</td></tr>";
+  });
+  html += "</tbody></table><p class=\"note\">Enter FCF margin, OE yield, ROE and ROIC as percentages (for example, 15 means 15%). Debt/equity as a multiple. Margin stability as a 0–100 score. Leave a cell blank to fall back to the peer median for that sector.</p>";
+  wrap.innerHTML = html;
+}
+function renderWeights(){
+  var wrap = document.getElementById("weightsWrap");
+  wrap.innerHTML = METRICS.map(function(def){
+    return "<div class=\"field\"><label>" + def.label + "</label><input type=\"number\" data-weight-key=\"" + def.key + "\" value=\"" + (state.weights[def.key] || 0) + "\" step=\"1\" min=\"0\"></div>";
+  }).join("");
+}
+function renderSnapshotSelect(){
+  var sel = document.getElementById("selCompare");
+  var cur = sel.value;
+  sel.innerHTML = "<option value=\"\">— none —</option>" + state.snapshots.map(function(s, i){
+    return "<option value=\"" + i + "\"" + (String(i) === cur ? " selected" : "") + ">" + esc(s.name) + "</option>";
+  }).join("");
+  if(cur !== "" && state.snapshots[parseInt(cur, 10)]) compareSnapshot = state.snapshots[parseInt(cur, 10)];
+  else if(cur === "") compareSnapshot = null;
+}
+function renderSnapshots(){
+  var tb = document.getElementById("tbodySnapshots");
+  document.getElementById("snapshotsEmpty").classList.toggle("hidden", state.snapshots.length > 0);
+  tb.innerHTML = state.snapshots.map(function(s, i){
+    return "<tr><td>" + esc(s.name) + "</td><td>" + esc(s.saved) + "</td><td>" + s.companies.length + "</td><td><button class=\"secondary\" data-snap-view=\"" + i + "\">View</button> <button class=\"danger\" data-snap-del=\"" + i + "\">Delete</button></td></tr>";
+  }).join("");
+}
+function collectForm(){
+  return {
+    ticker: document.getElementById("fTicker").value.trim().toUpperCase(),
+    name: document.getElementById("fName").value.trim(),
+    sector: document.getElementById("fSector").value,
+    sp: document.getElementById("fSP").value,
+    years: document.getElementById("fYears").value,
+    revenue: document.getElementById("fRevenue").value,
+    ocf: document.getElementById("fOCF").value,
+    capex: document.getElementById("fCapex").value,
+    netIncome: document.getElementById("fNetIncome").value,
+    da: document.getElementById("fDA").value,
+    equity: document.getElementById("fEquity").value,
+    debt: document.getElementById("fDebt").value,
+    sharesNow: document.getElementById("fSharesNow").value,
+    shares5y: document.getElementById("fShares5y").value,
+    price: document.getElementById("fPrice").value,
+    sharesOut: document.getElementById("fSharesOut").value,
+    roeSeries: document.getElementById("fRoeSeries").value,
+    fcfSeries: document.getElementById("fFcfSeries").value
+  };
+}
+function fillForm(c){
+  document.getElementById("fTicker").value = c.ticker || "";
+  document.getElementById("fName").value = c.name || "";
+  document.getElementById("fSector").value = c.sector || SECTORS[0];
+  document.getElementById("fSP").value = c.sp || "yes";
+  document.getElementById("fYears").value = c.years || "";
+  document.getElementById("fRevenue").value = c.revenue || "";
+  document.getElementById("fOCF").value = c.ocf || "";
+  document.getElementById("fCapex").value = c.capex || "";
+  document.getElementById("fNetIncome").value = c.netIncome || "";
+  document.getElementById("fDA").value = c.da || "";
+  document.getElementById("fEquity").value = c.equity || "";
+  document.getElementById("fDebt").value = c.debt || "";
+  document.getElementById("fSharesNow").value = c.sharesNow || "";
+  document.getElementById("fShares5y").value = c.shares5y || "";
+  document.getElementById("fPrice").value = c.price || "";
+  document.getElementById("fSharesOut").value = c.sharesOut || "";
+  document.getElementById("fRoeSeries").value = c.roeSeries || "";
+  document.getElementById("fFcfSeries").value = c.fcfSeries || "";
+}
+function clearForm(){
+  ["fTicker","fName","fYears","fRevenue","fOCF","fCapex","fNetIncome","fDA","fEquity","fDebt","fSharesNow","fShares5y","fPrice","fSharesOut","fRoeSeries","fFcfSeries"].forEach(function(id){ document.getElementById(id).value = ""; });
+  document.getElementById("fSP").value = "yes";
+  document.getElementById("fSector").value = SECTORS[0];
+}
+function findCompany(id){ var f = null; state.companies.forEach(function(c){ if(c.id === id) f = c; }); return f; }
+document.addEventListener("click", function(e){
+  var t = e.target;
+  var watchBtn = t.closest ? t.closest("[data-watch]") : null;
+  var detailBtn = t.closest ? t.closest("[data-detail]") : null;
+  var delBtn = t.closest ? t.closest("[data-del]") : null;
+  var editBtn = t.closest ? t.closest("[data-edit]") : null;
+  var snapView = t.closest ? t.closest("[data-snap-view]") : null;
+  var snapDel = t.closest ? t.closest("[data-snap-del]") : null;
+  if(watchBtn){ var c = findCompany(watchBtn.getAttribute("data-watch")); if(c){ c.watch = !c.watch; render(); } return; }
+  if(detailBtn){ var c2 = findCompany(detailBtn.getAttribute("data-detail")); if(c2) renderDetail(c2); return; }
+  if(delBtn){ var id = delBtn.getAttribute("data-del"); state.companies = state.companies.filter(function(c){ return c.id !== id; }); document.getElementById("detailCard").classList.add("hidden"); render(); return; }
+  if(editBtn){ var c3 = findCompany(editBtn.getAttribute("data-edit")); if(c3){ fillForm(c3); document.getElementById("formWrap").classList.remove("hidden"); state.companies = state.companies.filter(function(x){ return x.id !== c3.id; }); document.getElementById("formMsg").textContent = "Editing " + c3.ticker + " — press Add company to save the edited version."; } return; }
+  if(snapView){
+    var s = state.snapshots[parseInt(snapView.getAttribute("data-snap-view"), 10)];
+    var det = document.getElementById("snapshotDetail");
+    var rows = s.companies.map(function(p, i){
+      return "<tr><td>" + (i+1) + "</td><td><b>" + esc(p.ticker) + "</b>" + (p.isSample ? ' <span class="badge sample">SAMPLE</span>' : "") + "</td><td>" + esc(p.name) + "</td><td>" + esc(p.sector || "—") + "</td><td class=\"num\">" + (p.total === null || p.total === undefined ? "—" : p.total.toFixed(0)) + "</td><td>" + verdictTag(p.verdict) + "</td></tr>";
+    }).join("");
+    det.innerHTML = "<h3>Snapshot " + esc(s.name) + " (saved " + esc(s.saved) + ")</h3><table><thead><tr><th>#</th><th>Ticker</th><th>Company</th><th>Sector</th><th class=\"num\">Score</th><th>Verdict</th></tr></thead><tbody>" + rows + "</tbody></table>";
+    det.classList.remove("hidden");
+    return;
+  }
+  if(snapDel){ state.snapshots.splice(parseInt(snapDel.getAttribute("data-snap-del"), 10), 1); compareSnapshot = null; document.getElementById("selCompare").value = ""; render(); return; }
+});
+document.getElementById("btnToggleForm").addEventListener("click", function(){ document.getElementById("formWrap").classList.toggle("hidden"); });
+document.getElementById("btnCancelForm").addEventListener("click", function(){ document.getElementById("formWrap").classList.add("hidden"); clearForm(); });
+document.getElementById("btnAdd").addEventListener("click", function(){
+  var c = collectForm();
+  if(!c.ticker || !c.name){ document.getElementById("formMsg").textContent = "Ticker and company name are required. Everything else may be left blank — the company will appear in Excluded with the reason stated."; return; }
+  var dup = null;
+  state.companies.forEach(function(o){ if(o.ticker === c.ticker && !o.isSample) dup = o; });
+  if(dup){ document.getElementById("formMsg").textContent = "A company with ticker " + c.ticker + " already exists. Remove it first, or edit it from the Excluded view."; return; }
+  c.id = uid(); c.watch = false; c.isSample = false;
+  state.companies.push(c);
+  document.getElementById("formMsg").textContent = "Added " + c.ticker + ".";
+  clearForm();
+  render();
+});
+document.getElementById("chkWatchOnly").addEventListener("change", render);
+document.getElementById("selCompare").addEventListener("change", function(){
+  var v = this.value;
+  compareSnapshot = v === "" ? null : state.snapshots[parseInt(v, 10)];
+  render();
+});
+document.getElementById("inpTreasury").addEventListener("change", function(){ var v = num(this.value); if(v !== null){ state.treasury = v; render(); } });
+document.getElementById("inpMinYears").addEventListener("change", function(){ var v = num(this.value); if(v !== null){ state.minYears = v; render(); } });
+document.getElementById("btnSnapshot").addEventListener("click", function(){
+  var name = document.getElementById("inpSnapshotName").value.trim() || currentQuarterName();
+  var snapCompanies = [];
+  state.companies.forEach(function(c){
+    if(gates(c).length) return;
+    var s = scoreCompany(c);
+    snapCompanies.push({ticker: c.ticker, name: c.name, sector: c.sector, total: s.total, verdict: s.verdict, isSample: !!c.isSample});
+  });
+  snapCompanies.sort(function(a,b){ return (b.total === null ? -1 : b.total) - (a.total === null ? -1 : a.total); });
+  state.snapshots.push({name: name, saved: new Date().toISOString().slice(0, 10), companies: snapCompanies});
+  document.getElementById("snapMsg").textContent = "Snapshot " + name + " saved with " + snapCompanies.length + " ranked companies.";
+  render();
+});
+document.getElementById("btnExport").addEventListener("click", function(){
+  var blob = new Blob([JSON.stringify(state, null, 2)], {type: "application/json"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "log-investments-screener.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+document.getElementById("btnImport").addEventListener("click", function(){ document.getElementById("fileImport").click(); });
+document.getElementById("fileImport").addEventListener("change", function(){
+  var f = this.files[0];
+  if(!f) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var data = JSON.parse(reader.result);
+      if(!data || !Array.isArray(data.companies)) throw new Error("bad file");
+      if(!window.confirm("Replace all current data with this file?")) return;
+      state.companies = data.companies;
+      state.benchmarks = data.benchmarks || defaultBenchmarks();
+      state.weights = data.weights || Object.assign({}, DEFAULT_WEIGHTS);
+      state.snapshots = data.snapshots || [];
+      state.treasury = (data.treasury === undefined) ? 4.5 : data.treasury;
+      state.minYears = (data.minYears === undefined) ? 5 : data.minYears;
+      compareSnapshot = null;
+      document.getElementById("selCompare").value = "";
+      document.getElementById("inpTreasury").value = state.treasury;
+      document.getElementById("inpMinYears").value = state.minYears;
+      renderBenchmarks(); renderWeights(); render();
+    }catch(err){ window.alert("Could not import that file: " + err.message); }
+  };
+  reader.readAsText(f);
+  this.value = "";
+});
+document.getElementById("btnSaveBench").addEventListener("click", function(){
+  document.querySelectorAll("[data-bench-sector]").forEach(function(inp){
+    var sec = inp.getAttribute("data-bench-sector"), key = inp.getAttribute("data-bench-key");
+    var v = inp.value.trim();
+    if(!state.benchmarks[sec]) state.benchmarks[sec] = {};
+    if(v === ""){ state.benchmarks[sec][key] = null; return; }
+    var n = parseFloat(v);
+    if(isNaN(n)) return;
+    if(key === "fcfMargin" || key === "oeYield" || key === "roe" || key === "roic") state.benchmarks[sec][key] = n / 100;
+    else state.benchmarks[sec][key] = n;
+  });
+  document.getElementById("benchMsg").textContent = "Benchmarks saved.";
+  render();
+});
+document.getElementById("btnSaveWeights").addEventListener("click", function(){
+  document.querySelectorAll("[data-weight-key]").forEach(function(inp){
+    var n = parseFloat(inp.value);
+    if(!isNaN(n)) state.weights[inp.getAttribute("data-weight-key")] = n;
+  });
+  document.getElementById("weightsMsg").textContent = "Weights saved.";
+  render();
+});
+document.getElementById("tabRanked").addEventListener("click", function(){ setTab("Ranked"); });
+document.getElementById("tabExcluded").addEventListener("click", function(){ setTab("Excluded"); });
+document.getElementById("tabSnapshots").addEventListener("click", function(){ setTab("Snapshots"); });
+function setTab(which){
+  ["Ranked","Excluded","Snapshots"].forEach(function(w){
+    document.getElementById("tab" + w).classList.toggle("active", w === which);
+    document.getElementById("view" + w).classList.toggle("hidden", w !== which);
+  });
+}
+document.getElementById("btnSamples").addEventListener("click", function(){
+  var samples = [
+    {ticker:"SAMPLE-A", name:"Sample Alpha Technologies", sector:"Technology", sp:"yes", years:"10", revenue:"100000", ocf:"28000", capex:"3000", netIncome:"22000", da:"4000", equity:"90000", debt:"20000", sharesNow:"900", shares5y:"1000", price:"180", sharesOut:"900", roeSeries:"20, 22, 21, 24, 23", fcfSeries:"22, 24, 23, 25, 25"},
+    {ticker:"SAMPLE-B", name:"Sample Beta Consumer Goods", sector:"Consumer Staples", sp:"yes", years:"10", revenue:"80000", ocf:"9000", capex:"2000", netIncome:"6000", da:"1500", equity:"40000", debt:"30000", sharesNow:"1050", shares5y:"1000", price:"60", sharesOut:"1050", roeSeries:"14, 15, 13, 16, 15", fcfSeries:"8, 9, 8, 10, 9"},
+    {ticker:"SAMPLE-C", name:"Sample Gamma Financial", sector:"Financials", sp:"yes", years:"8", revenue:"50000", ocf:"12000", capex:"500", netIncome:"8000", da:"800", equity:"70000", debt:"300000", sharesNow:"950", shares5y:"980", price:"45", sharesOut:"950", roeSeries:"11, 12, 11, 13, 12", fcfSeries:"20, 22, 21, 23, 23"}
+  ];
+  samples.forEach(function(s){
+    s.id = uid(); s.watch = false; s.isSample = true;
+    state.companies.push(s);
+  });
+  render();
+});
+document.getElementById("btnClearSamples").addEventListener("click", function(){
+  state.companies = state.companies.filter(function(c){ return !c.isSample; });
+  document.getElementById("detailCard").classList.add("hidden");
+  render();
+});
+function padCIK(cik){
+  var s = String(cik);
+  while(s.length < 10) s = "0" + s;
+  return s;
+}
+function pickAnnualSeries(units, form){
+  var out = [];
+  if(!units) return out;
+  var keys = Object.keys(units);
+  for(var i = 0; i < keys.length; i++){
+    var arr = units[keys[i]];
+    arr.forEach(function(pt){
+      if(form && pt.form !== form) return;
+      if(pt.val === undefined || pt.val === null) return;
+      out.push({end: pt.end, fy: pt.fy, val: pt.val, filed: pt.filed});
+    });
+  }
+  out.sort(function(a,b){ return a.end < b.end ? -1 : (a.end > b.end ? 1 : 0); });
+  var byYear = {};
+  out.forEach(function(pt){ byYear[pt.fy] = pt; });
+  var years = Object.keys(byYear).sort();
+  return years.map(function(y){ return byYear[y]; });
+}
+function latestValue(series){
+  if(!series.length) return null;
+  return series[series.length - 1].val;
+}
+function pickTag(facts, tags, form){
+  var usd = facts && facts.facts && facts.facts["us-gaap"];
+  if(!usd) return [];
+  for(var i = 0; i < tags.length; i++){
+    if(usd[tags[i]] && usd[tags[i]].units && usd[tags[i]].units.USD){
+      var s = pickAnnualSeries(usd[tags[i]].units, form);
+      if(s.length) return s;
+    }
+  }
+  return [];
+}
+function sumDebt(facts, form){
+  var usd = facts && facts.facts && facts.facts["us-gaap"];
+  if(!usd) return null;
+  var tags = ["LongTermDebt", "LongTermDebtCurrent", "ShortTermBorrowings", "LongTermDebtAndCapitalLeaseObligations"];
+  var byYear = {};
+  tags.forEach(function(tag){
+    if(usd[tag] && usd[tag].units && usd[tag].units.USD){
+      pickAnnualSeries(usd[tag].units, form).forEach(function(pt){ byYear[pt.fy] = (byYear[pt.fy] || 0) + pt.val; });
+    }
+  });
+  var years = Object.keys(byYear).sort();
+  if(!years.length) return null;
+  return byYear[years[years.length - 1]];
+}
+document.getElementById("btnEdgar").addEventListener("click", function(){
+  var ticker = document.getElementById("inpEdgarTicker").value.trim().toUpperCase();
+  var msg = document.getElementById("edgarMsg");
+  if(!ticker){ msg.textContent = "Enter a ticker first."; return; }
+  msg.textContent = "Looking up " + ticker + "…";
+  fetch("https://www.sec.gov/files/company_tickers.json")
+    .then(function(r){ if(!r.ok) throw new Error("Ticker lookup failed (HTTP " + r.status + ")."); return r.json(); })
+    .then(function(data){
+      var cik = null, name = "";
+      Object.keys(data).forEach(function(k){
+        if(data[k].ticker && data[k].ticker.toUpperCase() === ticker){ cik = data[k].cik_str; name = data[k].title; }
+      });
+      if(!cik) throw new Error("Ticker " + ticker + " not found in SEC company list.");
+      msg.textContent = "Found " + name + " — pulling latest 10-K figures…";
+      return fetch("https://data.sec.gov/api/xbrl/companyfacts/CIK" + padCIK(cik) + ".json");
+    })
+    .then(function(r){ if(!r.ok) throw new Error("EDGAR companyfacts fetch failed (HTTP " + r.status + "). SEC may block direct browser requests — use manual entry instead."); return r.json(); })
+    .then(function(facts){
+      var rev = pickTag(facts, ["Revenues", "SalesRevenueNet", "RevenueFromContractWithCustomerExcludingAssessedTax"], "10-K");
+      var ocf = pickTag(facts, ["NetCashProvidedByUsedInOperatingActivities"], "10-K");
+      var capex = pickTag(facts, ["PaymentsToAcquirePropertyPlantAndEquipment"], "10-K");
+      var ni = pickTag(facts, ["NetIncomeLoss"], "10-K");
+      var da = pickTag(facts, ["DepreciationDepletionAndAmortization"], "10-K");
+      var eq = pickTag(facts, ["StockholdersEquity"], "10-K");
+      var sh = pickTag(facts, ["CommonStockSharesOutstanding"], "10-K");
+      var debt = sumDebt(facts, "10-K");
+      var years = rev.length;
+      var roeSeries = [];
+      for(var i = 0; i < ni.length; i++){
+        var m = null;
+        eq.forEach(function(e){ if(e.fy === ni[i].fy) m = e.val; });
+        if(m) roeSeries.push(((ni[i].val / m) * 100).toFixed(1));
+      }
+      var fcfSeries = [];
+      for(var j = 0; j < ocf.length; j++){
+        var r0 = null, c0 = null;
+        rev.forEach(function(e){ if(e.fy === ocf[j].fy) r0 = e.val; });
+        capex.forEach(function(e){ if(e.fy === ocf[j].fy) c0 = e.val; });
+        if(r0 && c0 !== null) fcfSeries.push((((ocf[j].val - c0) / r0) * 100).toFixed(1));
+      }
+      var sh5 = null;
+      if(sh.length >= 6) sh5 = sh[sh.length - 6].val;
+      else if(sh.length >= 2) sh5 = sh[0].val;
+      var filled = {
+        ticker: ticker, name: facts.entityName || name || ticker, sector: SECTORS[0], sp: "yes",
+        years: String(years || ""), revenue: latestValue(rev), ocf: latestValue(ocf), capex: latestValue(capex),
+        netIncome: latestValue(ni), da: latestValue(da), equity: latestValue(eq), debt: debt,
+        sharesNow: latestValue(sh), shares5y: sh5, price: "", sharesOut: latestValue(sh),
+        roeSeries: roeSeries.join(", "), fcfSeries: fcfSeries.join(", ")
+      };
+      fillForm(filled);
+      document.getElementById("formWrap").classList.remove("hidden");
+      var missing = [];
+      if(filled.revenue === null) missing.push("revenue");
+      if(filled.ocf === null) missing.push("operating cash flow");
+      if(filled.capex === null) missing.push("maintenance capex");
+      if(filled.netIncome === null) missing.push("net income");
+      if(filled.equity === null) missing.push("equity");
+      msg.innerHTML = "<span class=\"ok\">Fetched " + esc(filled.name) + " (" + years + " years of 10-K data).</span> Enter the share price by hand, check the sector, then press Add company." + (missing.length ? " Not found in filing: " + esc(missing.join(", ")) + " — enter manually if available." : "");
+    })
+    .catch(function(err){
+      msg.innerHTML = "<span class=\"bad\">Fetch failed: " + esc(err.message) + "</span> Nothing was added — use manual entry.";
+    });
+});
+(function init(){
+  var sel = document.getElementById("fSector");
+  SECTORS.forEach(function(s){
+    var o = document.createElement("option");
+    o.value = s; o.textContent = s;
+    sel.appendChild(o);
+  });
+  document.getElementById("inpTreasury").value = state.treasury;
+  document.getElementById("inpMinYears").value = state.minYears;
+  document.getElementById("inpSnapshotName").value = currentQuarterName();
+  renderBenchmarks();
+  renderWeights();
+  render();
+})();
+</script>
+</body>
+</html>
