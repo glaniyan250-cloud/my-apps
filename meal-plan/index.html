@@ -31,13 +31,17 @@
   tr.total td{background:#f3efe4;font-weight:700;color:var(--navy);border-top:2px solid var(--gold);}
   tr.total td.food{color:var(--gold);letter-spacing:.06em;text-transform:uppercase;font-size:.78rem;}
   .note{font-size:.78rem;color:var(--muted);line-height:1.5;padding:0 4px;}
+  .rules{list-style:none;padding:0 4px;margin:12px 0 0;}
+  .rules li{font-size:.85rem;line-height:1.5;padding:6px 0 6px 20px;position:relative;border-bottom:1px solid var(--line);}
+  .rules li:last-child{border-bottom:0;}
+  .rules li:before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700;}
 </style>
 </head>
 <body>
 <header>
   <div class="kicker">Operation Eternal Lean</div>
   <h1>Daily Timetable</h1>
-  <p>~1,850 kcal &nbsp;·&nbsp; ~200 g protein &nbsp;·&nbsp; one template, every day</p>
+  <p>~1,650 kcal &nbsp;·&nbsp; ~200 g protein &nbsp;·&nbsp; one template, every day</p>
 </header>
 
 <div class="tabs" role="tablist">
@@ -45,67 +49,65 @@
   <button class="tab" data-panel="noshake">No-Shake</button>
   <button class="tab" data-panel="nosnack">No-Snack</button>
   <button class="tab" data-panel="cereal">Cereal Swaps</button>
+  <button class="tab" data-panel="outing">Outing</button>
 </div>
 
 <main>
   <section class="panel active" id="main">
-    <h2>Main <span>— ~1,865 kcal · ~203 g protein</span></h2>
+    <h2>Main <span>— ~1,647 kcal · ~203 g protein</span></h2>
     <table>
       <tr><th>Meal</th><th>Food</th><th>Portion</th><th class="num">kcal</th><th class="num">Protein</th></tr>
-      <tr><td class="meal">Breakfast</td><td class="food">Whole eggs, fried</td><td class="portion">3 large</td><td class="num">216</td><td class="num">20 g</td></tr>
+      <tr><td class="meal">Breakfast</td><td class="food">Whole eggs, fried</td><td class="portion">2 large</td><td class="num">144</td><td class="num">13 g</td></tr>
       <tr><td class="meal"></td><td class="food">Liquid egg whites, cooked</td><td class="portion">300 g</td><td class="num">135</td><td class="num">30 g</td></tr>
       <tr><td class="meal"></td><td class="food">Protein bread</td><td class="portion">2 slices</td><td class="num">200</td><td class="num">14 g</td></tr>
-      <tr><td class="meal">Lunch</td><td class="food">Chicken breast</td><td class="portion">150 g cooked</td><td class="num">248</td><td class="num">47 g</td></tr>
-      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">100 g cooked</td><td class="num">130</td><td class="num">2.5 g</td></tr>
+      <tr><td class="meal">Lunch</td><td class="food">Chicken breast</td><td class="portion">175 g cooked</td><td class="num">289</td><td class="num">54 g</td></tr>
+      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">50 g cooked</td><td class="num">65</td><td class="num">1.5 g</td></tr>
       <tr><td class="meal"></td><td class="food">Salad</td><td class="portion">150 g</td><td class="num">30</td><td class="num">2 g</td></tr>
-      <tr><td class="meal"></td><td class="food">Salad cream</td><td class="portion">15 mL</td><td class="num">90</td><td class="num">0 g</td></tr>
       <tr><td class="meal">Snack</td><td class="food">Whey protein</td><td class="portion">35 g / 1 scoop</td><td class="num">140</td><td class="num">24 g</td></tr>
       <tr><td class="meal"></td><td class="food">Protein milk</td><td class="portion">250 mL</td><td class="num">170</td><td class="num">20 g</td></tr>
       <tr><td class="meal">Dinner</td><td class="food">Atlantic salmon</td><td class="portion">150 g cooked</td><td class="num">309</td><td class="num">38 g</td></tr>
-      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">75 g cooked</td><td class="num">98</td><td class="num">2 g</td></tr>
+      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">50 g cooked</td><td class="num">65</td><td class="num">1.5 g</td></tr>
       <tr><td class="meal"></td><td class="food">Mixed vegetables</td><td class="portion">200 g</td><td class="num">100</td><td class="num">5 g</td></tr>
       <tr><td class="meal">Daily</td><td class="food">Creatine monohydrate</td><td class="portion">5 g</td><td class="num">0</td><td class="num">0 g</td></tr>
-      <tr class="total"><td></td><td class="food">Day total</td><td></td><td class="num">~1,865</td><td class="num">~203 g</td></tr>
+      <tr class="total"><td></td><td class="food">Day total</td><td></td><td class="num">~1,647</td><td class="num">~203 g</td></tr>
     </table>
   </section>
 
   <section class="panel" id="noshake">
-    <h2>No-Shake Day <span>— ~1,848 kcal · ~200 g protein</span></h2>
+    <h2>No-Shake Day <span>— ~1,671 kcal · ~199 g protein</span></h2>
     <table>
       <tr><th>Meal</th><th>Food</th><th>Portion</th><th class="num">kcal</th><th class="num">Protein</th></tr>
-      <tr><td class="meal">Breakfast</td><td class="food">Whole eggs, fried</td><td class="portion">3 large</td><td class="num">216</td><td class="num">20 g</td></tr>
+      <tr><td class="meal">Breakfast</td><td class="food">Whole eggs, fried</td><td class="portion">2 large</td><td class="num">144</td><td class="num">13 g</td></tr>
       <tr><td class="meal"></td><td class="food">Liquid egg whites, cooked</td><td class="portion">300 g</td><td class="num">135</td><td class="num">30 g</td></tr>
       <tr><td class="meal"></td><td class="food">Protein bread</td><td class="portion">2 slices</td><td class="num">200</td><td class="num">14 g</td></tr>
       <tr><td class="meal">Lunch</td><td class="food">Chicken breast</td><td class="portion">200 g cooked</td><td class="num">330</td><td class="num">62 g</td></tr>
-      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">75 g cooked</td><td class="num">98</td><td class="num">2 g</td></tr>
+      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">50 g cooked</td><td class="num">65</td><td class="num">1.5 g</td></tr>
       <tr><td class="meal"></td><td class="food">Salad</td><td class="portion">150 g</td><td class="num">30</td><td class="num">2 g</td></tr>
-      <tr><td class="meal"></td><td class="food">Salad cream</td><td class="portion">15 mL</td><td class="num">90</td><td class="num">0 g</td></tr>
       <tr><td class="meal">Snack</td><td class="food">Greek yogurt</td><td class="portion">175 g</td><td class="num">100</td><td class="num">17 g</td></tr>
       <tr><td class="meal"></td><td class="food">Mixed nuts</td><td class="portion">1 tbsp / 15 g</td><td class="num">90</td><td class="num">3 g</td></tr>
-      <tr><td class="meal">Dinner</td><td class="food">Atlantic salmon</td><td class="portion">175 g cooked</td><td class="num">361</td><td class="num">44 g</td></tr>
-      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">75 g cooked</td><td class="num">98</td><td class="num">2 g</td></tr>
+      <tr><td class="meal">Dinner</td><td class="food">Atlantic salmon</td><td class="portion">200 g cooked</td><td class="num">412</td><td class="num">50 g</td></tr>
+      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">50 g cooked</td><td class="num">65</td><td class="num">1.5 g</td></tr>
       <tr><td class="meal"></td><td class="food">Mixed vegetables</td><td class="portion">200 g</td><td class="num">100</td><td class="num">5 g</td></tr>
       <tr><td class="meal">Daily</td><td class="food">Creatine monohydrate</td><td class="portion">5 g</td><td class="num">0</td><td class="num">0 g</td></tr>
-      <tr class="total"><td></td><td class="food">Day total</td><td></td><td class="num">~1,848</td><td class="num">~200 g</td></tr>
+      <tr class="total"><td></td><td class="food">Day total</td><td></td><td class="num">~1,671</td><td class="num">~199 g</td></tr>
     </table>
   </section>
 
   <section class="panel" id="nosnack">
-    <h2>No-Snack Day <span>— ~1,856 kcal · ~203 g protein</span></h2>
+    <h2>No-Snack Day <span>— ~1,630 kcal · ~197 g protein</span></h2>
     <table>
       <tr><th>Meal</th><th>Food</th><th>Portion</th><th class="num">kcal</th><th class="num">Protein</th></tr>
-      <tr><td class="meal">Breakfast</td><td class="food">Whole eggs, fried</td><td class="portion">3 large</td><td class="num">216</td><td class="num">20 g</td></tr>
+      <tr><td class="meal">Breakfast</td><td class="food">Whole eggs, fried</td><td class="portion">2 large</td><td class="num">144</td><td class="num">13 g</td></tr>
       <tr><td class="meal"></td><td class="food">Liquid egg whites, cooked</td><td class="portion">300 g</td><td class="num">135</td><td class="num">30 g</td></tr>
       <tr><td class="meal"></td><td class="food">Protein bread</td><td class="portion">2 slices</td><td class="num">200</td><td class="num">14 g</td></tr>
       <tr><td class="meal">Lunch</td><td class="food">Chicken breast</td><td class="portion">250 g cooked</td><td class="num">413</td><td class="num">78 g</td></tr>
-      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">100 g cooked</td><td class="num">130</td><td class="num">2.5 g</td></tr>
+      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">75 g cooked</td><td class="num">98</td><td class="num">2.5 g</td></tr>
       <tr><td class="meal"></td><td class="food">Salad</td><td class="portion">150 g</td><td class="num">30</td><td class="num">2 g</td></tr>
-      <tr><td class="meal"></td><td class="food">Salad cream</td><td class="portion">15 mL</td><td class="num">90</td><td class="num">0 g</td></tr>
       <tr><td class="meal">Dinner</td><td class="food">Atlantic salmon</td><td class="portion">200 g cooked</td><td class="num">412</td><td class="num">50 g</td></tr>
-      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">100 g cooked</td><td class="num">130</td><td class="num">2.5 g</td></tr>
+      <tr><td class="meal"></td><td class="food">White rice</td><td class="portion">75 g cooked</td><td class="num">98</td><td class="num">2.5 g</td></tr>
       <tr><td class="meal"></td><td class="food">Mixed vegetables</td><td class="portion">200 g</td><td class="num">100</td><td class="num">5 g</td></tr>
       <tr><td class="meal">Daily</td><td class="food">Creatine monohydrate</td><td class="portion">5 g</td><td class="num">0</td><td class="num">0 g</td></tr>
-      <tr class="total"><td></td><td class="food">Day total</td><td></td><td class="num">~1,856</td><td class="num">~203 g</td></tr>
+      <tr class="total"><td></td><td class="food">Day total</td><td></td><td class="num">~1,630</td><td class="num">~197 g</td></tr>
     </table>
   </section>
 
@@ -117,6 +119,30 @@
       <tr><td class="meal">Breakfast swap</td><td class="food">TRUELY Cocoa cereal + protein milk</td><td class="portion">80 g + 250 mL</td><td class="num">510</td><td class="num">56 g</td></tr>
     </table>
     <p class="note">Snack swap replaces the whey shake. Breakfast swap replaces the egg breakfast. Weigh the cereal — 40 g is one serving.</p>
+  </section>
+
+  <section class="panel" id="outing">
+    <h2>Outing / Date Night / Guest Visit <span>— bank calories, enjoy dinner</span></h2>
+    <table>
+      <tr><th>Meal</th><th>Food</th><th>Portion</th><th class="num">kcal</th><th class="num">Protein</th></tr>
+      <tr><td class="meal">Breakfast</td><td class="food">Whole eggs, fried</td><td class="portion">2 large</td><td class="num">144</td><td class="num">13 g</td></tr>
+      <tr><td class="meal"></td><td class="food">Liquid egg whites, cooked</td><td class="portion">300 g</td><td class="num">135</td><td class="num">30 g</td></tr>
+      <tr><td class="meal"></td><td class="food">Protein bread</td><td class="portion">2 slices</td><td class="num">200</td><td class="num">14 g</td></tr>
+      <tr><td class="meal">Lunch (light)</td><td class="food">Chicken breast</td><td class="portion">150 g cooked</td><td class="num">248</td><td class="num">47 g</td></tr>
+      <tr><td class="meal"></td><td class="food">Salad</td><td class="portion">150 g</td><td class="num">30</td><td class="num">2 g</td></tr>
+      <tr><td class="meal">Snack</td><td class="food">Greek yogurt (optional, only if hungry)</td><td class="portion">175 g</td><td class="num">100</td><td class="num">17 g</td></tr>
+      <tr><td class="meal">Dinner (outing)</td><td class="food">Grilled protein + vegetables / salad</td><td class="portion">restaurant portion</td><td class="num">~700</td><td class="num">~50 g</td></tr>
+      <tr><td class="meal">Daily</td><td class="food">Creatine monohydrate</td><td class="portion">5 g</td><td class="num">0</td><td class="num">0 g</td></tr>
+      <tr class="total"><td></td><td class="food">Day total</td><td></td><td class="num">~1,560</td><td class="num">~173 g</td></tr>
+    </table>
+    <ul class="rules">
+      <li>Grilled or baked protein — chicken, fish, steak — with vegetables or salad.</li>
+      <li>Easy on bread, rice, pasta and fries: a small portion, not a second helping.</li>
+      <li>Sauces and dressings on the side. Creamy sauces are the hidden calories.</li>
+      <li>One drink maximum (or none). Skip dessert, or share one.</li>
+      <li>Eat slowly, stop at satisfied — not stuffed.</li>
+      <li>Next day: straight back to the main template. No skipping meals to “make up for it”.</li>
+    </ul>
   </section>
 </main>
 <script>
