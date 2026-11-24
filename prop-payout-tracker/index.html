@@ -59,6 +59,13 @@
       .fleet-hint b{ color:var(--ink); }
       .fleet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
       @media (max-width:560px){ .fleet-grid{ grid-template-columns:1fr; } }
+      .pnl-wrap{ display:flex; gap:8px; align-items:stretch; }
+      .pnl-wrap input{ flex:1 1 auto; min-width:0; }
+      .sign-toggle{ flex:0 0 auto; appearance:none; border-radius:8px; padding:8px 12px; cursor:pointer;
+        font-weight:700; font-size:.92rem; min-height:2.25rem; min-width:96px;
+        border:1px solid var(--green); background:var(--green-bg); color:var(--green); }
+      .sign-toggle.neg{ border-color:var(--red); background:var(--red-bg); color:var(--red); }
+      .sign-toggle:focus-visible{ outline:2px solid var(--gold-bright); outline-offset:2px; }
       .fleet-overrides{ border-top:1px solid var(--line); margin-top:6px; padding-top:12px; }
       .fleet-overrides .ov-title{ font-size:.85rem; font-weight:700; margin-bottom:8px; }
       .fleet-overrides .ov-title span{ font-weight:400; color:var(--ink-soft); }
@@ -215,14 +222,14 @@
         <div class="report" id="fleetReport"></div>
         <div class="fleet-grid">
           <div class="field"><label for="fleetDate">Date</label><input id="fleetDate" type="date" /></div>
-          <div class="field"><label for="fleetPnl">Master day P&amp;L ($) — negative for a losing day</label><input id="fleetPnl" type="number" step="0.01" placeholder="e.g. 420 or -180" /></div>
+          <div class="field"><label for="fleetPnl">Master day P&amp;L ($) — tap Loss for a losing day</label><div class="pnl-wrap"><button type="button" class="sign-toggle" id="fleetPnlSign" aria-pressed="false" aria-label="Toggle master P and L between win and loss">+ Win</button><input id="fleetPnl" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 420 or 180 as a loss" /></div><div class="sub-hint">No minus key needed — the Win / Loss button sets the sign.</div></div>
         </div>
         <div class="fleet-overrides">
-          <div class="ov-title">Per-firm amount <span>— optional. Leave blank to use the master amount for that firm.</span></div>
+          <div class="ov-title">Per-firm amount <span>— optional. Leave blank to use the master amount for that firm. Use each firm's Win / Loss button for a losing amount.</span></div>
           <div class="ov-grid">
-            <div class="field"><label for="fleetPnlApex">Apex amount ($)</label><input id="fleetPnlApex" type="number" step="0.01" placeholder="Master amount" /></div>
-            <div class="field"><label for="fleetPnlLucid">Lucid amount ($)</label><input id="fleetPnlLucid" type="number" step="0.01" placeholder="Master amount" /></div>
-            <div class="field"><label for="fleetPnlTradeify">Tradeify amount ($)</label><input id="fleetPnlTradeify" type="number" step="0.01" placeholder="Master amount" /></div>
+            <div class="field"><label for="fleetPnlApex">Apex amount ($)</label><div class="pnl-wrap"><button type="button" class="sign-toggle" id="fleetPnlApexSign" aria-pressed="false" aria-label="Toggle Apex amount between win and loss">+ Win</button><input id="fleetPnlApex" type="text" inputmode="decimal" autocomplete="off" placeholder="Master amount" /></div></div>
+            <div class="field"><label for="fleetPnlLucid">Lucid amount ($)</label><div class="pnl-wrap"><button type="button" class="sign-toggle" id="fleetPnlLucidSign" aria-pressed="false" aria-label="Toggle Lucid amount between win and loss">+ Win</button><input id="fleetPnlLucid" type="text" inputmode="decimal" autocomplete="off" placeholder="Master amount" /></div></div>
+            <div class="field"><label for="fleetPnlTradeify">Tradeify amount ($)</label><div class="pnl-wrap"><button type="button" class="sign-toggle" id="fleetPnlTradeifySign" aria-pressed="false" aria-label="Toggle Tradeify amount between win and loss">+ Win</button><input id="fleetPnlTradeify" type="text" inputmode="decimal" autocomplete="off" placeholder="Master amount" /></div></div>
           </div>
         </div>
         <div class="fleet-firms" id="fleetFirms">
@@ -404,6 +411,48 @@
       function findAccount(id) {
         for (var i = 0; i < state.accounts.length; i++) if (state.accounts[i].id === id) return state.accounts[i];
         return null;
+      }
+      /* ---- P&L sign toggle: phone numeric keypads have no minus key ---- */
+      function syncSignBtn(inp, btn) {
+        if (!inp || !btn) return;
+        var isNeg = (inp.value && inp.value.trim().charAt(0) === "-") || inp.dataset.pendingNeg === "1";
+        btn.textContent = isNeg ? "− Loss" : "+ Win";
+        btn.classList.toggle("neg", isNeg);
+        btn.setAttribute("aria-pressed", isNeg ? "true" : "false");
+      }
+      function wirePnlToggle(inputId, btnId) {
+        var inp = $(inputId), btn = $(btnId);
+        if (!inp || !btn) return;
+        syncSignBtn(inp, btn);
+        btn.addEventListener("click", function () {
+          var v = inp.value.trim();
+          if (v) {
+            inp.value = v.charAt(0) === "-" ? v.slice(1) : "-" + v.replace(/^-+/, "");
+            delete inp.dataset.pendingNeg;
+          } else {
+            if (inp.dataset.pendingNeg === "1") delete inp.dataset.pendingNeg;
+            else inp.dataset.pendingNeg = "1";
+          }
+          syncSignBtn(inp, btn);
+          inp.focus();
+        });
+        inp.addEventListener("input", function () {
+          if (inp.dataset.pendingNeg === "1" && inp.value.trim()) {
+            var raw = inp.value.replace(/^-+/, "");
+            inp.value = "-" + raw;
+            delete inp.dataset.pendingNeg;
+          }
+          syncSignBtn(inp, btn);
+        });
+      }
+      function pnlFieldHtml(inputId, signId) {
+        return '<div class="pnl-wrap"><button type="button" class="sign-toggle" id="' + signId + '" aria-pressed="false">+ Win</button>' +
+          '<input id="' + inputId + '" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 420 or 180 as a loss" /></div>' +
+          '<div class="sub-hint">No minus key needed — tap Loss for a losing day.</div>';
+      }
+      function resetPnlField(inputId, btnId) {
+        var inp = $(inputId); if (inp) { inp.value = ""; delete inp.dataset.pendingNeg; }
+        var btn = $(btnId); if (inp && btn) syncSignBtn(inp, btn);
       }
       function rules(a) { return state.rulesByFirm[a.firm] || state.rulesByFirm.apex; }
       function biggestDay(a) {
@@ -854,8 +903,9 @@
         openModal("<h3>Log day for all " + esc(f.name) + " accounts</h3><p class='hint'>Copy trade: this one amount posts to <b>all " + list.length + " " + esc(f.name) + " accounts</b> (" + fundedN + " funded" + (evalN ? " + " + evalN + " evaluations" : "") + ") — balances, peaks, day counts and checklists all update together. For a single account that differed, use “Correct single day” on its card instead.</p>" +
           '<div class="report" id="mReport"></div>' +
           '<div class="form-grid"><div class="field"><label>Date</label><input id="mDate" type="date" value="' + todayStr() + '" /></div>' +
-          '<div class="field"><label>Day P&amp;L for every ' + esc(f.name) + ' account ($) — negative for a losing day</label><input id="mPnl" type="number" step="0.01" /></div></div>' +
+          '<div class="field"><label>Day P&amp;L for every ' + esc(f.name) + ' account ($) — tap Loss for a losing day</label>' + pnlFieldHtml("mPnl", "mPnlSign") + '</div></div>' +
           actions());
+        wirePnlToggle("mPnl", "mPnlSign");
         $("modalSave").textContent = "Apply to " + list.length + " accounts";
         $("modalSave").onclick = function () {
           var pnl = parseFloat($("mPnl").value), rep = $("mReport");
@@ -873,8 +923,9 @@
         openModal("<h3>Correct single day — " + esc(a.id) + "</h3><p class='hint'>Correction tool only — for the rare day this one account differed from the copied result (different fill or slippage). For a normal trading day, use <b>Log Today's Result</b> at the top so every copied account updates at once. This entry updates only this account's balance, peak and cycle counts.</p>" +
           '<div class="report" id="mReport"></div>' +
           '<div class="form-grid"><div class="field"><label>Date</label><input id="mDate" type="date" value="' + todayStr() + '" /></div>' +
-          '<div class="field"><label>Day P&amp;L ($) — negative for a losing day</label><input id="mPnl" type="number" step="0.01" /></div></div>' +
+          '<div class="field"><label>Day P&amp;L ($) — tap Loss for a losing day</label>' + pnlFieldHtml("mPnl", "mPnlSign") + '</div></div>' +
           actions());
+        wirePnlToggle("mPnl", "mPnlSign");
         $("modalSave").onclick = function () {
           var pnl = parseFloat($("mPnl").value), rep = $("mReport");
           if (isNaN(pnl)) { rep.textContent = "Enter the day's P&L."; rep.className = "report show err"; return; }
@@ -1004,6 +1055,10 @@
         rep.textContent = msg; rep.className = "report show" + (isErr ? " err" : "");
       }
       (function wireFleetPanel() {
+        wirePnlToggle("fleetPnl", "fleetPnlSign");
+        wirePnlToggle("fleetPnlApex", "fleetPnlApexSign");
+        wirePnlToggle("fleetPnlLucid", "fleetPnlLucidSign");
+        wirePnlToggle("fleetPnlTradeify", "fleetPnlTradeifySign");
         var dateEl = $("fleetDate"); if (dateEl && !dateEl.value) dateEl.value = todayStr();
         document.querySelectorAll("[data-fleet-firm]").forEach(function (cb) {
           cb.addEventListener("change", function () { fleetReportMsg(""); var b = $("btnFleetApply"); if (b) b.textContent = "Apply to all copied accounts"; updateFleetCount(); });
@@ -1038,7 +1093,10 @@
           }
           var n = applyFleetDay(date, pnlByFirm, firms);
           save(); render();
-          ["fleetPnl", "fleetPnlApex", "fleetPnlLucid", "fleetPnlTradeify"].forEach(function (id) { var inp = $(id); if (inp) inp.value = ""; });
+          resetPnlField("fleetPnl", "fleetPnlSign");
+          resetPnlField("fleetPnlApex", "fleetPnlApexSign");
+          resetPnlField("fleetPnlLucid", "fleetPnlLucidSign");
+          resetPnlField("fleetPnlTradeify", "fleetPnlTradeifySign");
           applyBtn.textContent = "Apply to all copied accounts";
           var summary = firms.map(function (fk) {
             var v = pnlByFirm[fk];
