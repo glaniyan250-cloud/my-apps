@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Prop Payout Tracker</title>
+    <style>
+      :root{
+        --bg:#F5F0E8; --surface:#FFFDF7; --surface-2:#EFE7D6;
+        --ink:#1A2D4F; --ink-soft:#4A5A75; --line:#D8CCB2;
+        --navy:#1A2D4F; --navy-2:#243A63; --on-navy:#F5F0E8;
+        --gold:#A87E14; --gold-bright:#C9A24A;
+        --green:#1C7A44; --green-bg:#DFF0E3;
+        --red:#B03327; --red-bg:#F8E4DF;
+        --amber:#8F6208; --amber-bg:#F6EBCB;
+        --shadow:0 1px 3px rgba(26,45,79,.14), 0 6px 18px rgba(26,45,79,.08);
+        color-scheme:light dark;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#0A1526; --surface:#152540; --surface-2:#1D3257;
+          --ink:#F1EBDA; --ink-soft:#AEB9CE; --line:#2E4468;
+          --navy:#101F3A; --navy-2:#1A2D4F;
+          --gold:#D4AE5A; --gold-bright:#D4AE5A;
+          --green:#57C785; --green-bg:#143527;
+          --red:#FF9A8A; --red-bg:#3D1F1B;
+          --amber:#E3B34C; --amber-bg:#3A2E10;
+          --shadow:0 1px 3px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+        }
+      }
+      *{ box-sizing:border-box; }
+      html{ -webkit-text-size-adjust:100%; }
+      body{ margin:0; background:var(--bg); color:var(--ink);
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+        font-size:16px; line-height:1.45; }
+      button,select,input,textarea{ font:inherit; }
+      button,select,input:not([type="checkbox"]),textarea{ min-height:2.25rem; }
+      .wrap{ max-width:1180px; margin:0 auto; padding:0 16px 64px; }
+
+      .summary{ background:var(--navy); color:var(--on-navy); border-bottom:4px solid var(--gold-bright); }
+      .summary-inner{ max-width:1180px; margin:0 auto; padding:22px 16px 20px;
+        display:flex; flex-wrap:wrap; gap:18px 34px; align-items:flex-end; }
+      .summary h1{ margin:0 0 2px; font-size:1.35rem; letter-spacing:.02em; font-weight:700; }
+      .summary .sub{ color:#C9D2E4; font-size:.88rem; }
+      .stats{ display:flex; flex-wrap:wrap; gap:14px 30px; margin-left:auto; }
+      .stat{ min-width:96px; }
+      .stat .num{ font-size:1.5rem; font-weight:700; color:var(--gold-bright); line-height:1.1; font-variant-numeric:tabular-nums; }
+      .stat .lbl{ font-size:.74rem; text-transform:uppercase; letter-spacing:.09em; color:#C9D2E4; }
+      .stat.hot .num{ color:#7BE3A1; }
+
+      .fleet-panel{ background:var(--surface); border:2px solid var(--gold-bright); border-radius:12px;
+        padding:18px; margin:18px 0 8px; box-shadow:var(--shadow); }
+      .fleet-panel h2{ margin:0; font-size:1.3rem; }
+      .fleet-head{ display:flex; flex-wrap:wrap; gap:8px 14px; align-items:baseline; margin-bottom:6px; }
+      .fleet-tag{ background:var(--navy); color:var(--on-navy); border-radius:99px; padding:3px 10px; font-size:.78rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+      .fleet-hint{ color:var(--ink-soft); font-size:.92rem; margin:0 0 14px; max-width:72ch; }
+      .fleet-hint b{ color:var(--ink); }
+      .fleet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
+      @media (max-width:560px){ .fleet-grid{ grid-template-columns:1fr; } }
+      .fleet-overrides{ border-top:1px solid var(--line); margin-top:6px; padding-top:12px; }
+      .fleet-overrides .ov-title{ font-size:.85rem; font-weight:700; margin-bottom:8px; }
+      .fleet-overrides .ov-title span{ font-weight:400; color:var(--ink-soft); }
+      .ov-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:0 14px; }
+      @media (max-width:640px){ .ov-grid{ grid-template-columns:1fr; } }
+      .fleet-firms{ display:flex; flex-wrap:wrap; gap:8px 18px; margin:12px 0 4px; font-size:.92rem; }
+      .fleet-firms label{ display:inline-flex; align-items:center; gap:7px; cursor:pointer; font-weight:600; min-height:2.25rem; }
+      .fleet-firms input[type="checkbox"]{ width:20px; height:20px; accent-color:var(--navy); }
+      .fleet-actions{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px; }
+      .fleet-count{ color:var(--ink-soft); font-size:.88rem; }
+      .toolbar{ display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 6px; }
+      .btn{ appearance:none; border:1px solid var(--navy); background:var(--navy); color:var(--on-navy);
+        border-radius:8px; padding:8px 14px; cursor:pointer; font-weight:600; font-size:.92rem;
+        display:inline-flex; align-items:center; gap:6px; min-height:2.25rem; }
+      .btn:hover{ background:var(--navy-2); }
+      .btn.gold{ background:var(--gold-bright); border-color:var(--gold-bright); color:#1A2D4F; }
+      .btn.gold:hover{ filter:brightness(1.07); }
+      .btn.ghost{ background:transparent; color:var(--ink); border-color:var(--line); }
+      .btn.ghost:hover{ background:var(--surface-2); }
+      .btn.small{ padding:5px 10px; font-size:.85rem; min-height:2.25rem; }
+      .btn.danger{ background:transparent; color:var(--red); border-color:var(--red); }
+      .btn.danger:hover{ background:var(--red-bg); }
+      .btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+      .firm-head{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+        margin:34px 0 12px; border-bottom:2px solid var(--navy); padding-bottom:6px; }
+      .firm-head h2{ margin:0; font-size:1.25rem; }
+      .firm-head .prog{ color:var(--gold); font-weight:700; font-size:.85rem; text-transform:uppercase; letter-spacing:.07em; }
+      .firm-head .count{ color:var(--ink-soft); font-size:.9rem; margin-left:auto; }
+      .sub-head{ font-size:1rem; margin:20px 0 10px; color:var(--ink); }
+
+      .rules-panel{ background:var(--surface); border:1px solid var(--line); border-radius:10px;
+        padding:14px 16px; margin:0 0 14px; box-shadow:var(--shadow); }
+      .rules-panel .rp-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+      .rules-panel .rp-top b{ font-size:.95rem; margin-right:auto; }
+      .rules-panel .rp-top .btn{ margin-left:0; }
+      .rules-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:6px 22px; font-size:.9rem; color:var(--ink-soft); }
+      .rules-grid b{ color:var(--ink); font-weight:600; }
+
+      .empty{ border:1px dashed var(--line); border-radius:10px; padding:22px; text-align:center; color:var(--ink-soft); background:var(--surface); }
+
+      .cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; }
+      .card{ background:var(--surface); border:1px solid var(--line); border-radius:12px;
+        padding:16px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; }
+      .card.qualifies{ border-color:var(--green); box-shadow:0 0 0 1px var(--green), var(--shadow); }
+      .card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+      .acct-id{ font-weight:700; font-size:1.02rem; word-break:break-all; letter-spacing:.01em; }
+      .acct-meta{ color:var(--ink-soft); font-size:.82rem; }
+      .balance{ font-size:1.55rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.1; }
+      .balance .pl{ font-size:.9rem; font-weight:600; }
+      .pl.pos{ color:var(--green); } .pl.neg{ color:var(--red); }
+      .kv{ display:grid; grid-template-columns:1fr 1fr; gap:4px 14px; font-size:.88rem; }
+      .kv .k{ color:var(--ink-soft); }
+      .kv .v{ text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }
+      .badge{ border-radius:8px; padding:10px 12px; font-weight:700; font-size:.95rem; text-align:center; }
+      .badge.ok{ background:var(--green-bg); color:var(--green); border:1px solid var(--green); }
+      .badge.no{ background:var(--surface-2); color:var(--ink-soft); border:1px solid var(--line); font-weight:600; }
+      .checks{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; font-size:.88rem; }
+      .checks li{ display:flex; gap:8px; align-items:flex-start; }
+      .checks .mark{ flex:0 0 auto; width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; margin-top:1px; }
+      .checks .pass .mark{ background:var(--green-bg); color:var(--green); }
+      .checks .fail .mark{ background:var(--red-bg); color:var(--red); }
+      .checks .fail{ color:var(--ink); }
+      .checks .pass{ color:var(--ink-soft); }
+      .checks .detail{ color:var(--ink-soft); font-size:.82rem; display:block; }
+      .card-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:auto; padding-top:4px; }
+      .history{ font-size:.82rem; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:8px; }
+      .history div{ display:flex; justify-content:space-between; font-variant-numeric:tabular-nums; }
+
+      .payout-progress{ background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+      .pp-top{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; }
+      .pp-label{ font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
+      .pp-pct{ font-size:1.05rem; font-weight:800; font-variant-numeric:tabular-nums; color:var(--gold); }
+      .payout-progress.done .pp-pct{ color:var(--green); }
+      .pp-bar{ height:12px; border-radius:99px; background:var(--bg); border:1px solid var(--line); overflow:hidden; }
+      .pp-fill{ height:100%; background:var(--gold-bright); border-radius:99px; transition:width .3s ease; min-width:0; }
+      .payout-progress.done .pp-fill{ background:var(--green); }
+      .pp-binding{ font-size:.82rem; color:var(--ink-soft); margin-top:6px; }
+      .pp-binding b{ color:var(--ink); }
+      .payout-progress.done .pp-binding{ color:var(--green); font-weight:600; }
+      .eval-progress{ flex:1 1 200px; min-width:170px; }
+      .eval-progress .pp-top{ margin-bottom:4px; }
+      .eval-progress .pp-pct{ font-size:.95rem; }
+      .eval-progress .pp-bar{ height:10px; }
+      .eval-progress.done .pp-fill{ background:var(--green); }
+      .eval-progress.done .pp-pct{ color:var(--green); }
+      .eval-list{ display:flex; flex-direction:column; gap:8px; }
+      .eval-row{ background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow);
+        padding:12px 14px; display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; }
+      .eval-row .id{ font-weight:700; word-break:break-all; min-width:200px; }
+      .eval-row .fig{ font-size:.88rem; color:var(--ink-soft); }
+      .eval-row .fig b{ color:var(--ink); font-variant-numeric:tabular-nums; }
+      .eval-row .fig b.warn{ color:var(--red); }
+      .eval-row .fig b.good{ color:var(--green); }
+      .eval-row .actions{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+      .bar{ height:8px; border-radius:99px; background:var(--surface-2); overflow:hidden; flex:1 1 140px; min-width:120px; }
+      .bar > div{ height:100%; background:var(--gold-bright); }
+
+      .overlay{ position:fixed; inset:0; background:rgba(10,18,34,.55); display:none;
+        align-items:flex-start; justify-content:center; padding:18px 12px; z-index:50; overflow-y:auto; }
+      .overlay.open{ display:flex; }
+      .modal{ background:var(--surface); color:var(--ink); border-radius:12px; width:100%; max-width:520px;
+        padding:20px; box-shadow:var(--shadow); margin:auto 0; }
+      .modal.wide{ max-width:640px; }
+      .modal h3{ margin:0 0 4px; font-size:1.1rem; }
+      .modal .hint{ color:var(--ink-soft); font-size:.88rem; margin:0 0 14px; }
+      .field{ margin-bottom:12px; }
+      .field label{ display:block; font-size:.85rem; font-weight:600; margin-bottom:4px; }
+      .field input,.field select,.field textarea{ width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 10px;
+        background:var(--bg); color:var(--ink); }
+      .field textarea{ min-height:150px; resize:vertical; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.88rem; }
+      .field .sub-hint{ font-size:.8rem; color:var(--ink-soft); margin-top:3px; }
+      .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
+      @media (max-width:560px){ .form-grid{ grid-template-columns:1fr; } }
+      .modal-actions{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin-top:16px; }
+      .report{ background:var(--amber-bg); color:var(--amber); border-radius:8px; padding:10px 12px; font-size:.88rem; margin-bottom:12px; display:none; white-space:pre-wrap; }
+      .report.show{ display:block; }
+      .report.err{ background:var(--red-bg); color:var(--red); }
+
+      .toast{ position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px);
+        background:var(--navy); color:var(--on-navy); border:1px solid var(--gold-bright);
+        padding:10px 18px; border-radius:99px; font-size:.92rem; font-weight:600;
+        opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:80; max-width:92vw; text-align:center; }
+      .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+      footer{ margin-top:44px; color:var(--ink-soft); font-size:.82rem; text-align:center; }
+      @media (max-width:640px){
+        .stats{ margin-left:0; }
+        .stat{ min-width:44%; }
+        .cards{ grid-template-columns:1fr; }
+        .eval-row .actions{ margin-left:0; }
+        .firm-head .count{ margin-left:0; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="summary">
+      <div class="summary-inner">
+        <div>
+          <h1>Prop Payout Tracker</h1>
+          <div class="sub">Apex · Lucid · Tradeify — all firms, one board</div>
+        </div>
+        <div class="stats" id="stats"></div>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <section class="fleet-panel" aria-labelledby="fleetTitle">
+        <div class="fleet-head">
+          <h2 id="fleetTitle">Log Today's Result</h2>
+          <span class="fleet-tag">Copy trade — one entry, every account</span>
+        </div>
+        <p class="fleet-hint">You copy-trade all of them from one master, so <b>enter the day once here</b> — it posts the same day to every account below, updating each balance, peak, day count and payout checklist. No need to touch each card. Use a per-firm amount below only when a firm ran a slightly different result that day.</p>
+        <div class="report" id="fleetReport"></div>
+        <div class="fleet-grid">
+          <div class="field"><label for="fleetDate">Date</label><input id="fleetDate" type="date" /></div>
+          <div class="field"><label for="fleetPnl">Master day P&amp;L ($) — negative for a losing day</label><input id="fleetPnl" type="number" step="0.01" placeholder="e.g. 420 or -180" /></div>
+        </div>
+        <div class="fleet-overrides">
+          <div class="ov-title">Per-firm amount <span>— optional. Leave blank to use the master amount for that firm.</span></div>
+          <div class="ov-grid">
+            <div class="field"><label for="fleetPnlApex">Apex amount ($)</label><input id="fleetPnlApex" type="number" step="0.01" placeholder="Master amount" /></div>
+            <div class="field"><label for="fleetPnlLucid">Lucid amount ($)</label><input id="fleetPnlLucid" type="number" step="0.01" placeholder="Master amount" /></div>
+            <div class="field"><label for="fleetPnlTradeify">Tradeify amount ($)</label><input id="fleetPnlTradeify" type="number" step="0.01" placeholder="Master amount" /></div>
+          </div>
+        </div>
+        <div class="fleet-firms" id="fleetFirms">
+          <label><input type="checkbox" data-fleet-firm="apex" checked /> Apex — all funded + evaluations</label>
+          <label><input type="checkbox" data-fleet-firm="lucid" checked /> Lucid — all funded</label>
+          <label><input type="checkbox" data-fleet-firm="tradeify" checked /> Tradeify — all funded</label>
+        </div>
+        <div class="fleet-actions">
+          <button class="btn gold" id="btnFleetApply">Apply to all copied accounts</button>
+          <span class="fleet-count" id="fleetCount"></span>
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <button class="btn gold" id="btnAdd">+ Add account</button>
+        <button class="btn" id="btnBulk">Bulk add</button>
+        <button class="btn ghost" id="btnExport">Export backup (JSON)</button>
+        <button class="btn ghost" id="btnImport">Import backup</button>
+        <input type="file" id="fileImport" accept="application/json,.json" hidden />
+      </div>
+
+      <div id="firms"></div>
+
+      <footer>Data is stored in this browser only. Export a JSON backup regularly and keep it somewhere safe.</footer>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <div class="modal" id="modalBox" role="dialog" aria-modal="true"></div>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+      "use strict";
+      var STORE_KEY = "propPayoutTracker.v2";
+
+      var FIRMS = [
+        { key: "apex",     name: "Apex Trader Funding", program: "Legacy 50K Tradovate" },
+        { key: "lucid",    name: "Lucid Trading",       program: "LucidPro 50K · EOD Drawdown" },
+        { key: "tradeify", name: "Tradeify",            program: "Select Flex Funded 50K · Tradovate" }
+      ];
+      function firmOf(key){ for (var i=0;i<FIRMS.length;i++) if (FIRMS[i].key===key) return FIRMS[i]; return FIRMS[0]; }
+
+      var DEFAULT_RULES = {
+        apex: {
+          startBalance: 50000, minTradingDays: 8, minProfitDays: 5, profitDayMin: 50,
+          consistencyPct: 30, consistencyAppliesThroughPayout: 6,
+          safetyNetBalance: 52600, safetyNetThroughPayout: 3, safetyNetDip: 500,
+          floorAfterSafety: 50100, minPayout: 500, maxPayoutEarly: 2000, maxPayoutThroughPayout: 5,
+          splitFullThreshold: 25000, splitFullPct: 100, splitAfterPct: 90,
+          evalTarget: 53000, evalDrawdown: 2500, evalFloorLock: 50100
+        },
+        lucid: {
+          startBalance: 50000, profitGoal: 500, consistencyPct: 40,
+          bufferBalance: 52100, minPayout: 500,
+          maxPayoutFirst: 2000, maxPayoutLater: 2500,
+          splitPct: 90, dailyLossLimit: 1200, maxLoss: 2000,
+          evalTarget: 53000, evalDrawdown: 2000, evalFloorLock: 50100
+        },
+        tradeify: {
+          startBalance: 50000, winningDaysNeeded: 5, winningDayMin: 150,
+          profitSharePct: 50, maxPayout: 2500, minPayout: 250, splitPct: 90,
+          maxDrawdown: 2000, lockBalance: 52100, lockFloor: 50100,
+          evalTarget: 53000, evalDrawdown: 2000, evalFloorLock: 50100
+        }
+      };
+
+      var RULE_LABELS = {
+        startBalance: "Starting balance ($)", minTradingDays: "Min trading days per cycle",
+        minProfitDays: "Min profit days per cycle", profitDayMin: "Profit day minimum ($)",
+        consistencyPct: "Consistency cap (%)", consistencyAppliesThroughPayout: "Consistency applies through payout #",
+        safetyNetBalance: "Safety net balance ($)", safetyNetThroughPayout: "Safety net through payout #",
+        safetyNetDip: "Allowed dip into safety net ($)", floorAfterSafety: "Floor after safety net ($)",
+        minPayout: "Minimum payout ($)", maxPayoutEarly: "Max payout, early payouts ($)",
+        maxPayoutThroughPayout: "Early max applies through payout #",
+        splitFullThreshold: "100% split up to total paid ($)", splitFullPct: "Split before threshold (%)",
+        splitAfterPct: "Split after threshold (%)",
+        profitGoal: "Profit goal per cycle ($)", bufferBalance: "Buffer balance — keep above ($)",
+        maxPayoutFirst: "Max payout #1 ($)", maxPayoutLater: "Max payout #2+ ($)",
+        splitPct: "Your split (%)", dailyLossLimit: "Daily loss limit ($) — info only",
+        maxLoss: "Max loss / EOD trailing drawdown ($)",
+        winningDaysNeeded: "Winning days needed per payout", winningDayMin: "Winning day minimum profit ($)",
+        profitSharePct: "Payout = % of total profit", maxPayout: "Max payout cap ($)",
+        maxDrawdown: "Max drawdown, EOD trailing ($)", lockBalance: "Drawdown locks when balance reaches ($)",
+        lockFloor: "Locked drawdown floor ($)",
+        evalTarget: "Evaluation target balance ($)", evalDrawdown: "Evaluation trailing drawdown ($)",
+        evalFloorLock: "Evaluation floor lock ($)"
+      };
+
+      function acct(id, firm, stage, balance, peak, extra) {
+        var a = { id: id, firm: firm, stage: stage, balance: balance, peak: peak,
+          payouts: [], days: [], daysTraded: 0, cycleStart: 50000, seedBiggest: 0, winBase: 0 };
+        if (extra) for (var k in extra) a[k] = extra[k];
+        return a;
+      }
+
+      function seedAccounts() {
+        var list = [];
+        /* ---- Apex funded ---- */
+        var fb = { 21:51528, 22:51388, 23:49694, 24:49686, 25:49694, 26:49686, 27:49686, 28:49686, 29:49679, 30:49034 };
+        for (var n = 21; n <= 30; n++) {
+          var bal = fb[n];
+          var a = acct("PAAPEX308175" + String(n).padStart(7, "0"), "apex", "funded", bal, Math.max(50000, bal));
+          if (n === 21) { a.payouts = [{ date: "2026-11-20", amount: 2000 }]; a.cycleStart = bal; }
+          list.push(a);
+        }
+        /* ---- Apex evaluations ---- */
+        for (var e = 67; e <= 76; e++) {
+          list.push(acct("APEX308175" + String(e).padStart(7, "0"), "apex", "eval", 49346.29, 50000, { daysTraded: 2 }));
+        }
+        /* ---- Lucid funded ---- */
+        list.push(acct("LTF05074768070001", "lucid", "funded", 49695, 50512, { seedBiggest: 512 }));
+        ["LTF05074768070002","LTF05074768070003","LTF05074768070004","LTF05074768070005"].forEach(function (id) {
+          list.push(acct(id, "lucid", "funded", 49184, 50000));
+        });
+        /* ---- Tradeify funded ---- */
+        list.push(acct("FTDFYSLX50675866456", "tradeify", "funded", 49809.85, 50483.72, { daysTraded: 3, winBase: 3 }));
+        ["FTDFYSLX50104692397","FTDFYSLX50157402705","FTDFYSLX50695336857","FTDFYSLX50344317877"].forEach(function (id) {
+          list.push(acct(id, "tradeify", "funded", 49817.35, 50491.22, { daysTraded: 3, winBase: 3 }));
+        });
+        return list;
+      }
+
+      function defaultState() {
+        var rules = {};
+        FIRMS.forEach(function (f) { rules[f.key] = Object.assign({}, DEFAULT_RULES[f.key]); });
+        return { rulesByFirm: rules, accounts: seedAccounts() };
+      }
+
+      function loadState() {
+        try {
+          var raw = localStorage.getItem(STORE_KEY);
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.accounts) && parsed.rulesByFirm) {
+              var s = defaultState();
+              FIRMS.forEach(function (f) {
+                parsed.rulesByFirm[f.key] = Object.assign({}, DEFAULT_RULES[f.key], parsed.rulesByFirm[f.key] || {});
+              });
+              parsed.accounts.forEach(function (a) {
+                if (!a.firm) a.firm = "apex";
+                if (!a.days) a.days = []; if (!a.payouts) a.payouts = [];
+                if (a.cycleStart === undefined) a.cycleStart = parsed.rulesByFirm[a.firm].startBalance;
+                if (a.seedBiggest === undefined) a.seedBiggest = 0;
+                if (a.winBase === undefined) a.winBase = 0;
+                if (a.daysTraded === undefined) a.daysTraded = 0;
+              });
+              return parsed;
+            }
+          }
+        } catch (err) {}
+        return defaultState();
+      }
+
+      var state = loadState();
+      function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (err) {} }
+      save();
+
+      /* ---------------- helpers ---------------- */
+      function $(id) { return document.getElementById(id); }
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      }
+      function money(n, dec) {
+        var v = Math.round(n * 100) / 100;
+        var d = dec === undefined ? (Number.isInteger(v) ? 0 : 2) : dec;
+        return "$" + v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+      }
+      function signed(n) { return (n < 0 ? "−" : "+") + money(Math.abs(n)).slice(0); }
+      function todayStr() {
+        var d = new Date();
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      }
+      function toast(msg) {
+        var t = $("toast"); t.textContent = msg; t.classList.add("show");
+        clearTimeout(t._timer); t._timer = setTimeout(function () { t.classList.remove("show"); }, 3200);
+      }
+      function findAccount(id) {
+        for (var i = 0; i < state.accounts.length; i++) if (state.accounts[i].id === id) return state.accounts[i];
+        return null;
+      }
+      function rules(a) { return state.rulesByFirm[a.firm] || state.rulesByFirm.apex; }
+      function biggestDay(a) {
+        var b = a.seedBiggest || 0;
+        (a.days || []).forEach(function (d) { if (d.pnl > b) b = d.pnl; });
+        return b;
+      }
+      function totalPaid(a) { return a.payouts.reduce(function (s, p) { return s + p.amount; }, 0); }
+      function clampRatio(v) { if (isNaN(v) || v === -Infinity) return 0; if (v === Infinity) return 1; return Math.max(0, Math.min(1, v)); }
+      function progressFromItems(items, qualifies) {
+        if (qualifies) return { pct: 100, binding: "", bindingDetail: "" };
+        var binding = null;
+        items.forEach(function (it) { if (!binding || it.ratio < binding.ratio) binding = it; });
+        var pct = binding ? Math.floor(clampRatio(binding.ratio) * 100) : 0;
+        /* A non-qualifying account never displays a misleading 100% */
+        if (pct >= 100) pct = 99;
+        return { pct: pct, binding: binding ? binding.label : "", bindingDetail: binding ? (binding.detail || "") : "" };
+      }
+      function balanceRatio(balance, baseline, target) {
+        if (target <= baseline) return balance >= target ? 1 : 0;
+        return clampRatio((balance - baseline) / (target - baseline));
+      }
+
+      /* ---------------- per-firm payout maths ---------------- */
+      function apexStats(a) {
+        var R = rules(a);
+        var payoutCount = a.payouts.length, paid = totalPaid(a);
+        var totalProfit = a.balance - R.startBalance + paid;
+        var days = a.days || [], profitDays = 0;
+        days.forEach(function (d) { if (d.pnl >= R.profitDayMin) profitDays++; });
+        var big = biggestDay(a);
+        var nextNum = payoutCount + 1;
+        var safetyApplies = nextNum <= R.safetyNetThroughPayout;
+        var balanceReq = safetyApplies ? R.safetyNetBalance : R.floorAfterSafety;
+        var balanceFloor = safetyApplies ? (R.safetyNetBalance - R.safetyNetDip) : R.floorAfterSafety;
+        var maxByBalance = a.balance - balanceFloor;
+        var capApplies = nextNum <= R.maxPayoutThroughPayout;
+        var available = Math.max(0, capApplies ? Math.min(maxByBalance, R.maxPayoutEarly) : maxByBalance);
+        var consApplies = nextNum <= R.consistencyAppliesThroughPayout;
+        var consPass = true, consPct = null, consNeeded = 0;
+        if (consApplies) {
+          if (big <= 0) { consPct = 0; consPass = true; }
+          else if (totalProfit <= 0) { consPct = Infinity; consPass = false; }
+          else { consPct = (big / totalProfit) * 100; consPass = big < (R.consistencyPct / 100) * totalProfit; }
+          consNeeded = big > 0 ? big / (R.consistencyPct / 100) : 0;
+        }
+        var splitNow = paid >= R.splitFullThreshold ? R.splitAfterPct : R.splitFullPct;
+        var checks = [
+          { pass: days.length >= R.minTradingDays,
+            label: "Trading days this cycle: " + days.length + " / " + R.minTradingDays,
+            detail: days.length >= R.minTradingDays ? "" : (R.minTradingDays - days.length) + " more trading day(s) needed" },
+          { pass: profitDays >= R.minProfitDays,
+            label: "Days with " + money(R.profitDayMin, 0) + "+ profit: " + profitDays + " / " + R.minProfitDays,
+            detail: profitDays >= R.minProfitDays ? "" : (R.minProfitDays - profitDays) + " more qualifying day(s) needed" },
+          { pass: a.balance >= balanceReq,
+            label: "Balance " + money(a.balance) + " vs " + money(balanceReq) + " required" + (safetyApplies ? " (safety net, payouts 1–" + R.safetyNetThroughPayout + ")" : " (post–safety-net floor)"),
+            detail: a.balance >= balanceReq ? "" : money(balanceReq - a.balance) + " more profit needed" },
+          { pass: !consApplies || consPass,
+            label: consApplies
+              ? (big <= 0 ? "Consistency: no profit days logged yet (cap " + R.consistencyPct + "%)"
+                          : "Consistency: biggest day is " + (consPct === Infinity ? "—" : consPct.toFixed(1) + "%") + " of total profit (cap " + R.consistencyPct + "%)")
+              : "Consistency rule lifted after payout " + R.consistencyAppliesThroughPayout,
+            detail: (consApplies && !consPass) ? "Total profit must reach " + money(consNeeded) + " (biggest day " + money(big) + " ÷ " + (R.consistencyPct / 100) + ")" : "" },
+          { pass: available >= R.minPayout,
+            label: "Payout available: " + money(available) + " vs " + money(R.minPayout, 0) + " minimum" + (capApplies ? " (cap " + money(R.maxPayoutEarly, 0) + " through payout " + R.maxPayoutThroughPayout + ")" : " (no cap)"),
+            detail: available >= R.minPayout ? "" : "Grow the balance above the floor to free up at least " + money(R.minPayout, 0) }
+        ];
+        var apexQual = checks.every(function (c) { return c.pass; });
+        var consRatio = !consApplies ? 1 : (big <= 0 ? 1 : (totalProfit <= 0 ? 0 : clampRatio((R.consistencyPct / 100) / (big / totalProfit))));
+        var apexProg = progressFromItems([
+          { label: "Trading days", ratio: clampRatio(days.length / R.minTradingDays), detail: days.length + " / " + R.minTradingDays + " days" },
+          { label: "Profit days", ratio: clampRatio(profitDays / R.minProfitDays), detail: profitDays + " / " + R.minProfitDays + " days at " + money(R.profitDayMin, 0) + "+" },
+          { label: "Balance", ratio: balanceRatio(a.balance, R.startBalance, balanceReq), detail: money(balanceReq - a.balance) + " to reach " + money(balanceReq) },
+          { label: "Consistency", ratio: consRatio, detail: consNeeded > totalProfit ? "total profit must reach " + money(consNeeded) : "" },
+          { label: "Payout available", ratio: clampRatio(available / R.minPayout), detail: money(available) + " of " + money(R.minPayout, 0) + " minimum available" }
+        ], apexQual);
+        return { checks: checks, qualifies: apexQual, progress: apexProg.pct, binding: apexProg.binding, bindingDetail: apexProg.bindingDetail,
+          available: available, payoutCount: payoutCount, paid: paid, splitNow: splitNow,
+          kv: [["Payouts taken", payoutCount], ["Total paid out", money(paid)], ["Split on next payout", splitNow + "%"],
+               ["Biggest day (cycle)", money(big)], ["Lifetime profit", money(totalProfit)]] };
+      }
+
+      function lucidStats(a) {
+        var R = rules(a);
+        var payoutCount = a.payouts.length, paid = totalPaid(a);
+        var cycleProfit = a.balance - (a.cycleStart !== undefined ? a.cycleStart : R.startBalance);
+        var big = biggestDay(a);
+        var cap = payoutCount === 0 ? R.maxPayoutFirst : R.maxPayoutLater;
+        var available = Math.max(0, Math.min(a.balance - R.bufferBalance, cap));
+        var consPass, consPct = null, consNeeded = 0;
+        if (big <= 0) { consPass = true; consPct = 0; }
+        else if (cycleProfit <= 0) { consPass = false; consPct = Infinity; consNeeded = big / (R.consistencyPct / 100); }
+        else { consPct = (big / cycleProfit) * 100; consPass = consPct <= R.consistencyPct; consNeeded = big / (R.consistencyPct / 100); }
+        var floor = Math.max(R.startBalance - R.maxLoss, a.peak - R.maxLoss);
+        var checks = [
+          { pass: cycleProfit >= R.profitGoal,
+            label: "Cycle profit " + money(cycleProfit) + " vs " + money(R.profitGoal, 0) + " goal",
+            detail: cycleProfit >= R.profitGoal ? "" : money(R.profitGoal - cycleProfit) + " more profit needed this cycle" },
+          { pass: consPass,
+            label: big <= 0 ? "Consistency: no profit days logged yet (cap " + R.consistencyPct + "%)"
+              : "Consistency: biggest day is " + (consPct === Infinity ? "—" : consPct.toFixed(1) + "%") + " of cycle profit (cap " + R.consistencyPct + "%)",
+            detail: consPass ? "" : "Cycle profit must reach " + money(consNeeded) + " — " + money(Math.max(0, consNeeded - cycleProfit)) + " left" },
+          { pass: a.balance > R.bufferBalance,
+            label: "Balance " + money(a.balance) + " vs buffer " + money(R.bufferBalance) + " (must stay above)",
+            detail: a.balance > R.bufferBalance ? "" : money(R.bufferBalance + 1 - a.balance) + " more needed to clear the buffer" },
+          { pass: available >= R.minPayout,
+            label: "Payout available: " + money(available) + " vs " + money(R.minPayout, 0) + " minimum (cap " + money(cap, 0) + " for payout #" + (payoutCount + 1) + ")",
+            detail: available >= R.minPayout ? "" : "Minimum balance for a " + money(R.minPayout, 0) + " payout is " + money(R.bufferBalance + R.minPayout) + " — " + money(Math.max(0, R.bufferBalance + R.minPayout - a.balance)) + " to go" }
+        ];
+        var lucidQual = checks.every(function (c) { return c.pass; });
+        var lucidConsRatio = big <= 0 ? 1 : (cycleProfit <= 0 ? 0 : clampRatio((R.consistencyPct / 100) / (big / cycleProfit)));
+        var lucidProg = progressFromItems([
+          { label: "Cycle profit goal", ratio: clampRatio(cycleProfit / R.profitGoal), detail: money(Math.max(0, R.profitGoal - cycleProfit)) + " to reach the " + money(R.profitGoal, 0) + " goal" },
+          { label: "Consistency", ratio: lucidConsRatio, detail: consNeeded > cycleProfit ? "cycle profit must reach " + money(consNeeded) : "" },
+          { label: "Buffer balance", ratio: balanceRatio(a.balance, R.startBalance, R.bufferBalance + R.minPayout), detail: money(Math.max(0, R.bufferBalance + R.minPayout - a.balance)) + " to reach " + money(R.bufferBalance + R.minPayout) + " (buffer + minimum payout)" },
+          { label: "Payout available", ratio: clampRatio(available / R.minPayout), detail: money(available) + " of " + money(R.minPayout, 0) + " minimum available" }
+        ], lucidQual);
+        return { checks: checks, qualifies: lucidQual, progress: lucidProg.pct, binding: lucidProg.binding, bindingDetail: lucidProg.bindingDetail,
+          available: available, payoutCount: payoutCount, paid: paid, splitNow: R.splitPct,
+          kv: [["Payouts taken", payoutCount], ["Total paid out", money(paid)], ["Split", R.splitPct + "% to you"],
+               ["Cycle profit", money(cycleProfit)], ["Biggest day (cycle)", money(big)],
+               ["Drawdown floor (EOD)", money(floor)], ["Daily loss limit", money(R.dailyLossLimit, 0)]] };
+      }
+
+      function tradeifyStats(a) {
+        var R = rules(a);
+        var payoutCount = a.payouts.length, paid = totalPaid(a);
+        var loggedWin = 0;
+        (a.days || []).forEach(function (d) { if (d.pnl >= R.winningDayMin) loggedWin++; });
+        var winDays = (a.winBase || 0) + loggedWin;
+        var totalProfit = a.balance - R.startBalance;
+        var available = totalProfit > 0 ? Math.max(0, Math.min((R.profitSharePct / 100) * totalProfit, R.maxPayout)) : 0;
+        var cycleProfit = a.balance - (a.cycleStart !== undefined ? a.cycleStart : R.startBalance);
+        var floor = a.peak >= R.lockBalance ? R.lockFloor : Math.max(R.startBalance - R.maxDrawdown, a.peak - R.maxDrawdown);
+        var checks = [
+          { pass: winDays >= R.winningDaysNeeded,
+            label: "Winning days (" + money(R.winningDayMin, 0) + "+): " + winDays + " / " + R.winningDaysNeeded,
+            detail: winDays >= R.winningDaysNeeded ? "" : (R.winningDaysNeeded - winDays) + " more winning day(s) needed" },
+          { pass: totalProfit > 0 && available >= R.minPayout,
+            label: "Payout available: " + money(available) + " (" + R.profitSharePct + "% of " + money(Math.max(0, totalProfit)) + " total profit, cap " + money(R.maxPayout, 0) + ") vs " + money(R.minPayout, 0) + " minimum",
+            detail: totalProfit <= 0 ? "Account is below its $50,000 start — no profit to pay out yet" : (available >= R.minPayout ? "" : "Total profit must reach " + money(R.minPayout / (R.profitSharePct / 100)) + " to free the minimum payout") },
+          { pass: payoutCount === 0 || cycleProfit > 0,
+            label: payoutCount === 0 ? "First payout: no cycle-profit condition" : "Cycle profit since last payout: " + money(cycleProfit) + " (must be positive)",
+            detail: (payoutCount > 0 && cycleProfit <= 0) ? "This cycle must finish in positive profit before the next payout" : "" }
+        ];
+        var tfQual = checks.every(function (c) { return c.pass; });
+        var tfProg = progressFromItems([
+          { label: "Winning days", ratio: clampRatio(winDays / R.winningDaysNeeded), detail: winDays + " / " + R.winningDaysNeeded + " winning days" },
+          { label: "Payout available", ratio: clampRatio(available / R.minPayout), detail: totalProfit <= 0 ? "no profit yet — balance is below the $50,000 start" : money(available) + " of " + money(R.minPayout, 0) + " minimum available" },
+          { label: "Cycle profit", ratio: payoutCount === 0 ? 1 : (cycleProfit > 0 ? 1 : 0), detail: payoutCount === 0 ? "" : "cycle must be net positive — currently " + money(cycleProfit) }
+        ], tfQual);
+        return { checks: checks, qualifies: tfQual, progress: tfProg.pct, binding: tfProg.binding, bindingDetail: tfProg.bindingDetail,
+          available: available, payoutCount: payoutCount, paid: paid, splitNow: R.splitPct,
+          kv: [["Payouts taken", payoutCount], ["Total paid out", money(paid)], ["Split", R.splitPct + "%"],
+               ["Winning days", winDays + " / " + R.winningDaysNeeded], ["Total profit", money(totalProfit)],
+               ["Drawdown floor (EOD)", money(floor)]] };
+      }
+
+      function fundedStats(a) {
+        if (a.firm === "lucid") return lucidStats(a);
+        if (a.firm === "tradeify") return tradeifyStats(a);
+        return apexStats(a);
+      }
+
+      function evalStats(a) {
+        var R = rules(a);
+        var floor = Math.min(a.peak - R.evalDrawdown, R.evalFloorLock);
+        if (a.firm !== "apex") floor = Math.max(R.startBalance - R.evalDrawdown, Math.min(a.peak - R.evalDrawdown, R.evalFloorLock));
+        return { needed: Math.max(0, R.evalTarget - a.balance), floor: floor,
+          cushion: a.balance - floor,
+          progress: Math.max(0, Math.min(100, ((a.balance - R.startBalance) / (R.evalTarget - R.startBalance)) * 100)),
+          passed: a.balance >= R.evalTarget };
+      }
+
+      /* ---------------- rules summaries ---------------- */
+      function rulesSummary(firmKey) {
+        var R = state.rulesByFirm[firmKey];
+        if (firmKey === "apex") return [
+          ["Cycle", "<b>" + R.minTradingDays + " trading days</b>, at least <b>" + R.minProfitDays + " days at " + money(R.profitDayMin, 0) + "+</b> profit"],
+          ["Consistency", "<b>" + R.consistencyPct + "%</b> — biggest day under " + R.consistencyPct + "% of total profit (lifts after payout " + R.consistencyAppliesThroughPayout + ")"],
+          ["Safety net", "<b>" + money(R.safetyNetBalance) + "</b> minimum balance for payouts 1–" + R.safetyNetThroughPayout + "; dip max " + money(R.safetyNetDip, 0) + "; floor " + money(R.floorAfterSafety) + " after"],
+          ["Payout size", "Min <b>" + money(R.minPayout, 0) + "</b> · max <b>" + money(R.maxPayoutEarly, 0) + "</b> for payouts 1–" + R.maxPayoutThroughPayout + ", no max from #" + (R.maxPayoutThroughPayout + 1)],
+          ["Split", "<b>" + R.splitFullPct + "%</b> of first " + money(R.splitFullThreshold, 0) + " paid per account, then <b>" + R.splitAfterPct + "%</b>"],
+          ["Evaluation", "Target <b>" + money(R.evalTarget) + "</b> · trailing drawdown " + money(R.evalDrawdown, 0) + ", locks at " + money(R.evalFloorLock)]
+        ];
+        if (firmKey === "lucid") return [
+          ["Profit goal", "<b>" + money(R.profitGoal, 0) + "</b> profit per payout cycle (resets after each payout)"],
+          ["Consistency", "<b>≤ " + R.consistencyPct + "%</b> — biggest day ÷ cycle profit (resets each cycle)"],
+          ["Buffer", "Balance must exceed <b>" + money(R.bufferBalance) + "</b>; min balance for a " + money(R.minPayout, 0) + " payout is <b>" + money(R.bufferBalance + R.minPayout) + "</b>"],
+          ["Payout size", "Min <b>" + money(R.minPayout, 0) + "</b> · max <b>" + money(R.maxPayoutFirst, 0) + "</b> first payout, <b>" + money(R.maxPayoutLater, 0) + "</b> after"],
+          ["Split", "<b>" + R.splitPct + "/" + (100 - R.splitPct) + "</b> on all payouts"],
+          ["Risk lines", "Daily loss limit " + money(R.dailyLossLimit, 0) + " · max loss " + money(R.maxLoss, 0) + " EOD trailing"]
+        ];
+        return [
+          ["Winning days", "Payout every <b>" + R.winningDaysNeeded + " winning days</b> — a winning day is <b>" + money(R.winningDayMin, 0) + "+</b> profit"],
+          ["Payout size", "<b>" + R.profitSharePct + "% of total profit</b>, capped at <b>" + money(R.maxPayout, 0) + "</b> · min <b>" + money(R.minPayout, 0) + "</b>"],
+          ["Conditions", "No minimum balance · no consistency rule · no daily loss limit"],
+          ["Later payouts", "Payouts after the first require <b>positive net profit in the current cycle</b>"],
+          ["Split", "<b>" + R.splitPct + "/" + (100 - R.splitPct) + "</b> on all payouts"],
+          ["Drawdown", "Max " + money(R.maxDrawdown, 0) + " EOD trailing · locks at <b>" + money(R.lockFloor) + "</b> once balance reaches " + money(R.lockBalance)]
+        ];
+      }
+
+      /* ---------------- rendering ---------------- */
+      function render() {
+        var funded = state.accounts.filter(function (a) { return a.stage === "funded"; });
+        var evals = state.accounts.filter(function (a) { return a.stage === "eval"; });
+        var totalBal = funded.reduce(function (s, a) { return s + a.balance; }, 0);
+        var totalBanked = state.accounts.reduce(function (s, a) { return s + totalPaid(a); }, 0);
+        var qualifying = funded.filter(function (a) { return fundedStats(a).qualifies; }).length;
+        $("stats").innerHTML =
+          stat(funded.length, "Funded accounts") + stat(evals.length, "Evaluations") +
+          stat(money(totalBal), "Total funded balances") + stat(money(totalBanked), "Payouts banked") +
+          '<div class="stat hot"><div class="num">' + qualifying + '</div><div class="lbl">Qualifying now</div></div>';
+
+        var html = "";
+        FIRMS.forEach(function (f) {
+          var fFunded = funded.filter(function (a) { return a.firm === f.key; });
+          var fEvals = evals.filter(function (a) { return a.firm === f.key; });
+          var fQual = fFunded.filter(function (a) { return fundedStats(a).qualifies; }).length;
+          html += '<div class="firm-head"><h2>' + esc(f.name) + '</h2><span class="prog">' + esc(f.program) + '</span>' +
+            '<span class="count">' + fFunded.length + " funded · " + fEvals.length + " evaluations" + (fQual ? " · " + fQual + " qualifying" : "") + "</span></div>";
+          html += '<section class="rules-panel"><div class="rp-top"><b>Payout rules</b>' +
+            '<button class="btn small" data-action="firmday" data-firm="' + f.key + '">Log day for all ' + esc(f.name.split(" ")[0]) + '</button>' +
+            '<button class="btn ghost small" data-action="rules" data-firm="' + f.key + '">Edit rules</button></div>' +
+            '<div class="rules-grid">' + rulesSummary(f.key).map(function (r) {
+              return "<div><b>" + esc(r[0]) + ":</b> " + r[1] + "</div>";
+            }).join("") + "</div></section>";
+
+          html += '<h3 class="sub-head">Funded accounts</h3>';
+          if (!fFunded.length) html += '<div class="empty">No funded accounts for this firm yet.</div>';
+          else {
+            html += '<div class="cards">';
+            fFunded.forEach(function (a) { html += fundedCard(a); });
+            html += "</div>";
+          }
+
+          html += '<h3 class="sub-head">Evaluation pipeline</h3>';
+          if (!fEvals.length) html += '<div class="empty">No evaluation accounts for this firm.</div>';
+          else {
+            html += '<div class="eval-list">';
+            fEvals.forEach(function (a) { html += evalRow(a); });
+            html += "</div>";
+          }
+        });
+        $("firms").innerHTML = html;
+        if (typeof updateFleetCount === "function") updateFleetCount();
+      }
+      function stat(num, lbl) {
+        return '<div class="stat"><div class="num">' + num + '</div><div class="lbl">' + lbl + "</div></div>";
+      }
+
+      function fundedCard(a) {
+        var s = fundedStats(a);
+        var R = rules(a);
+        var pl = a.balance - R.startBalance + s.paid;
+        var pct = s.qualifies ? 100 : (s.progress !== undefined ? s.progress : 0);
+        var progressHtml = '<div class="payout-progress' + (s.qualifies ? " done" : "") + '">' +
+          '<div class="pp-top"><span class="pp-label">' + (s.qualifies ? "Payout ready" : "Progress to payout") + '</span><span class="pp-pct">' + pct + '%</span></div>' +
+          '<div class="pp-bar" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Progress to payout for ' + esc(a.id) + '"><div class="pp-fill" style="width:' + pct + '%"></div></div>' +
+          (s.qualifies
+            ? '<div class="pp-binding">All criteria met — qualifies for payout</div>'
+            : '<div class="pp-binding">Furthest to go: <b>' + esc(s.binding || "—") + '</b>' + (s.bindingDetail ? " — " + esc(s.bindingDetail) : "") + "</div>") +
+          "</div>";
+        var badge = s.qualifies
+          ? '<div class="badge ok">QUALIFIES FOR PAYOUT — up to ' + money(s.available) + " (you keep " + money(s.available * s.splitNow / 100) + " at " + s.splitNow + "%)</div>"
+          : '<div class="badge no">Not yet — payout #' + (s.payoutCount + 1) + " · up to " + money(s.available) + " available so far</div>";
+        var checks = s.checks.map(function (c) {
+          return '<li class="' + (c.pass ? "pass" : "fail") + '"><span class="mark">' + (c.pass ? "✓" : "!") + "</span><span>" +
+            esc(c.label) + (c.detail ? '<span class="detail">' + esc(c.detail) + "</span>" : "") + "</span></li>";
+        }).join("");
+        var kv = s.kv.map(function (p) {
+          return '<div class="k">' + esc(p[0]) + '</div><div class="v">' + esc(String(p[1])) + "</div>";
+        }).join("");
+        var hist = "";
+        if (a.payouts.length) {
+          hist = '<div class="history"><b>Payout history</b>' + a.payouts.map(function (p) {
+            return "<div><span>" + esc(p.date) + "</span><span>" + money(p.amount) + "</span></div>";
+          }).join("") + "</div>";
+        }
+        var recent = "";
+        if (a.days && a.days.length) {
+          var last = a.days.slice(-5).reverse();
+          recent = '<div class="history"><b>Recent days</b>' + last.map(function (d) {
+            return "<div><span>" + esc(d.date) + '</span><span class="' + (d.pnl >= 0 ? "" : "") + '">' + (d.pnl < 0 ? "−" + money(-d.pnl) : "+" + money(d.pnl)) + "</span></div>";
+          }).join("") + "</div>";
+        }
+        return '<article class="card' + (s.qualifies ? " qualifies" : "") + '">' +
+          '<div class="card-top"><div><div class="acct-id">' + esc(a.id) + '</div>' +
+          '<div class="acct-meta">' + esc(firmOf(a.firm).program) + "</div></div></div>" +
+          '<div class="balance">' + money(a.balance) + ' <span class="pl ' + (pl >= 0 ? "pos" : "neg") + '">(' + (pl < 0 ? "−" + money(-pl) : "+" + money(pl)) + " lifetime)</span></div>" +
+          '<div class="kv">' + kv + "</div>" + progressHtml + badge +
+          '<ul class="checks">' + checks + "</ul>" + hist + recent +
+          '<div class="card-actions">' +
+            '<button class="btn ghost small" data-action="addday" data-id="' + esc(a.id) + '" title="Only for when this one account differed from the copied result">Correct single day</button>' +
+            '<button class="btn ghost small" data-action="editbal" data-id="' + esc(a.id) + '">Edit balance</button>' +
+            '<button class="btn gold small" data-action="payout" data-id="' + esc(a.id) + '"' + (s.available > 0 ? "" : " disabled") + '>Log payout</button>' +
+            '<button class="btn danger small" data-action="remove" data-id="' + esc(a.id) + '">Remove</button>' +
+          "</div></article>";
+      }
+
+      function evalRow(a) {
+        var s = evalStats(a);
+        var R = rules(a);
+        var epct = s.passed ? 100 : Math.floor(s.progress);
+        if (!s.passed && epct >= 100) epct = 99;
+        return '<div class="eval-row"><span class="id">' + esc(a.id) + "</span>" +
+          '<span class="fig">Balance <b>' + money(a.balance) + "</b></span>" +
+          '<span class="fig">To target <b class="' + (s.needed <= 0 ? "good" : "") + '">' + (s.needed <= 0 ? "Passed" : money(s.needed)) + "</b></span>" +
+          '<span class="fig">Cushion above floor ' + money(s.floor) + ': <b class="' + (s.cushion < 500 ? "warn" : "") + '">' + money(s.cushion) + "</b></span>" +
+          '<span class="fig">Days traded <b>' + (a.daysTraded || 0) + "</b></span>" +
+          '<div class="eval-progress payout-progress' + (s.passed ? " done" : "") + '" style="background:transparent;border:none;padding:0;">' +
+            '<div class="pp-top"><span class="pp-label">To ' + money(R.evalTarget, 0) + ' target</span><span class="pp-pct">' + epct + '%</span></div>' +
+            '<div class="pp-bar" role="progressbar" aria-valuenow="' + epct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Progress to evaluation target for ' + esc(a.id) + '"><div class="pp-fill" style="width:' + epct + '%"></div></div>' +
+          "</div>" +
+          '<span class="actions">' +
+            '<button class="btn small" data-action="editbal" data-id="' + esc(a.id) + '">Update</button>' +
+            '<button class="btn gold small" data-action="promote" data-id="' + esc(a.id) + '">Passed → Funded</button>' +
+            '<button class="btn danger small" data-action="remove" data-id="' + esc(a.id) + '">Remove</button>' +
+          "</span></div>";
+      }
+
+      /* ---------------- modal plumbing ---------------- */
+      function openModal(html, wide) {
+        var box = $("modalBox");
+        box.className = "modal" + (wide ? " wide" : "");
+        box.innerHTML = html;
+        $("overlay").classList.add("open");
+      }
+      function closeModal() { $("overlay").classList.remove("open"); $("modalBox").innerHTML = ""; }
+      $("overlay").addEventListener("click", function (e) { if (e.target === $("overlay")) closeModal(); });
+      function actions(cancelLabel) {
+        return '<div class="modal-actions"><button class="btn ghost" data-close="1">' + (cancelLabel || "Cancel") +
+          '</button><button class="btn gold" id="modalSave">Save</button></div>';
+      }
+      function firmOptions(sel) {
+        return FIRMS.map(function (f) {
+          return '<option value="' + f.key + '"' + (f.key === sel ? " selected" : "") + ">" + esc(f.name) + " — " + esc(f.program) + "</option>";
+        }).join("");
+      }
+
+      /* ---------------- dialogs ---------------- */
+      function addAccountDialog() {
+        openModal("<h3>Add account</h3><p class='hint'>One account. For a bulk buy, use Bulk add instead.</p>" +
+          '<div class="report" id="mReport"></div>' +
+          '<div class="field"><label>Firm / program</label><select id="mFirm">' + firmOptions("apex") + "</select></div>" +
+          '<div class="field"><label>Stage</label><select id="mStage"><option value="funded">Funded</option><option value="eval">Evaluation</option></select></div>' +
+          '<div class="field"><label>Account ID</label><input id="mId" type="text" autocomplete="off" /></div>' +
+          '<div class="form-grid"><div class="field"><label>Current balance ($)</label><input id="mBal" type="number" step="0.01" value="50000" /></div>' +
+          '<div class="field"><label>Peak balance ($) — blank = balance</label><input id="mPeak" type="number" step="0.01" /></div></div>' +
+          actions());
+        $("modalSave").onclick = function () {
+          var id = $("mId").value.trim();
+          var rep = $("mReport");
+          if (!id) { rep.textContent = "Enter an account ID."; rep.className = "report show err"; return; }
+          if (findAccount(id)) { rep.textContent = "That account ID is already on the board."; rep.className = "report show err"; return; }
+          var firm = $("mFirm").value, stage = $("mStage").value;
+          var bal = parseFloat($("mBal").value);
+          if (isNaN(bal)) { rep.textContent = "Enter a valid balance."; rep.className = "report show err"; return; }
+          var peak = parseFloat($("mPeak").value);
+          if (isNaN(peak)) peak = Math.max(state.rulesByFirm[firm].startBalance, bal);
+          var a = acct(id, firm, stage, bal, peak);
+          a.cycleStart = state.rulesByFirm[firm].startBalance;
+          state.accounts.push(a); save(); render(); closeModal(); toast("Added " + id);
+        };
+      }
+
+      function bulkAddDialog() {
+        openModal("<h3>Bulk add accounts</h3><p class='hint'>Shared firm, program and stage for the whole batch. Paste one account ID per line — or <b>ID, balance</b> per line when balances differ. Duplicates are flagged and skipped, never double-added.</p>" +
+          '<div class="report" id="mReport"></div>' +
+          '<div class="field"><label>Firm / program</label><select id="mFirm">' + firmOptions("apex") + "</select></div>" +
+          '<div class="form-grid"><div class="field"><label>Stage</label><select id="mStage"><option value="funded">Funded</option><option value="eval">Evaluation</option></select></div>' +
+          '<div class="field"><label>Default balance ($) if a line has none</label><input id="mBal" type="number" step="0.01" value="50000" /></div></div>' +
+          '<div class="field"><label>Account IDs — one per line</label><textarea id="mIds" placeholder="PAAPEX3081750000031&#10;PAAPEX3081750000032, 51250.40"></textarea></div>' +
+          actions("Close"), true);
+        $("modalSave").textContent = "Add accounts";
+        $("modalSave").onclick = function () {
+          var firm = $("mFirm").value, stage = $("mStage").value;
+          var defBal = parseFloat($("mBal").value); if (isNaN(defBal)) defBal = state.rulesByFirm[firm].startBalance;
+          var lines = $("mIds").value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+          var rep = $("mReport");
+          if (!lines.length) { rep.textContent = "Paste at least one account ID."; rep.className = "report show err"; return; }
+          var added = [], dups = [], bad = [], seen = {};
+          lines.forEach(function (line) {
+            var parts = line.split(",");
+            var id = (parts[0] || "").trim();
+            var bal = parts.length > 1 ? parseFloat(String(parts[1]).replace(/[$\s]/g, "")) : defBal;
+            if (!id) { bad.push(line); return; }
+            if (seen[id] || findAccount(id)) { dups.push(id); return; }
+            if (isNaN(bal)) { bad.push(line); return; }
+            seen[id] = true;
+            var a = acct(id, firm, stage, bal, Math.max(state.rulesByFirm[firm].startBalance, bal));
+            a.cycleStart = state.rulesByFirm[firm].startBalance;
+            state.accounts.push(a); added.push(id);
+          });
+          save(); render();
+          var msg = "Added " + added.length + " account(s).";
+          if (dups.length) msg += "\nSkipped duplicates (already on the board): " + dups.join(", ");
+          if (bad.length) msg += "\nCould not read: " + bad.join(" · ");
+          rep.textContent = msg; rep.className = "report show" + (added.length ? "" : " err");
+          if (added.length) toast("Added " + added.length + " account(s)");
+        };
+      }
+
+      function rulesDialog(firmKey) {
+        var R = state.rulesByFirm[firmKey];
+        var fields = Object.keys(R).map(function (k) {
+          return '<div class="field"><label>' + esc(RULE_LABELS[k] || k) + '</label><input type="number" step="any" data-rule="' + k + '" value="' + R[k] + '" /></div>';
+        }).join("");
+        openModal("<h3>Edit rules — " + esc(firmOf(firmKey).name) + "</h3><p class='hint'>" + esc(firmOf(firmKey).program) +
+          ". These values drive every checklist, badge and payout amount for this firm.</p>" +
+          '<div class="form-grid">' + fields + "</div>" + actions(), true);
+        $("modalSave").onclick = function () {
+          var inputs = $("modalBox").querySelectorAll("[data-rule]");
+          inputs.forEach(function (inp) {
+            var v = parseFloat(inp.value);
+            if (!isNaN(v)) state.rulesByFirm[firmKey][inp.getAttribute("data-rule")] = v;
+          });
+          save(); render(); closeModal(); toast("Rules updated for " + firmOf(firmKey).name);
+        };
+      }
+
+      function applyDayToAccount(a, date, pnl) {
+        a.days = a.days || [];
+        a.days.push({ date: date || todayStr(), pnl: pnl });
+        a.balance = Math.round((a.balance + pnl) * 100) / 100;
+        if (a.balance > a.peak) a.peak = a.balance;
+        if (a.stage === "eval") a.daysTraded = (a.daysTraded || 0) + 1;
+      }
+
+      function applyFleetDay(date, pnlByFirm, firmKeys) {
+        var count = 0;
+        state.accounts.forEach(function (a) {
+          if (firmKeys.indexOf(a.firm) === -1) return;
+          var pnl = pnlByFirm[a.firm];
+          if (pnl === null || pnl === undefined || isNaN(pnl)) return;
+          applyDayToAccount(a, date, pnl);
+          count++;
+        });
+        return count;
+      }
+
+      function firmDayDialog(firmKey) {
+        var f = firmOf(firmKey);
+        var list = state.accounts.filter(function (a) { return a.firm === firmKey; });
+        var fundedN = list.filter(function (a) { return a.stage === "funded"; }).length;
+        var evalN = list.length - fundedN;
+        openModal("<h3>Log day for all " + esc(f.name) + " accounts</h3><p class='hint'>Copy trade: this one amount posts to <b>all " + list.length + " " + esc(f.name) + " accounts</b> (" + fundedN + " funded" + (evalN ? " + " + evalN + " evaluations" : "") + ") — balances, peaks, day counts and checklists all update together. For a single account that differed, use “Correct single day” on its card instead.</p>" +
+          '<div class="report" id="mReport"></div>' +
+          '<div class="form-grid"><div class="field"><label>Date</label><input id="mDate" type="date" value="' + todayStr() + '" /></div>' +
+          '<div class="field"><label>Day P&amp;L for every ' + esc(f.name) + ' account ($) — negative for a losing day</label><input id="mPnl" type="number" step="0.01" /></div></div>' +
+          actions());
+        $("modalSave").textContent = "Apply to " + list.length + " accounts";
+        $("modalSave").onclick = function () {
+          var pnl = parseFloat($("mPnl").value), rep = $("mReport");
+          if (isNaN(pnl)) { rep.textContent = "Enter the day's P&L."; rep.className = "report show err"; return; }
+          if (!list.length) { rep.textContent = "No accounts for this firm yet."; rep.className = "report show err"; return; }
+          var date = $("mDate").value || todayStr();
+          var pnlByFirm = {}; pnlByFirm[firmKey] = pnl;
+          var n = applyFleetDay(date, pnlByFirm, [firmKey]);
+          save(); render(); updateFleetCount(); closeModal();
+          toast("Logged " + (pnl < 0 ? "−" + money(-pnl) : "+" + money(pnl)) + " to " + n + " " + f.name + " account(s)");
+        };
+      }
+
+      function addDayDialog(a) {
+        openModal("<h3>Correct single day — " + esc(a.id) + "</h3><p class='hint'>Correction tool only — for the rare day this one account differed from the copied result (different fill or slippage). For a normal trading day, use <b>Log Today's Result</b> at the top so every copied account updates at once. This entry updates only this account's balance, peak and cycle counts.</p>" +
+          '<div class="report" id="mReport"></div>' +
+          '<div class="form-grid"><div class="field"><label>Date</label><input id="mDate" type="date" value="' + todayStr() + '" /></div>' +
+          '<div class="field"><label>Day P&amp;L ($) — negative for a losing day</label><input id="mPnl" type="number" step="0.01" /></div></div>' +
+          actions());
+        $("modalSave").onclick = function () {
+          var pnl = parseFloat($("mPnl").value), rep = $("mReport");
+          if (isNaN(pnl)) { rep.textContent = "Enter the day's P&L."; rep.className = "report show err"; return; }
+          applyDayToAccount(a, $("mDate").value || todayStr(), pnl);
+          save(); render(); closeModal(); toast("Correction logged for " + a.id + " — balance now " + money(a.balance));
+        };
+      }
+
+      function editBalanceDialog(a) {
+        var extra = "";
+        if (a.firm === "tradeify" && a.stage === "funded") {
+          extra = '<div class="field"><label>Winning days already banked this cycle (starting count)</label><input id="mWin" type="number" step="1" value="' + (a.winBase || 0) + '" /><div class="sub-hint">Dashboard showed 3 of 5 at setup. Logged winning days add on top of this.</div></div>';
+        }
+        if (a.stage === "eval") {
+          extra = '<div class="field"><label>Days traded so far</label><input id="mDays" type="number" step="1" value="' + (a.daysTraded || 0) + '" /></div>';
+        }
+        openModal("<h3>" + (a.stage === "eval" ? "Update evaluation" : "Edit balance") + " — " + esc(a.id) + "</h3>" +
+          "<p class='hint'>Set the balance to match the firm dashboard. Peak drives the trailing drawdown floor.</p>" +
+          '<div class="report" id="mReport"></div>' +
+          '<div class="form-grid"><div class="field"><label>Balance ($)</label><input id="mBal" type="number" step="0.01" value="' + a.balance + '" /></div>' +
+          '<div class="field"><label>Peak balance ($)</label><input id="mPeak" type="number" step="0.01" value="' + a.peak + '" /></div></div>' + extra +
+          actions());
+        $("modalSave").onclick = function () {
+          var bal = parseFloat($("mBal").value), peak = parseFloat($("mPeak").value), rep = $("mReport");
+          if (isNaN(bal)) { rep.textContent = "Enter a valid balance."; rep.className = "report show err"; return; }
+          a.balance = bal;
+          if (!isNaN(peak)) a.peak = peak; else if (bal > a.peak) a.peak = bal;
+          var w = $("mWin"); if (w) { var wv = parseInt(w.value, 10); if (!isNaN(wv)) a.winBase = wv; }
+          var d = $("mDays"); if (d) { var dv = parseInt(d.value, 10); if (!isNaN(dv)) a.daysTraded = dv; }
+          save(); render(); closeModal(); toast("Updated " + a.id);
+        };
+      }
+
+      function payoutDialog(a) {
+        var s = fundedStats(a);
+        var youKeep = function (amt) { return Math.round(amt * s.splitNow) / 100; };
+        openModal("<h3>Log payout — " + esc(a.id) + "</h3><p class='hint'>Records the payout, reduces the balance, and resets the cycle (day list clears, cycle profit restarts). Split on this account: <b>" + s.splitNow + "%</b> to you.</p>" +
+          '<div class="report" id="mReport"></div>' +
+          '<div class="form-grid"><div class="field"><label>Date</label><input id="mDate" type="date" value="' + todayStr() + '" /></div>' +
+          '<div class="field"><label>Amount ($) — max available ' + money(s.available) + '</label><input id="mAmt" type="number" step="0.01" value="' + s.available + '" /></div></div>' +
+          '<p class="hint" id="mKeep">You keep ' + money(youKeep(s.available)) + " of " + money(s.available) + ".</p>" +
+          actions());
+        $("mAmt").addEventListener("input", function () {
+          var v = parseFloat($("mAmt").value);
+          $("mKeep").textContent = isNaN(v) ? "" : "You keep " + money(youKeep(v)) + " of " + money(v) + ".";
+        });
+        $("modalSave").onclick = function () {
+          var amt = parseFloat($("mAmt").value), rep = $("mReport");
+          if (isNaN(amt) || amt <= 0) { rep.textContent = "Enter a valid payout amount."; rep.className = "report show err"; return; }
+          if (amt > s.available + 0.005) { rep.textContent = "That is more than the " + money(s.available) + " available under the rules."; rep.className = "report show err"; return; }
+          a.payouts.push({ date: $("mDate").value || todayStr(), amount: amt });
+          a.balance = Math.round((a.balance - amt) * 100) / 100;
+          a.days = []; a.seedBiggest = 0; a.winBase = 0;
+          a.cycleStart = a.balance;
+          save(); render(); closeModal(); toast("Payout of " + money(amt) + " logged for " + a.id);
+        };
+      }
+
+      function promoteDialog(a) {
+        var R = rules(a);
+        openModal("<h3>Passed → Funded — " + esc(a.id) + "</h3><p class='hint'>The evaluation is removed and replaced with the new funded account ID the firm issues.</p>" +
+          '<div class="report" id="mReport"></div>' +
+          '<div class="field"><label>New funded account ID</label><input id="mNewId" type="text" autocomplete="off" /></div>' +
+          '<div class="field"><label>Funded starting balance ($)</label><input id="mBal" type="number" step="0.01" value="' + R.startBalance + '" /></div>' +
+          actions());
+        $("modalSave").onclick = function () {
+          var nid = $("mNewId").value.trim(), rep = $("mReport");
+          if (!nid) { rep.textContent = "Enter the new funded account ID."; rep.className = "report show err"; return; }
+          if (findAccount(nid)) { rep.textContent = "That ID is already on the board."; rep.className = "report show err"; return; }
+          var bal = parseFloat($("mBal").value); if (isNaN(bal)) bal = R.startBalance;
+          state.accounts = state.accounts.filter(function (x) { return x.id !== a.id; });
+          var na = acct(nid, a.firm, "funded", bal, Math.max(R.startBalance, bal));
+          na.cycleStart = R.startBalance;
+          state.accounts.push(na);
+          save(); render(); closeModal(); toast(a.id + " promoted to funded " + nid);
+        };
+      }
+
+      function removeDialog(a) {
+        openModal("<h3>Remove " + esc(a.id) + "?</h3><p class='hint'>This deletes the account and its logged days and payouts from this browser. Export a backup first if you might need it.</p>" +
+          '<div class="modal-actions"><button class="btn ghost" data-close="1">Keep it</button>' +
+          '<button class="btn danger" id="modalSave">Remove account</button></div>');
+        $("modalSave").onclick = function () {
+          state.accounts = state.accounts.filter(function (x) { return x.id !== a.id; });
+          save(); render(); closeModal(); toast("Removed " + a.id);
+        };
+      }
+
+      /* ---------------- wiring ---------------- */
+      document.addEventListener("click", function (e) {
+        var close = e.target.closest("[data-close]");
+        if (close) { closeModal(); return; }
+        var btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        var action = btn.getAttribute("data-action");
+        if (action === "rules") { rulesDialog(btn.getAttribute("data-firm")); return; }
+        if (action === "firmday") { firmDayDialog(btn.getAttribute("data-firm")); return; }
+        var a = findAccount(btn.getAttribute("data-id"));
+        if (!a) return;
+        if (action === "addday") addDayDialog(a);
+        else if (action === "editbal") editBalanceDialog(a);
+        else if (action === "payout") payoutDialog(a);
+        else if (action === "promote") promoteDialog(a);
+        else if (action === "remove") removeDialog(a);
+      });
+      /* ---------------- fleet (copy-trade) day entry ---------------- */
+      var FLEET_OVERRIDE_IDS = { apex: "fleetPnlApex", lucid: "fleetPnlLucid", tradeify: "fleetPnlTradeify" };
+      function selectedFleetFirms() {
+        var out = [];
+        document.querySelectorAll("[data-fleet-firm]").forEach(function (cb) { if (cb.checked) out.push(cb.getAttribute("data-fleet-firm")); });
+        return out;
+      }
+      function updateFleetCount() {
+        var el = $("fleetCount"); if (!el) return;
+        var firms = selectedFleetFirms();
+        var list = state.accounts.filter(function (a) { return firms.indexOf(a.firm) !== -1; });
+        var fundedN = list.filter(function (a) { return a.stage === "funded"; }).length;
+        var evalN = list.length - fundedN;
+        el.textContent = list.length
+          ? "Will post to " + list.length + " account" + (list.length === 1 ? "" : "s") + " — " + fundedN + " funded" + (evalN ? " + " + evalN + " evaluations" : "")
+          : "No firms selected — tick at least one firm above.";
+        var btn = $("btnFleetApply"); if (btn) btn.disabled = !list.length;
+      }
+      function fleetReportMsg(msg, isErr) {
+        var rep = $("fleetReport"); if (!rep) return;
+        if (!msg) { rep.textContent = ""; rep.className = "report"; return; }
+        rep.textContent = msg; rep.className = "report show" + (isErr ? " err" : "");
+      }
+      (function wireFleetPanel() {
+        var dateEl = $("fleetDate"); if (dateEl && !dateEl.value) dateEl.value = todayStr();
+        document.querySelectorAll("[data-fleet-firm]").forEach(function (cb) {
+          cb.addEventListener("change", function () { fleetReportMsg(""); var b = $("btnFleetApply"); if (b) b.textContent = "Apply to all copied accounts"; updateFleetCount(); });
+        });
+        ["fleetPnl", "fleetPnlApex", "fleetPnlLucid", "fleetPnlTradeify", "fleetDate"].forEach(function (id) {
+          var inp = $(id); if (inp) inp.addEventListener("input", function () { var b = $("btnFleetApply"); if (b) b.textContent = "Apply to all copied accounts"; });
+        });
+        var applyBtn = $("btnFleetApply");
+        if (applyBtn) applyBtn.addEventListener("click", function () {
+          var firms = selectedFleetFirms();
+          if (!firms.length) { fleetReportMsg("Tick at least one firm to post to.", true); return; }
+          var date = ($("fleetDate") && $("fleetDate").value) || todayStr();
+          var masterRaw = $("fleetPnl").value.trim();
+          var master = masterRaw === "" ? NaN : parseFloat(masterRaw);
+          var pnlByFirm = {}, missing = [];
+          firms.forEach(function (fk) {
+            var ovEl = $(FLEET_OVERRIDE_IDS[fk]);
+            var ovRaw = ovEl ? ovEl.value.trim() : "";
+            var v = ovRaw !== "" ? parseFloat(ovRaw) : master;
+            if (isNaN(v)) missing.push(firmOf(fk).name);
+            else pnlByFirm[fk] = v;
+          });
+          if (missing.length) { fleetReportMsg("Enter a master P&L — or a per-firm amount — for: " + missing.join(", ") + ".", true); return; }
+          var targets = state.accounts.filter(function (a) { return firms.indexOf(a.firm) !== -1; });
+          if (!targets.length) { fleetReportMsg("No accounts on the board for the selected firm(s) yet.", true); return; }
+          /* Duplicate-date guard: first click warns, second click confirms */
+          var already = targets.filter(function (a) { return (a.days || []).some(function (d) { return d.date === date; }); }).length;
+          if (already && applyBtn.textContent.indexOf("Confirm") !== 0) {
+            fleetReportMsg(already + " of the " + targets.length + " selected account(s) already have an entry for " + date + ". If this is a second, separate result for that date, click Confirm to post it anyway — otherwise change the date.", true);
+            applyBtn.textContent = "Confirm — post anyway";
+            return;
+          }
+          var n = applyFleetDay(date, pnlByFirm, firms);
+          save(); render();
+          ["fleetPnl", "fleetPnlApex", "fleetPnlLucid", "fleetPnlTradeify"].forEach(function (id) { var inp = $(id); if (inp) inp.value = ""; });
+          applyBtn.textContent = "Apply to all copied accounts";
+          var summary = firms.map(function (fk) {
+            var v = pnlByFirm[fk];
+            return firmOf(fk).name.split(" ")[0] + " " + (v < 0 ? "−" + money(-v) : "+" + money(v));
+          }).join(" · ");
+          fleetReportMsg("Posted for " + date + " to " + n + " account(s): " + summary + ". Balances, day counts and payout progress updated.");
+          toast("Fleet day logged — " + n + " account(s) updated");
+        });
+        updateFleetCount();
+      })();
+
+      $("btnAdd").addEventListener("click", addAccountDialog);
+      $("btnBulk").addEventListener("click", bulkAddDialog);
+      $("btnExport").addEventListener("click", function () {
+        var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.href = url; link.download = "prop-payout-tracker-backup.json";
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        toast("Backup downloaded");
+      });
+      $("btnImport").addEventListener("click", function () { $("fileImport").click(); });
+      $("fileImport").addEventListener("change", function () {
+        var file = this.files && this.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            var parsed = JSON.parse(String(reader.result));
+            if (!parsed || !Array.isArray(parsed.accounts) || !parsed.rulesByFirm) throw new Error("bad file");
+            state = parsed;
+            var fresh = defaultState();
+            FIRMS.forEach(function (f) {
+              state.rulesByFirm[f.key] = Object.assign({}, DEFAULT_RULES[f.key], state.rulesByFirm[f.key] || {});
+            });
+            state.accounts.forEach(function (a) {
+              if (!a.firm) a.firm = "apex";
+              if (!a.days) a.days = []; if (!a.payouts) a.payouts = [];
+              if (a.cycleStart === undefined) a.cycleStart = state.rulesByFirm[a.firm].startBalance;
+              if (a.seedBiggest === undefined) a.seedBiggest = 0;
+              if (a.winBase === undefined) a.winBase = 0;
+              if (a.daysTraded === undefined) a.daysTraded = 0;
+            });
+            save(); render(); toast("Backup imported");
+          } catch (err) { toast("That file could not be imported"); }
+        };
+        reader.readAsText(file);
+        this.value = "";
+      });
+
+      render();
+    </script>
+  </body>
+</html>
